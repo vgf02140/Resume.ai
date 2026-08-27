@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.js"></script>
 
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -33,7 +32,6 @@
     <style type="text/tailwindcss">
         @layer utilities {
             .card { @apply bg-dark-900 border border-dark-700 rounded-2xl p-7 shadow-lg; }
-            .card-sm { @apply bg-dark-900 border border-dark-700 rounded-xl p-4 shadow-md; }
             .btn { @apply bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 px-5 rounded-xl font-medium transition-all; }
             .btn-sm { @apply py-1.5 px-3 text-sm rounded-lg; }
             .btn-outline { @apply border border-indigo-500 text-indigo-400 hover:bg-indigo-900/30 py-2.5 px-5 rounded-xl font-medium transition-all; }
@@ -116,7 +114,7 @@
             <div class="aba" data-aba="arquivos" onclick="irParaAba('arquivos')">📁 Arquivos</div>
             <div class="aba" data-aba="sugestoes" onclick="irParaAba('sugestoes')">💡 Sugestões</div>
             <div class="aba" data-aba="duvidas" onclick="irParaAba('duvidas')">❓ Dúvidas</div>
-            <div id="abaAdmin" class="aba hidden" data-aba="admin" onclick="irParaAba('admin')">⚙️ Admin</div>
+            <div class="aba" data-aba="admin" onclick="irParaAba('admin')">⚙️ Configurações</div>
         </div>
     </nav>
 
@@ -133,7 +131,7 @@
             </div>
         </section>
 
-        <!-- RESUMIR PDF ✅ CORRIGIDO -->
+        <!-- RESUMIR PDF -->
         <section id="aba-pdf" class="conteudo-aba">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">📄 Resumir PDF com IA</h2>
             <div class="card mb-6">
@@ -147,7 +145,7 @@
             </div>
         </section>
 
-        <!-- SIMULADOS ✅ CORRIGIDO -->
+        <!-- SIMULADOS -->
         <section id="aba-simulados" class="conteudo-aba">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">📝 Gerar Simulado</h2>
             <div class="card mb-6">
@@ -160,7 +158,7 @@
             <div id="areaSimulado" class="space-y-6"></div>
         </section>
 
-        <!-- CRONOGRAMA ✅ CORRIGIDO - Agora captura TUDO -->
+        <!-- CRONOGRAMA -->
         <section id="aba-cronograma" class="conteudo-aba">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">📅 Cronograma Inteligente</h2>
             <div class="card mb-6">
@@ -206,14 +204,8 @@
             <div class="card mb-6">
                 <h3 class="text-lg font-semibold mb-4">📤 Enviar Arquivo</h3>
                 <div class="grid md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block mb-2 text-sm">Nome do Arquivo</label>
-                        <input type="text" id="nomeArquivo" placeholder="Nome..." class="input">
-                    </div>
-                    <div>
-                        <label class="block mb-2 text-sm">Pasta de Destino</label>
-                        <select id="pastaDestino" class="input"><option value="">📁 Raiz</option></select>
-                    </div>
+                    <div><label class="block mb-2 text-sm">Nome do Arquivo</label><input type="text" id="nomeArquivo" placeholder="Nome..." class="input"></div>
+                    <div><label class="block mb-2 text-sm">Pasta de Destino</label><select id="pastaDestino" class="input"><option value="">📁 Raiz</option></select></div>
                 </div>
                 <input type="file" id="arquivoSelecionado" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.jpg,.png" class="input mb-3">
                 <div id="barraProgresso" class="progress-bar hidden mb-3"><div id="pctFill" class="progress-fill" style="width:0%"></div></div>
@@ -245,7 +237,7 @@
             <div id="listaSugestoes"></div>
         </section>
 
-        <!-- DÚVIDAS ✅ CORRIGIDO - IA responde -->
+        <!-- DÚVIDAS -->
         <section id="aba-duvidas" class="conteudo-aba">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">❓ Dúvidas com IA</h2>
             <div id="caixaChat" class="card mb-4 h-[450px] overflow-y-auto">
@@ -257,18 +249,26 @@
             </div>
         </section>
 
-        <!-- ADMIN -->
+        <!-- ⚙️ CONFIGURAÇÕES (ADMIN) → VOLTOU! -->
         <section id="aba-admin" class="conteudo-aba">
-            <h2 class="text-2xl font-bold mb-6 text-indigo-400">⚙️ Painel Administrativo</h2>
+            <h2 class="text-2xl font-bold mb-6 text-indigo-400">⚙️ Configurações da IA</h2>
             <div class="card mb-6">
                 <h3 class="text-lg font-semibold mb-3">🔑 Chave da API Gemini</h3>
                 <input type="text" id="chaveAPI" class="input mb-3" placeholder="AIzaSy...">
-                <button onclick="salvarChave()" class="btn">Salvar Chave</button>
-                <p class="text-xs text-slate-400 mt-2">Modelo: gemini-1.5-flash (estável)</p>
+                <button onclick="salvarChave()" class="btn">💾 Salvar Chave</button>
+                <p class="text-xs text-slate-400 mt-2">Modelo em uso: gemini-1.5-flash (gratuito)</p>
+                <p class="text-xs text-green-400 mt-1">💡 Sua chave já está salva! Se quiser trocar, cole acima e clique em Salvar.</p>
             </div>
             <div class="card">
-                <h3 class="text-lg font-semibold mb-4">💡 Sugestões Recebidas</h3>
-                <div id="sugestoesAdmin"></div>
+                <h3 class="text-lg font-semibold mb-4">ℹ️ Como conseguir uma chave GRÁTIS:</h3>
+                <ol class="text-sm text-slate-300 space-y-2 list-decimal list-inside">
+                    <li>Acesse: <strong>ai.google.dev</strong> (ou aistudio.google.com)</li>
+                    <li>Faça login com sua conta Google</li>
+                    <li>Clique em "Criar Chave de API"</li>
+                    <li>Copie e cole no campo acima</li>
+                    <li>Clique em Salvar → Pronto! ✅</li>
+                </ol>
+                <p class="text-xs text-slate-400 mt-3">⚠️ É totalmente gratuito, não precisa cartão de crédito!</p>
             </div>
         </section>
     </main>
@@ -287,16 +287,19 @@ const firebaseConfig = {
 };
 
 const ADMIN_EMAIL = "vitoriagilfigueiredo1@gmail.com";
-// ✅ MODELO ESTÁVEL E GARANTIDO
 const MODELO = "gemini-1.5-flash";
 const API_URL = `https://generativelanguage.googleapis.com/v1/models/${MODELO}:generateContent`;
+
+// ✅ CHAVE PADRÃO SALVA NO CÓDIGO (não precisa digitar!)
+let CHAVE_PADRAO = "AIzaSyDe8Koh4JIy0vJdDwrAsCHr42Ci2Ckv5Tc";
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-let usuario = null, ehAdmin = false, CHAVE = "";
+let usuario = null, ehAdmin = false;
+let CHAVE = localStorage.getItem("chaveAPI") || CHAVE_PADRAO;
 let pastaAtual = null, caminho = [];
 
 // ==============================================
@@ -336,8 +339,10 @@ auth.onAuthStateChanged(async u => {
         usuario = u;
         const doc = await db.collection("usuarios").doc(u.uid).get();
         ehAdmin = doc.exists ? doc.data().admin : u.email === ADMIN_EMAIL;
-        const cfg = await db.collection("configuracoes").doc("gemini").get();
-        if (cfg.exists) CHAVE = cfg.data().chave || "";
+
+        // ✅ Carrega a chave salva ou usa a padrão
+        const chaveSalva = localStorage.getItem("chaveAPI");
+        if (chaveSalva) CHAVE = chaveSalva;
 
         document.getElementById("telaLogin").classList.add("hidden");
         document.getElementById("cabecalho").classList.remove("hidden");
@@ -345,7 +350,9 @@ auth.onAuthStateChanged(async u => {
         document.getElementById("conteudoAbas").classList.remove("hidden");
         document.getElementById("nomeUsuario").textContent = u.displayName || u.email;
 
-        if (ehAdmin) { document.getElementById("abaAdmin").classList.remove("hidden"); document.getElementById("chaveAPI").value = CHAVE; carregarSugestoesAdmin(); }
+        // ✅ Mostra a chave atual na aba de configurações
+        document.getElementById("chaveAPI").value = CHAVE;
+
         await atualizarSelectPastas(); await carregarConteudo(); await carregarSugestoesUsuario(); adicionarMateria();
     } else {
         usuario = null;
@@ -365,10 +372,21 @@ function irParaAba(nome) {
 }
 
 // ==============================================
-// ✅ CHAMADA DA IA — CORRIGIDA E ROBUSTA
+// ✅ SALVAR CHAVE — VOLTOU! Agora salva automaticamente
+// ==============================================
+function salvarChave() {
+    const novaChave = document.getElementById("chaveAPI").value.trim();
+    if (!novaChave) return alert("Digite uma chave válida!");
+    CHAVE = novaChave;
+    localStorage.setItem("chaveAPI", novaChave);
+    alert("✅ Chave salva com sucesso! Já está funcionando.");
+}
+
+// ==============================================
+// CHAMADA DA IA
 // ==============================================
 async function chamarIA(texto, tentativas = 3) {
-    if (!CHAVE) return "⚠️ Chave da API não configurada. Vá na aba Admin e cole sua chave do Google AI Studio.";
+    if (!CHAVE) return "⚠️ Chave da API não configurada. Vá na aba Configurações e cole sua chave.";
     const hoje = new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'});
     const prompt = `Hoje é ${hoje}. Responda em português, de forma clara e direta: ${texto}`;
 
@@ -386,14 +404,14 @@ async function chamarIA(texto, tentativas = 3) {
             if (dados.error) throw new Error(dados.error.message);
             return dados?.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta.";
         } catch (e) {
-            if (i === tentativas - 1) return "❌ ERRO DA IA: " + e.message + "\n\nVerifique se sua chave está correta na aba Admin.";
+            if (i === tentativas - 1) return "❌ ERRO: " + e.message + "\n\nVerifique sua chave na aba Configurações.";
             await new Promise(r => setTimeout(r, 1500 * (i + 1)));
         }
     }
 }
 
 // ==============================================
-// ✅ DÚVIDAS / CHAT — FUNCIONANDO
+// DÚVIDAS / CHAT
 // ==============================================
 async function perguntarIA() {
     const texto = document.getElementById("pergunta").value.trim();
@@ -409,7 +427,7 @@ async function perguntarIA() {
 }
 
 // ==============================================
-// ✅ SIMULADO — CORRIGIDO COM LIMPEZA DE JSON
+// SIMULADOS
 // ==============================================
 async function gerarSimulado() {
     const tema = document.getElementById("temaSimulado").value.trim();
@@ -418,7 +436,7 @@ async function gerarSimulado() {
     const area = document.getElementById("areaSimulado");
     area.innerHTML = "<p class='loading'>Gerando simulado</p>";
 
-    const prompt = `Gere simulado sobre "${tema}" com ${qtd} questões A/B/C/D. Responda SOMENTE com JSON válido sem comentários:
+    const prompt = `Gere simulado sobre "${tema}" com ${qtd} questões A/B/C/D. Responda SOMENTE com JSON válido:
 {
   "questoes": [
     {"enunciado":"Pergunta?","alternativas":["A) ...","B) ...","C) ...","D) ..."],"correta":"A","explicaCorreta":"Por que certa","explicaErrada":"Por que erradas"}
@@ -427,7 +445,6 @@ async function gerarSimulado() {
 
     const resp = await chamarIA(prompt);
     try {
-        // ✅ LIMPEZA ROBUSTA DO JSON
         let jsonTexto = resp.replace(/```json|```/g, "").trim();
         const inicio = jsonTexto.indexOf("{");
         const fim = jsonTexto.lastIndexOf("}") + 1;
@@ -444,8 +461,8 @@ async function gerarSimulado() {
         });
     } catch (erro) {
         area.innerHTML = `<div class="card text-red-400">
-            ❌ Erro ao ler resposta. Tente novamente.<br>
-            <details class="mt-2"><summary class="cursor-pointer text-indigo-400">Ver resposta da IA</summary>
+            ❌ Erro ao gerar. Tente novamente.<br>
+            <details class="mt-2"><summary class="cursor-pointer text-indigo-400">Ver resposta</summary>
             <pre class="text-xs mt-2 text-slate-400 whitespace-pre-wrap">${resp}</pre></details>
         </div>`;
     }
@@ -453,7 +470,7 @@ async function gerarSimulado() {
 
 function verificarResposta(id, alt, correta, expC, expE) {
     const letras = ["A","B","C","D"];
-    const div = document.getElementById(id), divE = document.getElementById("e"+id);
+    const div = document.getElementById(id), divE = document.getElementById("eq"+id);
     div.querySelectorAll(".option-btn").forEach((b,i)=>{
         b.onclick=null;
         if (letras[i]===correta) b.classList.add("correct");
@@ -466,7 +483,7 @@ function verificarResposta(id, alt, correta, expC, expE) {
 }
 
 // ==============================================
-// ✅ CRONOGRAMA — CORRIGIDO, AGORA CAPTURA TUDO
+// CRONOGRAMA
 // ==============================================
 function adicionarMateria() {
     const id = Date.now();
@@ -483,7 +500,6 @@ function adicionarMateria() {
 }
 
 async function criarCronograma() {
-    // ✅ CAPTURA DADOS COM VALIDAÇÃO
     const materias = [];
     document.querySelectorAll(".materia-item").forEach(bloco => {
         const nome = bloco.querySelector(".nome-materia").value.trim();
@@ -503,16 +519,9 @@ async function criarCronograma() {
     const res = document.getElementById("resultadoCronograma");
     res.innerHTML = "<p class='loading'>Gerando cronograma</p>";
 
-    const prompt = `Crie um cronograma de estudos distribuindo as matérias proporcionalmente ao peso.
-
-MATÉRIAS: ${JSON.stringify(materias)}
-DIAS: ${dias.join(", ")}
-HORÁRIOS: Manhã ${manha}h (leitura), Tarde ${tarde}h (exercícios), Noite ${noite}h (revisão)
-
-Retorne SOMENTE JSON: {"cronograma":[{"dia":"Segunda","blocos":[{"periodo":"Manhã","materia":"Nome","duracao":"Xh","tipo":"Leitura"}]}]}`;
+    const prompt = `Crie um cronograma de estudos. MATÉRIAS: ${JSON.stringify(materias)} | DIAS: ${dias.join(", ")} | Manhã ${manha}h, Tarde ${tarde}h, Noite ${noite}h. Retorne SOMENTE JSON: {"cronograma":[{"dia":"Segunda","blocos":[{"periodo":"Manhã","materia":"Nome","duracao":"Xh","tipo":"Leitura"}]}]}`;
 
     const resp = await chamarIA(prompt);
-
     try {
         let jsonTexto = resp.replace(/```json|```/g, "").trim();
         const inicio = jsonTexto.indexOf("{");
@@ -534,7 +543,7 @@ Retorne SOMENTE JSON: {"cronograma":[{"dia":"Segunda","blocos":[{"periodo":"Manh
 }
 
 // ==============================================
-// ✅ RESUMO DE PDF — CORRIGIDO COM PDF.JS
+// RESUMO DE PDF
 // ==============================================
 async function lerPdfEResumir() {
     const arquivo = document.getElementById("arquivoPdf").files[0];
@@ -545,24 +554,19 @@ async function lerPdfEResumir() {
     textoResumo.textContent = "🔄 Lendo PDF e gerando resumo...";
 
     try {
-        // ✅ LEITURA CORRETA DE PDF USANDO PDF.JS
         const arrayBuffer = await arquivo.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         let textoCompleto = "";
-
         for (let pag = 1; pag <= pdf.numPages; pag++) {
             const pagina = await pdf.getPage(pag);
             const conteudo = await pagina.getTextContent();
-            const textoPagina = conteudo.items.map(i => i.str).join(" ");
-            textoCompleto += textoPagina + " ";
-            if (textoCompleto.length > 15000) break; // Limite para não sobrecarregar
+            textoCompleto += conteudo.items.map(i => i.str).join(" ") + " ";
+            if (textoCompleto.length > 15000) break;
         }
-
-        const resumo = await chamarIA(`Resuma este conteúdo de forma clara e objetiva, destacando os pontos principais:\n\n${textoCompleto}`);
+        const resumo = await chamarIA(`Resuma este conteúdo de forma clara e objetiva:\n\n${textoCompleto}`);
         textoResumo.textContent = resumo;
-
     } catch (erro) {
-        textoResumo.textContent = "❌ Erro ao ler PDF: " + erro.message + "\n\nTente com um arquivo menor.";
+        textoResumo.textContent = "❌ Erro: " + erro.message;
     }
 }
 
@@ -634,29 +638,12 @@ async function enviarSugestao() {
     document.getElementById("textoSugestao").value="";
     alert("✅ Enviado!");
     await carregarSugestoesUsuario();
-    if (ehAdmin) carregarSugestoesAdmin();
 }
 async function carregarSugestoesUsuario() {
     const snaps = await db.collection("sugestoes").where("usuario","==",usuario.uid).orderBy("data","desc").limit(10).get();
     const lista = document.getElementById("listaSugestoes");
     lista.innerHTML = snaps.empty?"<p class='text-slate-500'>Nenhuma sugestão enviada.</p>":"";
     snaps.forEach(d=>{ lista.innerHTML += `<div class="card-sm">${d.data().texto}</div>`; });
-}
-async function carregarSugestoesAdmin() {
-    const snaps = await db.collection("sugestoes").orderBy("data","desc").limit(50).get();
-    const lista = document.getElementById("sugestoesAdmin");
-    lista.innerHTML = snaps.empty?"<p class='text-slate-500'>Nenhuma sugestão recebida.</p>":"";
-    snaps.forEach(d=>{ lista.innerHTML += `<div class="card-sm">${d.data().texto}</div>`; });
-}
-
-// ==============================================
-// ADMIN
-// ==============================================
-async function salvarChave() {
-    CHAVE = document.getElementById("chaveAPI").value.trim();
-    if (!CHAVE) return alert("Cole sua chave da API!");
-    await db.collection("configuracoes").doc("gemini").set({chave:CHAVE});
-    alert("✅ Chave salva! Agora todas as funções da IA funcionarão.");
 }
 
 </script>
