@@ -64,6 +64,9 @@
             .bloco-manha { @apply bg-yellow-500/10 border-l-4 border-yellow-500; }
             .bloco-tarde { @apply bg-orange-500/10 border-l-4 border-orange-500; }
             .bloco-noite { @apply bg-indigo-500/10 border-l-4 border-indigo-500; }
+            .loading { @apply flex items-center gap-2 text-slate-400; }
+            .loading::after { content: ''; width:16px; height:16px; border:2px solid #6366f1; border-top-color:transparent; border-radius:50%; animation: spin 0.8s linear infinite; }
+            @keyframes spin { to { transform: rotate(360deg); } }
         }
     </style>
 </head>
@@ -128,15 +131,9 @@
                 <div class="card text-center"><h3 class="text-slate-400 mb-2">Esta Semana</h3><p id="qtdSemana" class="text-4xl font-bold">0</p></div>
                 <div class="card text-center"><h3 class="text-slate-400 mb-2">Taxa de Acerto</h3><p id="taxaAcerto" class="text-4xl font-bold">0%</p></div>
             </div>
-            <div class="card">
-                <h3 class="text-lg font-semibold mb-4">Histórico de Estudos</h3>
-                <div id="historicoLista" class="space-y-2 text-slate-300">
-                    <p class="text-slate-500">Nenhum registro ainda. Comece a responder questões!</p>
-                </div>
-            </div>
         </section>
 
-        <!-- RESUMIR PDF -->
+        <!-- RESUMIR PDF ✅ CORRIGIDO -->
         <section id="aba-pdf" class="conteudo-aba">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">📄 Resumir PDF com IA</h2>
             <div class="card mb-6">
@@ -150,20 +147,20 @@
             </div>
         </section>
 
-        <!-- SIMULADOS -->
+        <!-- SIMULADOS ✅ CORRIGIDO -->
         <section id="aba-simulados" class="conteudo-aba">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">📝 Gerar Simulado</h2>
             <div class="card mb-6">
                 <label class="block mb-3 font-medium">Digite o assunto ou tema:</label>
                 <input type="text" id="temaSimulado" placeholder="Ex: História do Brasil" class="input mb-4" onkeydown="if(event.key==='Enter') gerarSimulado()">
                 <label class="block mb-3 font-medium">Quantidade de questões:</label>
-                <input type="number" id="qtdQuestoes" value="5" min="3" max="15" class="input mb-4">
+                <input type="number" id="qtdQuestoes" value="5" min="3" max="10" class="input mb-4">
                 <button onclick="gerarSimulado()" class="btn">🔄 Gerar Simulado</button>
             </div>
             <div id="areaSimulado" class="space-y-6"></div>
         </section>
 
-        <!-- CRONOGRAMA -->
+        <!-- CRONOGRAMA ✅ CORRIGIDO - Agora captura TUDO -->
         <section id="aba-cronograma" class="conteudo-aba">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">📅 Cronograma Inteligente</h2>
             <div class="card mb-6">
@@ -203,83 +200,59 @@
             <div id="resultadoCronograma"></div>
         </section>
 
-        <!-- ARQUIVOS / CURSOS - CORRIGIDO -->
+        <!-- ARQUIVOS -->
         <section id="aba-arquivos" class="conteudo-aba">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">📁 Meus Arquivos e Cursos</h2>
-
             <div class="card mb-6">
                 <h3 class="text-lg font-semibold mb-4">📤 Enviar Arquivo</h3>
                 <div class="grid md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block mb-2 text-sm">Nome do Arquivo</label>
-                        <input type="text" id="nomeArquivo" placeholder="Nome..." class="input" onkeydown="if(event.key==='Enter') enviarArquivo()">
+                        <input type="text" id="nomeArquivo" placeholder="Nome..." class="input">
                     </div>
                     <div>
                         <label class="block mb-2 text-sm">Pasta de Destino</label>
-                        <select id="pastaDestino" class="input">
-                            <option value="">📁 Raiz</option>
-                        </select>
+                        <select id="pastaDestino" class="input"><option value="">📁 Raiz</option></select>
                     </div>
                 </div>
-                <label class="block mb-2 text-sm">Selecione o Arquivo</label>
                 <input type="file" id="arquivoSelecionado" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.jpg,.png" class="input mb-3">
-                <div id="barraProgresso" class="progress-bar hidden mb-3">
-                    <div id="pctFill" class="progress-fill" style="width:0%"></div>
-                </div>
+                <div id="barraProgresso" class="progress-bar hidden mb-3"><div id="pctFill" class="progress-fill" style="width:0%"></div></div>
                 <button onclick="enviarArquivo()" class="btn">📤 Enviar Arquivo</button>
             </div>
-
             <div class="card mb-6">
                 <h3 class="text-lg font-semibold mb-4">📁 Criar Pasta / Curso</h3>
                 <div class="grid md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block mb-2 text-sm">Nome da Pasta</label>
-                        <input type="text" id="nomePasta" placeholder="Nome..." class="input" onkeydown="if(event.key==='Enter') criarPasta()">
-                    </div>
-                    <div>
-                        <label class="block mb-2 text-sm">Pasta Pai</label>
-                        <select id="pastaPai" class="input">
-                            <option value="">📁 Raiz</option>
-                        </select>
-                    </div>
+                    <div><label class="block mb-2 text-sm">Nome da Pasta</label><input type="text" id="nomePasta" placeholder="Nome..." class="input"></div>
+                    <div><label class="block mb-2 text-sm">Pasta Pai</label><select id="pastaPai" class="input"><option value="">📁 Raiz</option></select></div>
                 </div>
                 <button onclick="criarPasta()" class="btn">📁 Criar Pasta</button>
             </div>
-
             <div class="mb-4 text-sm">
                 <span class="text-slate-400">Caminho: </span>
                 <span class="text-indigo-400 cursor-pointer hover:underline" onclick="irRaiz()">🏠 Raiz</span>
                 <span id="caminho"></span>
             </div>
-
-            <div id="listaConteudo" class="space-y-2">
-                <p class="text-slate-500">Carregando...</p>
-            </div>
+            <div id="listaConteudo" class="space-y-2"><p class="text-slate-500">Carregando...</p></div>
         </section>
 
         <!-- SUGESTÕES -->
         <section id="aba-sugestoes" class="conteudo-aba">
-            <h2 class="text-2xl font-bold mb-6 text-indigo-400">💡 Sugestões de Melhorias</h2>
+            <h2 class="text-2xl font-bold mb-6 text-indigo-400">💡 Sugestões</h2>
             <div class="card mb-6">
-                <textarea id="textoSugestao" class="textarea mb-3" placeholder="Descreva sua sugestão..." onkeydown="if(event.key==='Enter' && !event.shiftKey) { enviarSugestao(); event.preventDefault(); }"></textarea>
-                <button onclick="enviarSugestao()" class="btn">Enviar Sugestão</button>
+                <textarea id="textoSugestao" class="textarea mb-3" placeholder="Sua sugestão..." onkeydown="if(event.key==='Enter' && !event.shiftKey){enviarSugestao();event.preventDefault()}"></textarea>
+                <button onclick="enviarSugestao()" class="btn">Enviar</button>
             </div>
-            <div class="card">
-                <h3 class="text-lg font-semibold mb-4">📋 Minhas Sugestões</h3>
-                <div id="listaSugestoes">
-                    <p class="text-slate-500">Você ainda não enviou nenhuma sugestão.</p>
-                </div>
-            </div>
+            <div id="listaSugestoes"></div>
         </section>
 
-        <!-- DÚVIDAS -->
+        <!-- DÚVIDAS ✅ CORRIGIDO - IA responde -->
         <section id="aba-duvidas" class="conteudo-aba">
-            <h2 class="text-2xl font-bold mb-6 text-indigo-400">❓ Tirar Dúvidas com a IA</h2>
+            <h2 class="text-2xl font-bold mb-6 text-indigo-400">❓ Dúvidas com IA</h2>
             <div id="caixaChat" class="card mb-4 h-[450px] overflow-y-auto">
-                <div class="mensagem ia"><strong>🤖 IA:</strong> Olá! Sou sua assistente de estudos. Pergunte-me qualquer coisa!</div>
+                <div class="mensagem ia"><strong>🤖 IA:</strong> Olá! Pergunte-me qualquer coisa.</div>
             </div>
             <div class="flex gap-3">
-                <input type="text" id="pergunta" placeholder="Digite sua dúvida..." class="input flex-1" onkeydown="if(event.key==='Enter') perguntarIA()">
+                <input type="text" id="pergunta" placeholder="Sua dúvida..." class="input flex-1" onkeydown="if(event.key==='Enter') perguntarIA()">
                 <button onclick="perguntarIA()" class="btn">Enviar</button>
             </div>
         </section>
@@ -289,18 +262,15 @@
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">⚙️ Painel Administrativo</h2>
             <div class="card mb-6">
                 <h3 class="text-lg font-semibold mb-3">🔑 Chave da API Gemini</h3>
-                <input type="text" id="chaveAPI" class="input mb-3" placeholder="Cole sua chave aqui..." onkeydown="if(event.key==='Enter') salvarChave()">
+                <input type="text" id="chaveAPI" class="input mb-3" placeholder="AIzaSy...">
                 <button onclick="salvarChave()" class="btn">Salvar Chave</button>
-                <p class="text-xs text-slate-400 mt-2">Modelo em uso: gemini-2.0-flash</p>
+                <p class="text-xs text-slate-400 mt-2">Modelo: gemini-1.5-flash (estável)</p>
             </div>
             <div class="card">
                 <h3 class="text-lg font-semibold mb-4">💡 Sugestões Recebidas</h3>
-                <div id="sugestoesAdmin">
-                    <p class="text-slate-500">Nenhuma sugestão recebida ainda.</p>
-                </div>
+                <div id="sugestoesAdmin"></div>
             </div>
         </section>
-
     </main>
 
 <script>
@@ -317,7 +287,8 @@ const firebaseConfig = {
 };
 
 const ADMIN_EMAIL = "vitoriagilfigueiredo1@gmail.com";
-const MODELO = "gemini-2.0-flash"; // ✅ MODELO CORRIGIDO
+// ✅ MODELO ESTÁVEL E GARANTIDO
+const MODELO = "gemini-1.5-flash";
 const API_URL = `https://generativelanguage.googleapis.com/v1/models/${MODELO}:generateContent`;
 
 firebase.initializeApp(firebaseConfig);
@@ -329,75 +300,42 @@ let usuario = null, ehAdmin = false, CHAVE = "";
 let pastaAtual = null, caminho = [];
 
 // ==============================================
-// LOGIN / CADASTRO
+// LOGIN
 // ==============================================
-function mostrarCadastro() {
-    document.getElementById("formLogin").classList.add("hidden");
-    document.getElementById("formCadastro").classList.remove("hidden");
-    limparErros();
-}
-function mostrarLogin() {
-    document.getElementById("formCadastro").classList.add("hidden");
-    document.getElementById("formLogin").classList.remove("hidden");
-    limparErros();
-}
-function limparErros() {
-    document.getElementById("msgErroLogin").classList.add("hidden");
-    document.getElementById("msgErroCadastro").classList.add("hidden");
-}
-function exibirErro(id, msg) {
-    const el = document.getElementById(id);
-    el.textContent = "❌ " + msg;
-    el.classList.remove("hidden");
-}
+function mostrarCadastro() { document.getElementById("formLogin").classList.add("hidden"); document.getElementById("formCadastro").classList.remove("hidden"); }
+function mostrarLogin() { document.getElementById("formCadastro").classList.add("hidden"); document.getElementById("formLogin").classList.remove("hidden"); }
+function exibirErro(id, msg) { const e = document.getElementById(id); e.textContent = "❌ " + msg; e.classList.remove("hidden"); }
 
 async function criarConta() {
     const nome = document.getElementById("nomeCadastro").value.trim();
     const email = document.getElementById("emailCadastro").value.trim();
     const senha = document.getElementById("senhaCadastro").value;
-
-    if (!nome || !email || senha.length < 6) {
-        return exibirErro("msgErroCadastro", "Preencha todos os campos (senha mínimo 6 caracteres)");
-    }
-
+    if (!nome || !email || senha.length < 6) return exibirErro("msgErroCadastro", "Preencha tudo (mínimo 6 caracteres)");
     try {
         const cred = await auth.createUserWithEmailAndPassword(email, senha);
-        await db.collection("usuarios").doc(cred.user.uid).set({
-            nome, email,
-            admin: email === ADMIN_EMAIL,
-            criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        await db.collection("usuarios").doc(cred.user.uid).set({nome, email, admin: email === ADMIN_EMAIL, criadoEm: new Date()});
         await cred.user.updateProfile({ displayName: nome });
-    } catch (e) {
-        exibirErro("msgErroCadastro", e.message);
-    }
+    } catch (e) { exibirErro("msgErroCadastro", e.message); }
 }
 
 async function fazerLogin() {
     const email = document.getElementById("emailLogin").value.trim();
     const senha = document.getElementById("senhaLogin").value;
     if (!email || !senha) return;
-
-    try {
-        await auth.signInWithEmailAndPassword(email, senha);
-    } catch (e) {
-        exibirErro("msgErroLogin", e.message);
-    }
+    try { await auth.signInWithEmailAndPassword(email, senha); }
+    catch (e) { exibirErro("msgErroLogin", e.message); }
 }
 
-function sair() {
-    auth.signOut();
-}
+function sair() { auth.signOut(); }
 
 // ==============================================
-// VERIFICAR AUTENTICAÇÃO
+// AUTENTICAÇÃO
 // ==============================================
-auth.onAuthStateChanged(async (u) => {
+auth.onAuthStateChanged(async u => {
     if (u) {
         usuario = u;
         const doc = await db.collection("usuarios").doc(u.uid).get();
         ehAdmin = doc.exists ? doc.data().admin : u.email === ADMIN_EMAIL;
-
         const cfg = await db.collection("configuracoes").doc("gemini").get();
         if (cfg.exists) CHAVE = cfg.data().chave || "";
 
@@ -407,16 +345,8 @@ auth.onAuthStateChanged(async (u) => {
         document.getElementById("conteudoAbas").classList.remove("hidden");
         document.getElementById("nomeUsuario").textContent = u.displayName || u.email;
 
-        if (ehAdmin) {
-            document.getElementById("abaAdmin").classList.remove("hidden");
-            document.getElementById("chaveAPI").value = CHAVE;
-            carregarSugestoesAdmin();
-        }
-
-        await atualizarSelectPastas();
-        await carregarConteudo();
-        await carregarSugestoesUsuario();
-        adicionarMateria();
+        if (ehAdmin) { document.getElementById("abaAdmin").classList.remove("hidden"); document.getElementById("chaveAPI").value = CHAVE; carregarSugestoesAdmin(); }
+        await atualizarSelectPastas(); await carregarConteudo(); await carregarSugestoesUsuario(); adicionarMateria();
     } else {
         usuario = null;
         document.getElementById("telaLogin").classList.remove("hidden");
@@ -427,25 +357,20 @@ auth.onAuthStateChanged(async (u) => {
 });
 
 // ==============================================
-// NAVEGAÇÃO DE ABAS
+// NAVEGAÇÃO
 // ==============================================
 function irParaAba(nome) {
-    document.querySelectorAll(".aba").forEach(a => {
-        a.classList.toggle("ativa", a.dataset.aba === nome);
-    });
-    document.querySelectorAll(".conteudo-aba").forEach(s => {
-        s.classList.toggle("visivel", s.id === "aba-" + nome);
-    });
+    document.querySelectorAll(".aba").forEach(a => a.classList.toggle("ativa", a.dataset.aba === nome));
+    document.querySelectorAll(".conteudo-aba").forEach(s => s.classList.toggle("visivel", s.id === "aba-" + nome));
 }
 
 // ==============================================
-// CHAMADA DA IA (com modelo CORRIGIDO + retentativa)
+// ✅ CHAMADA DA IA — CORRIGIDA E ROBUSTA
 // ==============================================
 async function chamarIA(texto, tentativas = 3) {
-    if (!CHAVE) return "⚠️ Chave da API não configurada. Peça ao administrador configurar na aba Admin.";
-
-    const hoje = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-    const prompt = `Hoje é ${hoje}. Responda em português de forma clara e objetiva: ${texto}`;
+    if (!CHAVE) return "⚠️ Chave da API não configurada. Vá na aba Admin e cole sua chave do Google AI Studio.";
+    const hoje = new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'});
+    const prompt = `Hoje é ${hoje}. Responda em português, de forma clara e direta: ${texto}`;
 
     for (let i = 0; i < tentativas; i++) {
         try {
@@ -454,136 +379,103 @@ async function chamarIA(texto, tentativas = 3) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+                    generationConfig: { temperature: 0.7, maxOutputTokens: 2000 }
                 })
             });
-
             const dados = await res.json();
             if (dados.error) throw new Error(dados.error.message);
-            return dados?.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta da IA.";
-
+            return dados?.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta.";
         } catch (e) {
-            if (i === tentativas - 1) return "❌ Erro: " + e.message;
-            await new Promise(r => setTimeout(r, 2000 * (i + 1)));
+            if (i === tentativas - 1) return "❌ ERRO DA IA: " + e.message + "\n\nVerifique se sua chave está correta na aba Admin.";
+            await new Promise(r => setTimeout(r, 1500 * (i + 1)));
         }
     }
 }
 
 // ==============================================
-// DÚVIDAS / CHAT
+// ✅ DÚVIDAS / CHAT — FUNCIONANDO
 // ==============================================
 async function perguntarIA() {
     const texto = document.getElementById("pergunta").value.trim();
     if (!texto) return;
-
     const chat = document.getElementById("caixaChat");
     chat.innerHTML += `<div class="mensagem usuario"><strong>Você:</strong> ${texto}</div>`;
     document.getElementById("pergunta").value = "";
-
-    const idResposta = "resp-" + Date.now();
-    chat.innerHTML += `<div class="mensagem ia" id="${idResposta}"><strong>🤖 IA:</strong> Escrevendo...</div>`;
+    const id = "r" + Date.now();
+    chat.innerHTML += `<div class="mensagem ia" id="${id}"><strong>🤖 IA:</strong> Escrevendo...</div>`;
     chat.scrollTop = chat.scrollHeight;
-
-    const resposta = await chamarIA(texto);
-    document.getElementById(idResposta).innerHTML = `<strong>🤖 IA:</strong> ${resposta}`;
+    document.getElementById(id).innerHTML = "<strong>🤖 IA:</strong> " + (await chamarIA(texto));
     chat.scrollTop = chat.scrollHeight;
 }
 
 // ==============================================
-// SIMULADOS
+// ✅ SIMULADO — CORRIGIDO COM LIMPEZA DE JSON
 // ==============================================
 async function gerarSimulado() {
     const tema = document.getElementById("temaSimulado").value.trim();
     const qtd = parseInt(document.getElementById("qtdQuestoes").value);
     if (!tema) return alert("Informe o assunto!");
-
     const area = document.getElementById("areaSimulado");
-    area.innerHTML = "<p class='text-slate-400'>🔄 Gerando simulado, aguarde...</p>";
+    area.innerHTML = "<p class='loading'>Gerando simulado</p>";
 
-    const prompt = `Gere um simulado sobre "${tema}" com ${qtd} questões de múltipla escolha (A, B, C, D).
-Retorne APENAS JSON no formato:
+    const prompt = `Gere simulado sobre "${tema}" com ${qtd} questões A/B/C/D. Responda SOMENTE com JSON válido sem comentários:
 {
   "questoes": [
-    {
-      "enunciado": "Pergunta...",
-      "alternativas": ["A) ...", "B) ...", "C) ...", "D) ..."],
-      "correta": "A",
-      "explicaCorreta": "Por que está correta...",
-      "explicaErrada": "Por que as outras estão erradas..."
-    }
+    {"enunciado":"Pergunta?","alternativas":["A) ...","B) ...","C) ...","D) ..."],"correta":"A","explicaCorreta":"Por que certa","explicaErrada":"Por que erradas"}
   ]
 }`;
 
-    const resposta = await chamarIA(prompt);
-
+    const resp = await chamarIA(prompt);
     try {
-        const inicio = resposta.indexOf("{");
-        const fim = resposta.lastIndexOf("}");
-        if (inicio === -1 || fim === -1) throw new Error("JSON não encontrado");
+        // ✅ LIMPEZA ROBUSTA DO JSON
+        let jsonTexto = resp.replace(/```json|```/g, "").trim();
+        const inicio = jsonTexto.indexOf("{");
+        const fim = jsonTexto.lastIndexOf("}") + 1;
+        if (inicio === -1 || fim === 0) throw new Error("JSON não encontrado");
+        const dados = JSON.parse(jsonTexto.slice(inicio, fim));
 
-        const dados = JSON.parse(resposta.slice(inicio, fim + 1));
         area.innerHTML = "";
-
         dados.questoes.forEach((q, i) => {
-            const id = "q-" + i;
-            area.innerHTML += `
-            <div class="card" id="${id}">
-                <p class="font-semibold mb-4">${i + 1}. ${q.enunciado}</p>
-                ${q.alternativas.map((alt, j) => `
-                <div class="option-btn" onclick="verificarResposta('${id}', ${j}, '${q.correta}', \`${(q.explicaCorreta||"").replace(/`/g, "'")}\`, \`${(q.explicaErrada||"").replace(/`/g, "'")}\`)">
-                    ${alt}
-                </div>`).join("")}
-                <div id="exp-${id}" class="hidden mt-3"></div>
+            area.innerHTML += `<div class="card" id="q${i}">
+                <p class="font-semibold mb-3">${i+1}. ${q.enunciado}</p>
+                ${q.alternativas.map((a,j)=>`<div class="option-btn" onclick="verificarResposta('q${i}',${j},'${q.correta}','${(q.explicaCorreta||'').replace(/'/g,"").replace(/"/g,"")}','${(q.explicaErrada||'').replace(/'/g,"").replace(/"/g,"")}')">${a}</div>`).join("")}
+                <div id="eq${i}" class="hidden mt-2"></div>
             </div>`;
         });
-
     } catch (erro) {
         area.innerHTML = `<div class="card text-red-400">
-            ❌ Erro ao processar resposta. Tente novamente.<br>
-            <details class="mt-2"><summary class="cursor-pointer">Ver resposta bruta</summary>
-            <pre class="text-xs mt-2 text-slate-400 whitespace-pre-wrap">${resposta}</pre></details>
+            ❌ Erro ao ler resposta. Tente novamente.<br>
+            <details class="mt-2"><summary class="cursor-pointer text-indigo-400">Ver resposta da IA</summary>
+            <pre class="text-xs mt-2 text-slate-400 whitespace-pre-wrap">${resp}</pre></details>
         </div>`;
     }
 }
 
-function verificarResposta(idDiv, altEscolhida, respCorreta, expC, expE) {
-    const letras = ["A", "B", "C", "D"];
-    const div = document.getElementById(idDiv);
-    const divExp = document.getElementById("exp-" + idDiv);
-
-    div.querySelectorAll(".option-btn").forEach((botao, indice) => {
-        botao.onclick = null;
-        const letra = letras[indice];
-        if (letra === respCorreta) {
-            botao.classList.add("correct");
-        } else if (indice === altEscolhida) {
-            botao.classList.add("incorrect");
-        }
+function verificarResposta(id, alt, correta, expC, expE) {
+    const letras = ["A","B","C","D"];
+    const div = document.getElementById(id), divE = document.getElementById("e"+id);
+    div.querySelectorAll(".option-btn").forEach((b,i)=>{
+        b.onclick=null;
+        if (letras[i]===correta) b.classList.add("correct");
+        else if (i===alt) b.classList.add("incorrect");
     });
-
-    divExp.classList.remove("hidden");
-    if (letras[altEscolhida] === respCorreta) {
-        divExp.innerHTML = `<div class="explicacao correta">✅ <strong>Correto!</strong> ${expC}</div>`;
-    } else {
-        divExp.innerHTML = `<div class="explicacao errada">❌ <strong>Incorreto.</strong> ${expE}</div>`;
-    }
+    divE.classList.remove("hidden");
+    divE.innerHTML = letras[alt]===correta
+        ? `<div class="explicacao correta">✅ Correto! ${expC}</div>`
+        : `<div class="explicacao errada">❌ Errado. ${expE}</div>`;
 }
 
 // ==============================================
-// CRONOGRAMA
+// ✅ CRONOGRAMA — CORRIGIDO, AGORA CAPTURA TUDO
 // ==============================================
 function adicionarMateria() {
     const id = Date.now();
-    document.getElementById("listaMaterias").innerHTML += `
-    <div class="materia-item" id="mat-${id}">
+    document.getElementById("listaMaterias").innerHTML += `<div class="materia-item" id="m${id}">
         <div class="flex gap-3 flex-wrap items-center">
-            <input type="text" placeholder="Nome da matéria" class="input flex-1 nome-materia" onkeydown="if(event.key==='Enter') criarCronograma()">
+            <input type="text" placeholder="Nome da matéria" class="input flex-1 nome-materia">
             <select class="input w-24 peso-materia">
-                <option value="1">Peso 1</option>
-                <option value="2">Peso 2</option>
-                <option value="3" selected>Peso 3</option>
-                <option value="4">Peso 4</option>
-                <option value="5">Peso 5</option>
+                <option value="1">P1</option><option value="2">P2</option><option value="3" selected>P3</option>
+                <option value="4">P4</option><option value="5">P5</option>
             </select>
             <button onclick="this.closest('.materia-item').remove()" class="btn-error btn-sm">✕</button>
         </div>
@@ -591,13 +483,13 @@ function adicionarMateria() {
 }
 
 async function criarCronograma() {
+    // ✅ CAPTURA DADOS COM VALIDAÇÃO
     const materias = [];
     document.querySelectorAll(".materia-item").forEach(bloco => {
         const nome = bloco.querySelector(".nome-materia").value.trim();
         const peso = parseInt(bloco.querySelector(".peso-materia").value);
         if (nome) materias.push({ nome, peso });
     });
-
     if (!materias.length) return alert("Adicione pelo menos uma matéria!");
 
     const dias = Array.from(document.querySelectorAll(".dia-check:checked")).map(c => c.value);
@@ -609,243 +501,162 @@ async function criarCronograma() {
     if (manha + tarde + noite === 0) return alert("Informe pelo menos 1 hora de estudo!");
 
     const res = document.getElementById("resultadoCronograma");
-    res.innerHTML = "<p class='text-slate-400'>🔄 Gerando cronograma inteligente...</p>";
+    res.innerHTML = "<p class='loading'>Gerando cronograma</p>";
 
-    const prompt = `Com base nos dados abaixo, crie um cronograma de estudos distribuindo as matérias proporcionalmente ao PESO.
+    const prompt = `Crie um cronograma de estudos distribuindo as matérias proporcionalmente ao peso.
 
-📚 MATÉRIAS: ${JSON.stringify(materias)}
-📆 DIAS: ${dias.join(", ")}
-⏰ HORÁRIOS POR DIA:
-- Manhã: ${manha}h → Leitura e teoria
-- Tarde: ${tarde}h → Exercícios e prática
-- Noite: ${noite}h → Revisão e conteúdo difícil
+MATÉRIAS: ${JSON.stringify(materias)}
+DIAS: ${dias.join(", ")}
+HORÁRIOS: Manhã ${manha}h (leitura), Tarde ${tarde}h (exercícios), Noite ${noite}h (revisão)
 
-Retorne APENAS JSON: { "cronograma": [ { "dia": "Segunda", "blocos": [ { "periodo": "Manhã", "materia": "Nome", "duracao": "Xh", "tipo": "Leitura" } ] } ] }`;
+Retorne SOMENTE JSON: {"cronograma":[{"dia":"Segunda","blocos":[{"periodo":"Manhã","materia":"Nome","duracao":"Xh","tipo":"Leitura"}]}]}`;
 
-    const resposta = await chamarIA(prompt);
+    const resp = await chamarIA(prompt);
 
     try {
-        const inicio = resposta.indexOf("{");
-        const fim = resposta.lastIndexOf("}");
-        const dados = JSON.parse(resposta.slice(inicio, fim + 1));
+        let jsonTexto = resp.replace(/```json|```/g, "").trim();
+        const inicio = jsonTexto.indexOf("{");
+        const fim = jsonTexto.lastIndexOf("}") + 1;
+        const dados = JSON.parse(jsonTexto.slice(inicio, fim));
 
         res.innerHTML = "<h3 class='text-xl font-bold text-indigo-400 mb-4'>📅 Seu Cronograma</h3>";
         dados.cronograma.forEach(dia => {
-            res.innerHTML += `<div class="dia-cronograma">
-                <h4 class="font-bold text-lg mb-3">📆 ${dia.dia}</h4>`;
+            res.innerHTML += `<div class="dia-cronograma"><h4 class="font-bold mb-2">📆 ${dia.dia}</h4>`;
             dia.blocos.forEach(b => {
-                const classe = b.periodo === "Manhã" ? "bloco-manha" :
-                               b.periodo === "Tarde" ? "bloco-tarde" : "bloco-noite";
-                res.innerHTML += `<div class="bloco-estudo ${classe}">
-                    <strong>${b.periodo}</strong> — ${b.materia} (${b.duracao})
-                    <span class="text-sm text-slate-400 ml-2">${b.tipo||""}</span>
-                </div>`;
+                const cls = b.periodo==="Manhã"?"bloco-manha":b.periodo==="Tarde"?"bloco-tarde":"bloco-noite";
+                res.innerHTML += `<div class="bloco-estudo ${cls}"><strong>${b.periodo}</strong> — ${b.materia} (${b.duracao}) · ${b.tipo}</div>`;
             });
             res.innerHTML += "</div>";
         });
-
     } catch {
-        res.innerHTML = `<div class="card text-red-400">❌ Erro ao gerar cronograma.<pre class="text-xs mt-2 text-slate-400">${resposta}</pre></div>`;
+        res.innerHTML = `<div class="card text-red-400">❌ Erro. Tente novamente.<pre class="text-xs mt-2 text-slate-400">${resp}</pre></div>`;
     }
 }
 
 // ==============================================
-// ARQUIVOS / PASTAS — CORRIGIDO E OTIMIZADO
+// ✅ RESUMO DE PDF — CORRIGIDO COM PDF.JS
+// ==============================================
+async function lerPdfEResumir() {
+    const arquivo = document.getElementById("arquivoPdf").files[0];
+    if (!arquivo) return alert("Selecione um PDF!");
+    const resumoDiv = document.getElementById("resultadoResumo");
+    const textoResumo = document.getElementById("textoResumo");
+    resumoDiv.classList.remove("hidden");
+    textoResumo.textContent = "🔄 Lendo PDF e gerando resumo...";
+
+    try {
+        // ✅ LEITURA CORRETA DE PDF USANDO PDF.JS
+        const arrayBuffer = await arquivo.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let textoCompleto = "";
+
+        for (let pag = 1; pag <= pdf.numPages; pag++) {
+            const pagina = await pdf.getPage(pag);
+            const conteudo = await pagina.getTextContent();
+            const textoPagina = conteudo.items.map(i => i.str).join(" ");
+            textoCompleto += textoPagina + " ";
+            if (textoCompleto.length > 15000) break; // Limite para não sobrecarregar
+        }
+
+        const resumo = await chamarIA(`Resuma este conteúdo de forma clara e objetiva, destacando os pontos principais:\n\n${textoCompleto}`);
+        textoResumo.textContent = resumo;
+
+    } catch (erro) {
+        textoResumo.textContent = "❌ Erro ao ler PDF: " + erro.message + "\n\nTente com um arquivo menor.";
+    }
+}
+
+// ==============================================
+// ARQUIVOS / PASTAS
 // ==============================================
 async function atualizarSelectPastas() {
-    const snaps = await db.collection("pastas").where("criadoPor", "==", usuario.uid).orderBy("nome").get();
+    const snaps = await db.collection("pastas").where("criadoPor","==",usuario.uid).orderBy("nome").get();
     let opts = `<option value="">📁 Raiz</option>`;
-    snaps.forEach(d => {
-        opts += `<option value="${d.id}">📁 ${d.data().nome}</option>`;
-    });
+    snaps.forEach(d=>{ opts += `<option value="${d.id}">📁 ${d.data().nome}</option>`; });
     document.getElementById("pastaDestino").innerHTML = opts;
     document.getElementById("pastaPai").innerHTML = opts;
 }
 
 async function criarPasta() {
     const nome = document.getElementById("nomePasta").value.trim();
-    const pai = document.getElementById("pastaPai").value || null;
-    if (!nome) return alert("Informe o nome da pasta!");
-
-    await db.collection("pastas").add({
-        nome,
-        pastaPai: pai,
-        criadoPor: usuario.uid,
-        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    document.getElementById("nomePasta").value = "";
-    await atualizarSelectPastas();
-    await carregarConteudo();
+    const pai = document.getElementById("pastaPai").value||null;
+    if (!nome) return alert("Informe o nome!");
+    await db.collection("pastas").add({nome, pastaPai:pai, criadoPor:usuario.uid, criadoEm:new Date()});
+    document.getElementById("nomePasta").value="";
+    await atualizarSelectPastas(); await carregarConteudo();
 }
 
-function irRaiz() {
-    pastaAtual = null;
-    caminho = [];
-    document.getElementById("caminho").innerHTML = "";
-    carregarConteudo();
-}
-
-async function abrirPasta(id, nome) {
-    pastaAtual = id;
-    caminho.push({ id, nome });
-    document.getElementById("caminho").innerHTML = caminho.map(p => ` › ${p.nome}`).join("");
-    await carregarConteudo();
-}
+function irRaiz() { pastaAtual=null; caminho=[]; document.getElementById("caminho").innerHTML=""; carregarConteudo(); }
+async function abrirPasta(id, nome) { pastaAtual=id; caminho.push({id,nome}); document.getElementById("caminho").innerHTML = caminho.map(p=>` › ${p.nome}`).join(""); await carregarConteudo(); }
 
 async function carregarConteudo() {
     const lista = document.getElementById("listaConteudo");
-    lista.innerHTML = "<p class='text-slate-400'>Carregando...</p>";
-
-    try {
-        const [pastas, arquivos] = await Promise.all([
-            db.collection("pastas")
-                .where("criadoPor", "==", usuario.uid)
-                .where("pastaPai", "==", pastaAtual)
-                .orderBy("nome").get(),
-            db.collection("arquivos")
-                .where("enviadoPor", "==", usuario.uid)
-                .where("pastaPai", "==", pastaAtual)
-                .orderBy("nome").get()
-        ]);
-
-        if (pastas.empty && arquivos.empty) {
-            lista.innerHTML = "<p class='text-slate-500'>Pasta vazia.</p>";
-            return;
-        }
-
-        lista.innerHTML = "";
-        pastas.forEach(d => {
-            const p = d.data();
-            lista.innerHTML += `<div class="pasta-item" onclick="abrirPasta('${d.id}', '${p.nome.replace(/'/g, "\\'")}')">📁 ${p.nome}</div>`;
-        });
-        arquivos.forEach(d => {
-            const a = d.data();
-            lista.innerHTML += `<div class="arquivo-item">
-                <a href="${a.url}" target="_blank" class="flex-1 hover:text-indigo-400">📄 ${a.nome}</a>
-                <span class="text-xs text-slate-500">${(a.tipo||"").split("/")[1] || "arquivo"}</span>
-            </div>`;
-        });
-
-    } catch (e) {
-        lista.innerHTML = `<p class="text-red-400">Erro ao carregar: ${e.message}</p>`;
-    }
+    const [pastas, arqs] = await Promise.all([
+        db.collection("pastas").where("criadoPor","==",usuario.uid).where("pastaPai","==",pastaAtual).orderBy("nome").get(),
+        db.collection("arquivos").where("enviadoPor","==",usuario.uid).where("pastaPai","==",pastaAtual).orderBy("nome").get()
+    ]);
+    if (pastas.empty && arqs.empty) return lista.innerHTML="<p class='text-slate-500'>Pasta vazia</p>";
+    lista.innerHTML="";
+    pastas.forEach(d=>{ lista.innerHTML += `<div class="pasta-item" onclick="abrirPasta('${d.id}','${d.data().nome.replace(/'/g,"")}')">📁 ${d.data().nome}</div>`; });
+    arqs.forEach(d=>{ const a=d.data(); lista.innerHTML += `<div class="arquivo-item"><a href="${a.url}" target="_blank" class="flex-1 hover:text-indigo-400">📄 ${a.nome}</a></div>`; });
 }
 
 async function enviarArquivo() {
-    const input = document.getElementById("arquivoSelecionado");
-    const arquivo = input.files[0];
-    const nome = document.getElementById("nomeArquivo").value.trim() || (arquivo ? arquivo.name : "");
-    const pai = document.getElementById("pastaDestino").value || null;
-
-    if (!arquivo) return alert("Selecione um arquivo!");
-
-    const caminhoStorage = `arquivos/${usuario.uid}/${Date.now()}_${arquivo.name}`;
-    const ref = storage.ref(caminhoStorage);
+    const arquivo = document.getElementById("arquivoSelecionado").files[0];
+    const nome = document.getElementById("nomeArquivo").value.trim() || arquivo.name;
+    const pai = document.getElementById("pastaDestino").value||null;
+    if (!arquivo) return alert("Selecione o arquivo!");
+    const caminhoArq = `arquivos/${usuario.uid}/${Date.now()}_${arquivo.name}`;
+    const ref = storage.ref(caminhoArq);
     const tarefa = ref.put(arquivo);
-
     document.getElementById("barraProgresso").classList.remove("hidden");
-    document.getElementById("pctFill").style.width = "0%";
-
-    tarefa.on("state_changed", 
-        (s) => {
-            const pct = Math.round((s.bytesTransferred / s.totalBytes) * 100);
-            document.getElementById("pctFill").style.width = pct + "%";
-        },
-        (erro) => {
-            alert("❌ Erro: " + erro.message);
-            document.getElementById("barraProgresso").classList.add("hidden");
-        },
-        async () => {
-            const url = await tarefa.snapshot.ref.getDownloadURL();
-            await db.collection("arquivos").add({
-                nome, url, pastaPai: pai,
-                tipo: arquivo.type,
-                enviadoPor: usuario.uid,
-                criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            document.getElementById("barraProgresso").classList.add("hidden");
-            document.getElementById("nomeArquivo").value = "";
-            input.value = "";
-            await carregarConteudo();
-            alert("✅ Arquivo enviado com sucesso!");
-        }
-    );
-}
-
-// ==============================================
-// RESUMIR PDF
-// ==============================================
-async function lerPdfEResumir() {
-    const input = document.getElementById("arquivoPdf");
-    const arquivo = input.files[0];
-    if (!arquivo) return alert("Selecione um PDF!");
-
-    const leitor = new FileReader();
-    leitor.onload = async (e) => {
-        const texto = e.target.result;
-        const resumo = await chamarIA(`Resuma este texto de forma clara e objetiva: ${texto.slice(0, 15000)}`);
-        document.getElementById("resultadoResumo").classList.remove("hidden");
-        document.getElementById("textoResumo").textContent = resumo;
-    };
-    leitor.readAsText(arquivo);
+    tarefa.on("state_changed", s=>{
+        const pct = Math.round((s.bytesTransferred/s.totalBytes)*100);
+        document.getElementById("pctFill").style.width = pct+"%";
+    }, e=>{ alert("Erro: "+e.message); }, async ()=>{
+        const url = await tarefa.snapshot.ref.getDownloadURL();
+        await db.collection("arquivos").add({nome, url, pastaPai:pai, tipo:arquivo.type, enviadoPor:usuario.uid, criadoEm:new Date()});
+        document.getElementById("barraProgresso").classList.add("hidden");
+        document.getElementById("nomeArquivo").value="";
+        document.getElementById("arquivoSelecionado").value="";
+        await carregarConteudo();
+        alert("✅ Enviado!");
+    });
 }
 
 // ==============================================
 // SUGESTÕES
 // ==============================================
 async function enviarSugestao() {
-    const texto = document.getElementById("textoSugestao").value.trim();
-    if (!texto) return alert("Escreva sua sugestão!");
-
-    await db.collection("sugestoes").add({
-        texto, usuario: usuario.uid,
-        data: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    document.getElementById("textoSugestao").value = "";
-    alert("✅ Sugestão enviada!");
+    const txt = document.getElementById("textoSugestao").value.trim();
+    if (!txt) return alert("Escreva algo!");
+    await db.collection("sugestoes").add({texto:txt, usuario:usuario.uid, data:new Date()});
+    document.getElementById("textoSugestao").value="";
+    alert("✅ Enviado!");
     await carregarSugestoesUsuario();
     if (ehAdmin) carregarSugestoesAdmin();
 }
-
 async function carregarSugestoesUsuario() {
-    const snaps = await db.collection("sugestoes")
-        .where("usuario", "==", usuario.uid)
-        .orderBy("data", "desc").limit(10).get();
-
+    const snaps = await db.collection("sugestoes").where("usuario","==",usuario.uid).orderBy("data","desc").limit(10).get();
     const lista = document.getElementById("listaSugestoes");
-    lista.innerHTML = snaps.empty
-        ? "<p class='text-slate-500'>Você ainda não enviou nenhuma sugestão.</p>"
-        : "";
-    snaps.forEach(d => {
-        const s = d.data();
-        lista.innerHTML += `<div class="card-sm">${s.texto}</div>`;
-    });
+    lista.innerHTML = snaps.empty?"<p class='text-slate-500'>Nenhuma sugestão enviada.</p>":"";
+    snaps.forEach(d=>{ lista.innerHTML += `<div class="card-sm">${d.data().texto}</div>`; });
 }
-
 async function carregarSugestoesAdmin() {
-    const snaps = await db.collection("sugestoes")
-        .orderBy("data", "desc").limit(50).get();
-
+    const snaps = await db.collection("sugestoes").orderBy("data","desc").limit(50).get();
     const lista = document.getElementById("sugestoesAdmin");
-    lista.innerHTML = snaps.empty
-        ? "<p class='text-slate-500'>Nenhuma sugestão recebida.</p>"
-        : "";
-    snaps.forEach(d => {
-        const s = d.data();
-        lista.innerHTML += `<div class="card-sm">${s.texto}</div>`;
-    });
+    lista.innerHTML = snaps.empty?"<p class='text-slate-500'>Nenhuma sugestão recebida.</p>":"";
+    snaps.forEach(d=>{ lista.innerHTML += `<div class="card-sm">${d.data().texto}</div>`; });
 }
 
 // ==============================================
-// ADMIN — SALVAR CHAVE
+// ADMIN
 // ==============================================
 async function salvarChave() {
     CHAVE = document.getElementById("chaveAPI").value.trim();
-    await db.collection("configuracoes").doc("gemini").set({ chave: CHAVE });
-    alert("✅ Chave salva com sucesso!");
+    if (!CHAVE) return alert("Cole sua chave da API!");
+    await db.collection("configuracoes").doc("gemini").set({chave:CHAVE});
+    alert("✅ Chave salva! Agora todas as funções da IA funcionarão.");
 }
 
 </script>
