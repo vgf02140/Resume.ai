@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Plataforma de estudos: gerador de questões e resumos de PDF, cronograma, simulados com correção automática, questões de concursos e vestibulares">
-    <title>EstudaMais — Sua Plataforma Completa de Estudos</title>
+    <meta name="description" content="Plataforma de Estudos com IA — Resumos, Questões, Simulados e Cronograma">
+    <title>EstudaMais | IA Integrada</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <!-- PDF.js para leitura de PDF -->
+    <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.js"></script>
 
     <script>
@@ -18,23 +18,40 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#1d4ed8',
-                        primaryDark: '#1e40af',
-                        secondary: '#059669',
-                        accent: '#d97706',
-                        danger: '#dc2626',
-                        info: '#0891b2',
-                        light: '#f8fafc',
-                        dark: '#0f172a',
-                        neutral: '#475569'
+                        // Paleta: Preto, Cinza e Azul Índigo
+                        dark: {
+                            950: '#0a0a0f',
+                            900: '#111118',
+                            800: '#1a1a24',
+                            700: '#252532',
+                            600: '#333344',
+                        },
+                        slate: {
+                            400: '#94a3b8',
+                            300: '#cbd5e1',
+                            200: '#e2e8f0',
+                            100: '#f1f5f9',
+                        },
+                        indigo: {
+                            950: '#1e1b4b',
+                            900: '#312e81',
+                            800: '#3730a3',
+                            700: '#4338ca',
+                            600: '#4f46e5',
+                            500: '#6366f1',
+                            400: '#818cf8',
+                            300: '#a5b4fc',
+                        },
+                        success: '#10b981',
+                        error: '#ef4444',
+                        warning: '#f59e0b',
                     },
                     fontFamily: {
                         sans: ['Inter', 'Segoe UI', 'system-ui', 'sans-serif'],
                     },
                     boxShadow: {
-                        'soft': '0 8px 30px rgba(0,0,0,0.08)',
-                        'card': '0 4px 20px rgba(29, 78, 216, 0.08)',
-                        'hover': '0 12px 32px rgba(29, 78, 216, 0.15)'
+                        'glow': '0 0 20px rgba(79, 70, 229, 0.15)',
+                        'card': '0 4px 20px rgba(0, 0, 0, 0.4)',
                     }
                 }
             }
@@ -44,32 +61,25 @@
     <style type="text/tailwindcss">
         @layer utilities {
             .content-auto { content-visibility: auto; }
-            .tab-content { display: none; }
-            .tab-content.active { display: block; }
+            .glass { background: rgba(17, 17, 24, 0.85); backdrop-filter: blur(12px); }
             .option-btn {
-                transition: all 0.2s ease;
-                border: 2px solid #e2e8f0;
+                transition: all 0.25s ease;
+                border: 2px solid #333344;
             }
             .option-btn:hover:not(.correct):not(.incorrect) {
-                transform: translateX(6px);
-                border-color: #93c5fd;
-                background-color: #eff6ff;
+                border-color: #6366f1;
+                background-color: rgba(99, 102, 241, 0.08);
+                transform: translateX(4px);
             }
             .correct {
-                background-color: #f0fdf4 !important;
-                border-color: #22c55e !important;
-                color: #166534 !important;
-                font-weight: 500;
+                background-color: rgba(16, 185, 129, 0.12) !important;
+                border-color: #10b981 !important;
+                color: #6ee7b7 !important;
             }
             .incorrect {
-                background-color: #fef2f2 !important;
+                background-color: rgba(239, 68, 68, 0.12) !important;
                 border-color: #ef4444 !important;
-                color: #991b1b !important;
-                font-weight: 500;
-            }
-            .glass {
-                background: rgba(255,255,255,0.9);
-                backdrop-filter: blur(10px);
+                color: #fca5a5 !important;
             }
             .scroll-smooth { scroll-behavior: smooth; }
             .animate-fade { animation: fadeIn 0.4s ease-out; }
@@ -77,171 +87,190 @@
                 from { opacity: 0; transform: translateY(12px); }
                 to { opacity: 1; transform: translateY(0); }
             }
+            .gradient-border {
+                position: relative;
+                border-radius: 1rem;
+            }
+            .gradient-border::before {
+                content: '';
+                position: absolute;
+                inset: -1px;
+                border-radius: 1rem;
+                background: linear-gradient(135deg, #4f46e5, #818cf8);
+                z-index: -1;
+                opacity: 0.3;
+            }
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans scroll-smooth">
-
-    <!-- Navegação Lateral em Celular -->
-    <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+<body class="bg-dark-950 text-slate-200 font-sans scroll-smooth">
 
     <!-- Cabeçalho -->
-    <header class="glass sticky top-0 z-50 border-b border-slate-200">
+    <header class="glass sticky top-0 z-50 border-b border-dark-700">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-xl md:text-2xl font-bold text-primary flex items-center gap-2">
-                <i class="fa-solid fa-book-open-reader text-accent"></i>
+            <h1 class="text-xl md:text-2xl font-bold text-indigo-400 flex items-center gap-2">
+                <i class="fa-solid fa-book-open-reader text-indigo-500"></i>
                 <span class="hidden sm:inline">EstudaMais</span>
+                <span class="text-xs bg-indigo-600 text-white px-2 py-0.5 rounded-full font-normal">IA</span>
             </h1>
 
-            <nav class="hidden md:flex gap-6 text-sm font-medium">
-                <a href="#pdf" class="hover:text-primary transition-colors">📄 PDF & IA</a>
-                <a href="#cronograma" class="hover:text-primary transition-colors">📅 Cronograma</a>
-                <a href="#simulado" class="hover:text-primary transition-colors">📝 Simulados</a>
-                <a href="#bancas" class="hover:text-primary transition-colors">🏛️ Bancas</a>
-                <a href="#materiais" class="hover:text-primary transition-colors">📁 Materiais</a>
-                <a href="#resultados" class="hover:text-primary transition-colors">📊 Desempenho</a>
+            <nav class="hidden md:flex gap-5 text-sm font-medium text-slate-300">
+                <a href="#pdf" class="hover:text-indigo-400 transition-colors">📄 PDF & IA</a>
+                <a href="#cronograma" class="hover:text-indigo-400 transition-colors">📅 Cronograma</a>
+                <a href="#simulado" class="hover:text-indigo-400 transition-colors">📝 Simulados</a>
+                <a href="#bancas" class="hover:text-indigo-400 transition-colors">🏛️ Bancas</a>
+                <a href="#materiais" class="hover:text-indigo-400 transition-colors">📁 Materiais</a>
             </nav>
 
-            <button id="menuBtn" class="md:hidden text-2xl text-primary">
+            <button id="menuBtn" class="md:hidden text-xl text-indigo-400">
                 <i class="fa-solid fa-bars"></i>
             </button>
         </div>
 
         <!-- Menu Mobile -->
-        <div id="mobileMenu" class="fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-50 p-6 transform translate-x-full transition-transform duration-300 md:hidden">
+        <div id="mobileMenu" class="fixed top-0 right-0 h-full w-72 bg-dark-900 shadow-2xl z-50 p-6 transform translate-x-full transition-transform duration-300 border-l border-dark-700">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-primary">Menu</h2>
-                <button id="closeMenu" class="text-xl text-slate-500"><i class="fa-solid fa-xmark"></i></button>
+                <h2 class="text-xl font-bold text-indigo-400">Menu</h2>
+                <button id="closeMenu" class="text-xl text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <nav class="flex flex-col gap-4 text-lg">
-                <a href="#pdf" class="py-2 border-b border-slate-100">📄 PDF & IA</a>
-                <a href="#cronograma" class="py-2 border-b border-slate-100">📅 Cronograma</a>
-                <a href="#simulado" class="py-2 border-b border-slate-100">📝 Simulados</a>
-                <a href="#bancas" class="py-2 border-b border-slate-100">🏛️ Bancas</a>
-                <a href="#materiais" class="py-2 border-b border-slate-100">📁 Materiais</a>
-                <a href="#resultados" class="py-2 border-b border-slate-100">📊 Desempenho</a>
+            <nav class="flex flex-col gap-4 text-lg text-slate-300">
+                <a href="#pdf" class="py-2 border-b border-dark-700 hover:text-indigo-400">📄 PDF & IA</a>
+                <a href="#cronograma" class="py-2 border-b border-dark-700 hover:text-indigo-400">📅 Cronograma</a>
+                <a href="#simulado" class="py-2 border-b border-dark-700 hover:text-indigo-400">📝 Simulados</a>
+                <a href="#bancas" class="py-2 border-b border-dark-700 hover:text-indigo-400">🏛️ Bancas</a>
+                <a href="#materiais" class="py-2 border-b border-dark-700 hover:text-indigo-400">📁 Materiais</a>
             </nav>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-8 space-y-16">
+    <main class="container mx-auto px-4 py-8 space-y-12">
 
-        <!-- ============================================== -->
-        <!-- SEÇÃO 1 → PDF: Gerar Questões e Resumos       -->
-        <!-- ============================================== -->
-        <section id="pdf" class="bg-white rounded-3xl p-6 md:p-8 shadow-card animate-fade">
-            <div class="flex items-center gap-3 mb-6">
-                <span class="w-12 h-12 rounded-2xl bg-red-50 text-danger flex items-center justify-center text-2xl">
+        <!-- 🔑 CONFIGURAÇÃO DA IA -->
+        <section class="bg-dark-800 border border-indigo-800/50 rounded-2xl p-5 animate-fade">
+            <h3 class="font-bold text-indigo-300 mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-robot"></i> Configurar Inteligência Artificial
+            </h3>
+            <p class="text-sm text-slate-400 mb-3">Obtenha sua chave gratuitamente em <code class="bg-dark-700 px-2 rounded text-indigo-300">aistudio.google.com/apikey</code></p>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <input type="password" id="apiKey" placeholder="Cole sua chave Gemini aqui"
+                    class="flex-1 p-2 bg-dark-900 border border-dark-600 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+                <button id="salvarChave" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition">
+                    Salvar
+                </button>
+            </div>
+            <p id="statusChave" class="text-sm mt-2 text-slate-400">Chave não configurada</p>
+        </section>
+
+        <!-- 📄 PROCESSAR PDF COM IA -->
+        <section id="pdf" class="bg-dark-900 border border-dark-700 rounded-2xl p-6 shadow-card animate-fade">
+            <h2 class="text-2xl font-bold mb-5 text-indigo-400 flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-indigo-900/50 flex items-center justify-center text-indigo-400">
                     <i class="fa-solid fa-file-pdf"></i>
                 </span>
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Processar PDF com IA</h2>
-                    <p class="text-slate-500 text-sm">Envie um PDF e gere resumos e questões automaticamente</p>
-                </div>
-            </div>
+                Processar PDF com IA
+            </h2>
 
-            <div class="grid md:grid-cols-2 gap-8">
+            <div class="grid md:grid-cols-2 gap-6">
                 <!-- Área de Upload -->
-                <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:border-primary hover:bg-blue-50/50 transition-all cursor-pointer">
+                <div id="dropZone" class="border-2 border-dashed border-dark-600 rounded-xl p-6 text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-950/30 transition-all">
                     <input type="file" id="pdfUpload" accept=".pdf" class="hidden">
                     <label for="pdfUpload" class="cursor-pointer block">
-                        <i class="fa-solid fa-cloud-arrow-up text-5xl text-slate-400 mb-4"></i>
-                        <p class="text-lg font-semibold text-slate-700">Clique ou arraste seu PDF aqui</p>
-                        <p class="text-sm text-slate-500 mt-2">O conteúdo será lido e processado</p>
+                        <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-500 mb-3"></i>
+                        <p class="font-semibold text-slate-300">Clique ou arraste seu PDF</p>
+                        <p class="text-sm text-slate-500 mt-1">A IA lê e gera resumo + questões automaticamente</p>
                     </label>
-                    <div id="fileInfo" class="mt-4 text-green-600 font-medium hidden">
-                        <i class="fa-solid fa-circle-check"></i>
-                        <span id="fileName"></span>
-                        <span id="fileSize" class="text-sm text-slate-500 ml-2"></span>
+                    <div id="fileInfo" class="mt-3 text-success hidden">
+                        <i class="fa-solid fa-circle-check"></i> <span id="fileName"></span>
                     </div>
                 </div>
 
-                <!-- Opções de Geração -->
-                <div class="space-y-4">
-                    <h3 class="font-bold text-lg text-slate-700">O que deseja gerar?</h3>
-                    <div class="space-y-3">
-                        <label class="flex items-center gap-3 p-3 border rounded-xl hover:bg-blue-50 cursor-pointer transition">
-                            <input type="checkbox" id="gerarResumo" checked class="w-5 h-5 text-primary">
-                            <span>📝 Criar resumo estruturado do conteúdo</span>
-                        </label>
-                        <label class="flex items-center gap-3 p-3 border rounded-xl hover:bg-blue-50 cursor-pointer transition">
-                            <input type="checkbox" id="gerarQuestoes" checked class="w-5 h-5 text-primary">
-                            <span>📋 Gerar questões de múltipla escolha</span>
-                        </label>
-                        <div class="pl-8 space-y-2">
-                            <label class="block text-sm font-medium">Quantidade de questões:</label>
-                            <select id="qtdQuestoes" class="w-full p-2 border rounded-xl">
-                                <option value="5">5 questões</option>
-                                <option value="10" selected>10 questões</option>
-                                <option value="15">15 questões</option>
-                                <option value="20">20 questões</option>
-                            </select>
-                        </div>
+                <!-- Opções -->
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 p-3 border border-dark-700 rounded-xl hover:bg-dark-800 cursor-pointer transition">
+                        <input type="checkbox" id="gerarResumo" checked class="w-5 h-5 accent-indigo-500">
+                        <span>📝 Gerar resumo estruturado</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 border border-dark-700 rounded-xl hover:bg-dark-800 cursor-pointer transition">
+                        <input type="checkbox" id="gerarQuestoes" checked class="w-5 h-5 accent-indigo-500">
+                        <span>📋 Gerar questões com correção e explicação</span>
+                    </label>
+                    <div class="pl-6 space-y-2">
+                        <label class="text-sm font-medium text-slate-400">Quantidade de questões:</label>
+                        <select id="qtdQuestoes" class="w-full p-2 bg-dark-800 border border-dark-600 rounded-lg text-slate-200 focus:outline-none focus:border-indigo-500">
+                            <option value="5">5 questões</option>
+                            <option value="10" selected>10 questões</option>
+                            <option value="15">15 questões</option>
+                        </select>
                     </div>
-                    <button id="btnGerar" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-primaryDark transition-all shadow-md hover:shadow-lg mt-2">
+                    <button id="btnGerar" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold transition mt-2 shadow-glow">
                         <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Gerar com IA
                     </button>
                 </div>
             </div>
 
+            <!-- Carregando -->
+            <div id="carregandoIA" class="hidden mt-6 p-4 bg-indigo-950/50 border border-indigo-800/50 rounded-xl text-center">
+                <i class="fa-solid fa-gear fa-spin text-indigo-400 text-2xl mb-2"></i>
+                <p class="font-medium text-indigo-300">A IA está processando o conteúdo... Aguarde um instante!</p>
+            </div>
+
             <!-- Resultados -->
-            <div id="resultados" class="mt-10 space-y-8 hidden animate-fade">
-                <div id="resumoBox" class="border border-blue-100 rounded-2xl p-5 bg-blue-50/50">
-                    <h3 class="font-bold text-xl mb-4 text-primary flex items-center gap-2">
-                        <i class="fa-solid fa-file-lines"></i> Resumo Gerado
+            <div id="resultados" class="mt-8 space-y-6 hidden animate-fade">
+                <div id="resumoBox" class="border border-indigo-800/40 rounded-xl p-5 bg-indigo-950/30">
+                    <h3 class="font-bold text-lg mb-3 text-indigo-300 flex items-center gap-2">
+                        <i class="fa-solid fa-file-lines"></i> Resumo Gerado pela IA
                     </h3>
-                    <div id="resumoConteudo" class="text-slate-700 leading-relaxed whitespace-pre-line"></div>
+                    <div id="resumoConteudo" class="text-slate-300 leading-relaxed whitespace-pre-line"></div>
                 </div>
 
                 <div id="questoesBox">
-                    <h3 class="font-bold text-xl mb-4 text-primary flex items-center gap-2">
+                    <h3 class="font-bold text-lg mb-3 text-indigo-300 flex items-center gap-2">
                         <i class="fa-solid fa-list-ol"></i> Questões Geradas
                     </h3>
-                    <div id="questoesConteudo" class="space-y-5"></div>
+                    <div id="questoesConteudo" class="space-y-4"></div>
                 </div>
             </div>
         </section>
 
-        <!-- ============================================== -->
-        <!-- SEÇÃO 2 → Cronograma de Estudos               -->
-        <!-- ============================================== -->
-        <section id="cronograma" class="bg-white rounded-3xl p-6 md:p-8 shadow-card animate-fade">
-            <div class="flex items-center gap-3 mb-6">
-                <span class="w-12 h-12 rounded-2xl bg-amber-50 text-accent flex items-center justify-center text-2xl">
+        <!-- 📅 CRONOGRAMA -->
+        <section id="cronograma" class="bg-dark-900 border border-dark-700 rounded-2xl p-6 shadow-card animate-fade">
+            <h2 class="text-2xl font-bold mb-5 text-indigo-400 flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-indigo-900/50 flex items-center justify-center text-indigo-400">
                     <i class="fa-solid fa-calendar-days"></i>
                 </span>
+                Cronograma de Estudos
+            </h2>
+
+            <div class="grid md:grid-cols-4 gap-3 mb-4">
+                <div class="md:col-span-2">
+                    <label class="text-sm font-medium text-slate-400">Assunto / Matéria</label>
+                    <input type="text" id="assunto" placeholder="Ex: Direito Constitucional" 
+                        class="w-full p-2 bg-dark-800 border border-dark-600 rounded-lg text-slate-200 focus:outline-none focus:border-indigo-500">
+                </div>
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Cronograma de Estudos</h2>
-                    <p class="text-slate-500 text-sm">Organize seus horários e assuntos</p>
+                    <label class="text-sm font-medium text-slate-400">Data e Horário</label>
+                    <input type="datetime-local" id="dataEstudo" 
+                        class="w-full p-2 bg-dark-800 border border-dark-600 rounded-lg text-slate-200 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-slate-400">Duração (min)</label>
+                    <input type="number" id="duracao" value="60" 
+                        class="w-full p-2 bg-dark-800 border border-dark-600 rounded-lg text-slate-200 focus:outline-none focus:border-indigo-500">
                 </div>
             </div>
 
-            <div class="grid md:grid-cols-4 gap-4 mb-6">
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium mb-1">Matéria / Assunto</label>
-                    <input type="text" id="assunto" placeholder="Ex: Direito Constitucional" class="w-full p-3 border rounded-xl">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Data e Horário</label>
-                    <input type="datetime-local" id="dataEstudo" class="w-full p-3 border rounded-xl">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Duração (min)</label>
-                    <input type="number" id="duracao" value="60" class="w-full p-3 border rounded-xl">
-                </div>
-            </div>
-            <button id="btnAdicionar" class="bg-secondary text-white px-6 py-3 rounded-xl font-bold hover:bg-green-800 transition shadow-md mb-6">
-                <i class="fa-solid fa-plus mr-2"></i> Adicionar ao Cronograma
+            <button id="btnAdicionar" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-lg font-bold mb-4 transition">
+                <i class="fa-solid fa-plus mr-1"></i> Adicionar ao Cronograma
             </button>
 
-            <div class="overflow-x-auto rounded-xl border">
+            <div class="overflow-x-auto border border-dark-700 rounded-xl">
                 <table class="w-full text-sm">
-                    <thead class="bg-slate-50 text-left">
+                    <thead class="bg-dark-800 text-indigo-300">
                         <tr>
-                            <th class="p-3 font-semibold">Assunto</th>
-                            <th class="p-3 font-semibold">Data e Horário</th>
-                            <th class="p-3 font-semibold">Duração</th>
-                            <th class="p-3 font-semibold text-center">Ações</th>
+                            <th class="p-3 text-left font-semibold">Assunto</th>
+                            <th class="p-3 text-left font-semibold">Data e Horário</th>
+                            <th class="p-3 text-left font-semibold">Duração</th>
+                            <th class="p-3 text-center font-semibold">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tabelaCronograma"></tbody>
@@ -249,302 +278,377 @@
             </div>
         </section>
 
-        <!-- ============================================== -->
-        <!-- SEÇÃO 3 → Simulado com Correção Automática    -->
-        <!-- ============================================== -->
-        <section id="simulado" class="bg-white rounded-3xl p-6 md:p-8 shadow-card animate-fade">
-            <div class="flex items-center gap-3 mb-6">
-                <span class="w-12 h-12 rounded-2xl bg-green-50 text-secondary flex items-center justify-center text-2xl">
+        <!-- ✅ SIMULADOS -->
+        <section id="simulado" class="bg-dark-900 border border-dark-700 rounded-2xl p-6 shadow-card animate-fade">
+            <h2 class="text-2xl font-bold mb-5 text-indigo-400 flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-indigo-900/50 flex items-center justify-center text-indigo-400">
                     <i class="fa-solid fa-pen-to-square"></i>
                 </span>
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Simulado — Correção Imediata</h2>
-                    <p class="text-slate-500 text-sm">Resolva e veja o resultado na hora com explicação</p>
+                Simulados com Correção Imediata
+            </h2>
+            <p class="text-slate-400 mb-4">Responda e veja a correção com explicação detalhada na hora!</p>
+
+            <div id="simuladoContainer" class="space-y-4">
+                <!-- Questão de Exemplo -->
+                <div class="questao border border-dark-700 rounded-xl p-4 hover:border-indigo-800/50 transition">
+                    <p class="font-bold mb-3 text-slate-200">01. São elementos essenciais do Estado, conforme a doutrina:</p>
+                    <div class="space-y-2">
+                        <button class="option-btn w-full text-left p-3 rounded-xl bg-dark-800" 
+                            data-correct="false" 
+                            data-explicacao="Incorreto. A soberania não é absoluta no Estado Democrático, está limitada pela Constituição e pelos direitos fundamentais.">
+                            A) Soberania absoluta, território e governo
+                        </button>
+                        <button class="option-btn w-full text-left p-3 rounded-xl bg-dark-800" 
+                            data-correct="true" 
+                            data-explicacao="Correto! Os três elementos essenciais e constitutivos do Estado são: povo (população), território e poder soberano (governo).">
+                            B) Povo, território e governo
+                        </button>
+                        <button class="option-btn w-full text-left p-3 rounded-xl bg-dark-800" 
+                            data-correct="false" 
+                            data-explicacao="Incorreto. O governo é o exercício do poder, não se confunde com o Estado que é permanente; leis são normas, não elemento.">
+                            C) Governo, leis e população
+                        </button>
+                        <button class="option-btn w-full text-left p-3 rounded-xl bg-dark-800" 
+                            data-correct="false" 
+                            data-explicacao="Incorreto. A organização política é a forma de Estado, não um elemento constitutivo.">
+                            D) Povo, leis e organização política
+                        </button>
+                    </div>
+                    <div class="explicacao mt-3 p-3 rounded-xl hidden"></div>
                 </div>
             </div>
 
-            <div id="simuladoContainer" class="space-y-6">
-                <!-- Questão 1 -->
-                <div class="questao border rounded-2xl p-5 hover:shadow-md transition">
-                    <p class="font-bold text-lg mb-4">01. De acordo com a Constituição Federal de 1988, assinale a alternativa correta:</p>
-                    <div class="space-y-3 ml-1">
-                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="A soberania não é absoluta; está sujeita à ordem jurídica e aos direitos fundamentais previstos na CF/88.">
-                            A) A soberania do Estado é absoluta e não tem qualquer limite.
-                        </button>
-                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="true" data-explicacao="Correto! Os três elementos essenciais do Estado são: população, território e governo.">
-                            B) São elementos essenciais do Estado: população, território e governo.
-                        </button>
-                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="O Estado é permanente; o governo é temporário e pode ser substituído.">
-                            C) Estado e governo são idênticos e têm a mesma duração.
-                        </button>
-                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="Os elementos constitutivos são povo, território e poder soberano; organização política não é elemento.">
-                            D) Os elementos são: povo, território, poder e organização política.
-                        </button>
-                    </div>
-                    <div class="explicacao mt-4 p-4 rounded-xl hidden"></div>
-                </div>
-
-                <!-- Questão 2 -->
-                <div class="questao border rounded-2xl p-5 hover:shadow-md transition">
-                    <p class="font-bold text-lg mb-4">02. Qual é o valor de √144?</p>
-                    <div class="space-y-3 ml-1">
-                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="11² = 121, não 144.">A) 11</button>
-                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="true" data-explicacao="Correto! 12 × 12 = 144, logo √144 = 12.">B) 12</button>
-                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="13² = 169.">C) 13</button>
-                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="14² = 196.">D) 14</button>
-                    </div>
-                    <div class="explicacao mt-4 p-4 rounded-xl hidden"></div>
-                </div>
-            </div>
-
-            <div class="mt-8 p-5 bg-blue-50 rounded-2xl border border-blue-100">
-                <p class="font-semibold text-lg">📊 Resultado: <span id="acertos">0</span> acertos de <span id="totalQuestoes">2</span> — <span id="porcentagem">0%</span></p>
-                <div class="w-full bg-slate-200 rounded-full h-3 mt-3">
-                    <div id="barraProgresso" class="bg-primary h-3 rounded-full transition-all duration-500" style="width:0%"></div>
+            <div class="mt-5 p-4 bg-indigo-950/40 border border-indigo-800/40 rounded-xl">
+                <p class="font-semibold text-indigo-300">
+                    📊 Resultado: <span id="acertos">0</span> acertos de <span id="totalQuestoes">1</span> → 
+                    <span id="porcentagem">0%</span>
+                </p>
+                <div class="w-full bg-dark-700 rounded-full h-3 mt-3">
+                    <div id="barraProgresso" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width:0%"></div>
                 </div>
             </div>
         </section>
 
-        <!-- ============================================== -->
-        <!-- SEÇÃO 4 → Bancas e Vestibulares               -->
-        <!-- ============================================== -->
-        <section id="bancas" class="bg-white rounded-3xl p-6 md:p-8 shadow-card animate-fade">
-            <div class="flex items-center gap-3 mb-6">
-                <span class="w-12 h-12 rounded-2xl bg-sky-50 text-info flex items-center justify-center text-2xl">
+        <!-- 🏛️ BANCAS -->
+        <section id="bancas" class="bg-dark-900 border border-dark-700 rounded-2xl p-6 shadow-card animate-fade">
+            <h2 class="text-2xl font-bold mb-5 text-indigo-400 flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-indigo-900/50 flex items-center justify-center text-indigo-400">
                     <i class="fa-solid fa-landmark"></i>
                 </span>
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Questões por Bancas e Vestibulares</h2>
-                    <p class="text-slate-500 text-sm">Estude no estilo das principais organizadoras</p>
-                </div>
+                Questões por Bancas de Concursos
+            </h2>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <button class="banca-btn p-3 border-2 border-dark-600 rounded-xl hover:border-indigo-500 hover:bg-indigo-950/30 transition font-medium text-sm" data-banca="cesbraspe">CESBRASPE</button>
+                <button class="banca-btn p-3 border-2 border-dark-600 rounded-xl hover:border-indigo-500 hover:bg-indigo-950/30 transition font-medium text-sm" data-banca="fgv">FGV</button>
+                <button class="banca-btn p-3 border-2 border-dark-600 rounded-xl hover:border-indigo-500 hover:bg-indigo-950/30 transition font-medium text-sm" data-banca="cespe">CESPE / CEBRASPE</button>
+                <button class="banca-btn p-3 border-2 border-dark-600 rounded-xl hover:border-indigo-500 hover:bg-indigo-950/30 transition font-medium text-sm" data-banca="ibfc">IBFC</button>
+                <button class="banca-btn p-3 border-2 border-dark-600 rounded-xl hover:border-indigo-500 hover:bg-indigo-950/30 transition font-medium text-sm" data-banca="ibgp">IBGP</button>
+                <button class="banca-btn p-3 border-2 border-dark-600 rounded-xl hover:border-indigo-500 hover:bg-indigo-950/30 transition font-medium text-sm" data-banca="idecan">IDECAN</button>
+                <button class="banca-btn p-3 border-2 border-dark-600 rounded-xl hover:border-indigo-500 hover:bg-indigo-950/30 transition font-medium text-sm" data-banca="imeso">IMESO</button>
+                <button class="banca-btn p-3 border-2 border-dark-600 rounded-xl hover:border-indigo-500 hover:bg-indigo-950/30 transition font-medium text-sm" data-banca="enem">ENEM / Vestibulares</button>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="cesbraspe">CESBRASPE</button>
-                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="fgv">FGV</button>
-                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="cespe">CESPE / CEBRASPE</button>
-                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="ibfc">IBFC</button>
-                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="ibgp">IBGP</button>
-                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="idecan">IDECAN</button>
-                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="imeso">IMESO</button>
-                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="vestibular">ENEM / Vestibulares</button>
-            </div>
-
-            <div id="questoesBanca" class="space-y-5">
+            <div id="questoesBanca" class="space-y-4">
                 <p class="text-slate-500 italic">👆 Selecione uma banca acima para carregar questões no estilo dela</p>
             </div>
         </section>
 
-        <!-- ============================================== -->
-        <!-- SEÇÃO 5 → Materiais de Estudo                 -->
-        <!-- ============================================== -->
-        <section id="materiais" class="bg-white rounded-3xl p-6 md:p-8 shadow-card animate-fade">
-            <div class="flex items-center gap-3 mb-6">
-                <span class="w-12 h-12 rounded-2xl bg-orange-50 text-accent flex items-center justify-center text-2xl">
+        <!-- 📁 MATERIAIS -->
+        <section id="materiais" class="bg-dark-900 border border-dark-700 rounded-2xl p-6 shadow-card animate-fade">
+            <h2 class="text-2xl font-bold mb-5 text-indigo-400 flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-indigo-900/50 flex items-center justify-center text-indigo-400">
                     <i class="fa-solid fa-folder-open"></i>
                 </span>
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Repositório de Materiais</h2>
-                    <p class="text-slate-500 text-sm">Anexe e organize suas apostilas, PDFs e arquivos</p>
-                </div>
-            </div>
+                Repositório de Materiais
+            </h2>
 
-            <div class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center mb-6 hover:border-secondary hover:bg-green-50/50 transition">
+            <div class="border-2 border-dashed border-dark-600 rounded-xl p-6 text-center mb-4 hover:border-indigo-500 hover:bg-indigo-950/30 transition-all">
                 <input type="file" id="materialUpload" multiple class="hidden">
                 <label for="materialUpload" class="cursor-pointer block">
-                    <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 mb-3"></i>
-                    <p class="font-semibold text-lg">Clique para anexar materiais</p>
-                    <p class="text-sm text-slate-500 mt-1">PDF, DOCX, slides, apostilas — tudo organizado aqui</p>
+                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-500 mb-2"></i>
+                    <p class="font-semibold text-slate-300">Clique para anexar seus materiais</p>
+                    <p class="text-sm text-slate-500 mt-1">PDF, apostilas, slides — tudo organizado aqui</p>
                 </label>
             </div>
 
-            <div id="listaMateriais" class="space-y-2">
-                <h3 class="font-bold text-lg text-slate-700">📁 Materiais Disponíveis</h3>
-                <p class="text-slate-500 italic">Nenhum material enviado ainda. Anexe arquivos acima!</p>
-            </div>
-        </section>
-
-        <!-- ============================================== -->
-        <!-- SEÇÃO 6 → Desempenho / Resultados            -->
-        <!-- ============================================== -->
-        <section id="resultados" class="bg-white rounded-3xl p-6 md:p-8 shadow-card animate-fade">
-            <div class="flex items-center gap-3 mb-6">
-                <span class="w-12 h-12 rounded-2xl bg-blue-50 text-primary flex items-center justify-center text-2xl">
-                    <i class="fa-solid fa-chart-pie"></i>
-                </span>
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Seu Desempenho</h2>
-                    <p class="text-slate-500 text-sm">Acompanhe sua evolução nos estudos</p>
-                </div>
-            </div>
-
-            <div class="grid md:grid-cols-4 gap-4">
-                <div class="bg-blue-50 rounded-2xl p-5 text-center">
-                    <p class="text-3xl font-bold text-primary" id="totalRespostas">0</p>
-                    <p class="text-sm text-slate-600 mt-1">Questões Respondidas</p>
-                </div>
-                <div class="bg-green-50 rounded-2xl p-5 text-center">
-                    <p class="text-3xl font-bold text-secondary" id="totalAcertos">0</p>
-                    <p class="text-sm text-slate-600 mt-1">Acertos</p>
-                </div>
-                <div class="bg-amber-50 rounded-2xl p-5 text-center">
-                    <p class="text-3xl font-bold text-accent" id="mediaDesempenho">0%</p>
-                    <p class="text-sm text-slate-600 mt-1">Aproveitamento</p>
-                </div>
-                <div class="bg-sky-50 rounded-2xl p-5 text-center">
-                    <p class="text-3xl font-bold text-info" id="diasEstudo">0</p>
-                    <p class="text-sm text-slate-600 mt-1">Dias no Cronograma</p>
-                </div>
+            <div id="listaMateriais" class="text-slate-400">
+                <p class="italic">Nenhum material enviado ainda. Anexe arquivos acima!</p>
             </div>
         </section>
 
     </main>
 
-    <footer class="bg-slate-900 text-white py-8 mt-12">
+    <!-- Rodapé -->
+    <footer class="bg-dark-900 border-t border-dark-700 py-6 mt-10">
         <div class="container mx-auto px-4 text-center">
-            <p class="text-xl font-bold mb-2">📚 EstudaMais</p>
-            <p class="text-slate-400">Plataforma completa de estudos — questões, resumos, cronogramas e simulados</p>
-            <p class="text-sm text-slate-500 mt-3">Para geração real por IA, conecte a API do Google Gemini ou OpenAI</p>
+            <p class="font-bold text-lg text-indigo-400">📚 EstudaMais — Plataforma com Inteligência Artificial</p>
+            <p class="text-slate-400 text-sm mt-2">Criado por Vitória Gil | IA: Google Gemini | Todos os direitos reservados</p>
         </div>
     </footer>
 
     <script>
         // ==================================================
-        // VARIÁVEIS GLOBAIS
+        // 🤖 CONFIGURAÇÃO DA IA — GOOGLE GEMINI
         // ==================================================
-        let estatisticas = {
-            totalRespostas: 0,
-            totalAcertos: 0
-        };
-        let acertosSimuladoAtual = 0;
-        let totalSimuladoAtual = 0;
+        let GEMINI_API_KEY = localStorage.getItem('geminiKey') || '';
+        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
-        // ==================================================
-        // MENU MOBILE
-        // ==================================================
-        const menuBtn = document.getElementById('menuBtn');
-        const closeMenu = document.getElementById('closeMenu');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const overlay = document.getElementById('overlay');
+        const statusChave = document.getElementById('statusChave');
+        const apiKeyInput = document.getElementById('apiKey');
+        const salvarChaveBtn = document.getElementById('salvarChave');
 
-        function toggleMenu(abrir) {
-            if (abrir) {
-                mobileMenu.classList.remove('translate-x-full');
-                overlay.classList.remove('hidden');
-            } else {
-                mobileMenu.classList.add('translate-x-full');
-                overlay.classList.add('hidden');
+        if (GEMINI_API_KEY) {
+            apiKeyInput.value = GEMINI_API_KEY;
+            statusChave.textContent = '✅ Chave configurada! IA pronta para uso.';
+            statusChave.className = 'text-sm mt-2 text-success';
+        }
+
+        salvarChaveBtn.addEventListener('click', () => {
+            const chave = apiKeyInput.value.trim();
+            if (chave.length < 10) {
+                alert('⚠️ Chave inválida! Obtenha gratuitamente em: aistudio.google.com/apikey');
+                return;
+            }
+            GEMINI_API_KEY = chave;
+            localStorage.setItem('geminiKey', chave);
+            statusChave.textContent = '✅ Chave salva com sucesso! IA ativa.';
+            statusChave.className = 'text-sm mt-2 text-success';
+            alert('✅ Chave salva! A IA já está pronta para gerar resumos e questões.');
+        });
+
+        // Chamada para a IA
+        async function chamarIA(prompt) {
+            if (!GEMINI_API_KEY) {
+                alert('⚠️ Configure sua chave da Inteligência Artificial antes de usar!');
+                return null;
+            }
+            try {
+                const resposta = await fetch(`${API_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { temperature: 0.7, maxOutputTokens: 8000 }
+                    })
+                });
+                const dados = await resposta.json();
+                if (dados.error) {
+                    alert('Erro: ' + dados.error.message);
+                    return null;
+                }
+                return dados.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            } catch (erro) {
+                alert('Falha na comunicação com a IA: ' + erro.message);
+                return null;
             }
         }
 
-        menuBtn.addEventListener('click', () => toggleMenu(true));
-        closeMenu.addEventListener('click', () => toggleMenu(false));
-        overlay.addEventListener('click', () => toggleMenu(false));
-        document.querySelectorAll('#mobileMenu a').forEach(a => {
-            a.addEventListener('click', () => toggleMenu(false));
-        });
+        // ==================================================
+        // 📄 LEITURA DE PDF
+        // ==================================================
+        async function extrairTextoDoPDF(arquivo) {
+            const arrayBuffer = await arquivo.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let textoCompleto = '';
+            for (let pagina = 1; pagina <= pdf.numPages; pagina++) {
+                const paginaAtual = await pdf.getPage(pagina);
+                const conteudo = await paginaAtual.getTextContent();
+                textoCompleto += conteudo.items.map(item => item.str).join(' ') + '\n';
+            }
+            return textoCompleto.slice(0, 30000); // Limite seguro para a IA
+        }
 
         // ==================================================
-        // 1. UPLOAD DE PDF E GERAÇÃO DE CONTEÚDO
+        // 📄 UPLOAD E GERAÇÃO DE CONTEÚDO
         // ==================================================
         const pdfUpload = document.getElementById('pdfUpload');
-        const fileInfo = document.getElementById('fileInfo');
         const fileName = document.getElementById('fileName');
-        const fileSize = document.getElementById('fileSize');
+        const fileInfo = document.getElementById('fileInfo');
         const btnGerar = document.getElementById('btnGerar');
+        const carregandoIA = document.getElementById('carregandoIA');
         const resultados = document.getElementById('resultados');
         const resumoConteudo = document.getElementById('resumoConteudo');
         const questoesConteudo = document.getElementById('questoesConteudo');
 
-        pdfUpload.addEventListener('change', e => {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                fileName.textContent = file.name;
-                fileSize.textContent = `(${ (file.size / 1024 / 1024).toFixed(2) } MB)`;
-                fileInfo.classList.remove('hidden');
-            }
+        let textoPDF = '';
+
+        pdfUpload.addEventListener('change', async e => {
+            if (!e.target.files[0]) return;
+            const arquivo = e.target.files[0];
+            fileName.textContent = arquivo.name;
+            fileInfo.classList.remove('hidden');
+            textoPDF = await extrairTextoDoPDF(arquivo);
         });
 
-        // Drag & Drop
+        // Área de arrastar e soltar
         const dropZone = document.getElementById('dropZone');
-        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('border-primary','bg-blue-50'); });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-primary','bg-blue-50'));
-        dropZone.addEventListener('drop', e => {
+        dropZone.addEventListener('dragover', e => {
             e.preventDefault();
-            dropZone.classList.remove('border-primary','bg-blue-50');
+            dropZone.classList.add('border-indigo-500', 'bg-indigo-950/30');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('border-indigo-500', 'bg-indigo-950/30');
+        });
+        dropZone.addEventListener('drop', async e => {
+            e.preventDefault();
+            dropZone.classList.remove('border-indigo-500', 'bg-indigo-950/30');
             if (e.dataTransfer.files.length) {
                 pdfUpload.files = e.dataTransfer.files;
                 pdfUpload.dispatchEvent(new Event('change'));
             }
         });
 
-        btnGerar.addEventListener('click', () => {
-            if (!pdfUpload.files.length) {
-                alert('⚠️ Selecione um PDF antes de gerar!');
+        // Gerar com IA
+        btnGerar.addEventListener('click', async () => {
+            if (!textoPDF) {
+                alert('⚠️ Selecione um arquivo PDF antes!');
                 return;
             }
-            resultados.classList.remove('hidden');
-            const qtd = parseInt(document.getElementById('qtdQuestoes').value);
+            if (!GEMINI_API_KEY) {
+                alert('⚠️ Configure sua chave da IA antes de gerar conteúdo!');
+                return;
+            }
+
+            resultados.classList.add('hidden');
+            carregandoIA.classList.remove('hidden');
+
             const gerarResumo = document.getElementById('gerarResumo').checked;
             const gerarQuestoes = document.getElementById('gerarQuestoes').checked;
+            const quantidade = document.getElementById('qtdQuestoes').value;
 
-            // Resumo simulado
-            if (gerarResumo) {
-                resumoConteudo.textContent = `📌 Resumo gerado com base no conteúdo do PDF enviado.
-
-O documento apresenta os conceitos fundamentais da matéria, organizados de forma lógica. Os principais pontos abordados incluem: definições, princípios, aplicações práticas e exemplos que facilitam a compreensão.
-
-💡 Dica de estudo:
-→ Leia o PDF uma vez e depois este resumo para fixar.
-→ Resolva as questões abaixo para testar o conhecimento.
-→ Revise os tópicos que errar após cada simulado.
-
-*Este é um resumo de demonstração. Conecte a API do Google Gemini para gerar com base no conteúdo real do PDF.*`;
-                document.getElementById('resumoBox').classList.remove('hidden');
-            } else {
-                document.getElementById('resumoBox').classList.add('hidden');
-            }
-
-            // Questões simuladas
-            if (gerarQuestoes) {
-                questoesConteudo.innerHTML = '';
-                for (let i = 1; i <= qtd; i++) {
-                    const q = document.createElement('div');
-                    q.className = 'questao border rounded-2xl p-5 hover:shadow-md transition';
-                    q.innerHTML = `
-                        <p class="font-bold text-lg mb-4">${i}. Questão baseada no conteúdo do PDF enviado</p>
-                        <div class="space-y-3 ml-1">
-                            <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="Esta alternativa está incorreta, pois o conteúdo do PDF apresenta informação diferente.">
-                                A) Afirmação incorreta de acordo com o conteúdo
-                            </button>
-                            <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="true" data-explicacao="✅ Correto! Esta informação está presente no conteúdo do PDF.">
-                                B) Afirmação correta de acordo com o conteúdo do PDF
-                            </button>
-                            <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="Incorreta. O PDF explica que o conceito é outro.">
-                                C) Outra afirmação incorreta
-                            </button>
-                            <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="Errada. Contradiz o que está definido no documento.">
-                                D) Também incorreta
-                            </button>
-                        </div>
-                        <div class="explicacao mt-4 p-4 rounded-xl hidden"></div>
-                    `;
-                    questoesConteudo.appendChild(q);
+            try {
+                if (gerarResumo) {
+                    const promptResumo = `Faça um resumo bem estruturado, claro e organizado do conteúdo abaixo. Use tópicos e títulos. Conteúdo: ${textoPDF}`;
+                    const respostaResumo = await chamarIA(promptResumo);
+                    if (respostaResumo) resumoConteudo.textContent = respostaResumo;
                 }
-                ativarCorrecao();
-            }
 
-            resultados.scrollIntoView({behavior:'smooth', block:'start'});
+                if (gerarQuestoes) {
+                    const promptQuestoes = `Com base no conteúdo abaixo, crie ${quantidade} questões de múltipla escolha com 4 alternativas (A, B, C, D). Apenas UMA alternativa correta por questão. Indique a resposta correta e uma explicação detalhada.
+
+Siga EXATAMENTE este formato:
+
+---PERGUNTA---
+1. Enunciado da questão
+A) Alternativa A
+B) Alternativa B
+C) Alternativa C
+D) Alternativa D
+RESPOSTA: Letra correta
+EXPLICACAO: Explicação detalhada
+
+Conteúdo: ${textoPDF}`;
+
+                    const respostaQuestoes = await chamarIA(promptQuestoes);
+                    if (respostaQuestoes) {
+                        questoesConteudo.innerHTML = '';
+                        const blocos = respostaQuestoes.split('---PERGUNTA---').filter(b => b.trim());
+                        
+                        blocos.forEach((bloco, indice) => {
+                            const linhas = bloco.trim().split('\n').filter(l => l.trim());
+                            let enunciado = '', alternativas = [], respostaCorreta = '', explicacao = '';
+
+                            linhas.forEach(linha => {
+                                if (/^[A-D]\)/.test(linha.trim())) {
+                                    alternativas.push(linha.trim());
+                                } else if (linha.toUpperCase().startsWith('RESPOSTA:')) {
+                                    respostaCorreta = linha.split(':')[1].trim().replace('.', '').replace(/\s/g, '');
+                                } else if (linha.toUpperCase().startsWith('EXPLICACAO:')) {
+                                    explicacao = linha.split(':').slice(1).join(':').trim();
+                                } else if (linha.trim()) {
+                                    enunciado += linha.trim() + ' ';
+                                }
+                            });
+
+                            const indiceCorreto = { A:0, B:1, C:2, D:3 }[respostaCorreta.toUpperCase()] ?? 0;
+
+                            const divQuestao = document.createElement('div');
+                            divQuestao.className = 'questao border border-dark-700 rounded-xl p-4 hover:border-indigo-800/50 transition';
+                            divQuestao.innerHTML = `
+                                <p class="font-bold mb-3 text-slate-200">${indice + 1}. ${enunciado}</p>
+                                <div class="space-y-2 ml-1">
+                                    ${alternativas.map((alt, i) => `
+                                        <button class="option-btn w-full text-left p-3 rounded-xl bg-dark-800"
+                                            data-correct="${i === indiceCorreto}"
+                                            data-explicacao="${i === indiceCorreto ? '✅ Correto! ' : '❌ Errado. '}${explicacao}">
+                                            ${alt}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                                <div class="explicacao mt-3 p-3 rounded-xl hidden"></div>
+                            `;
+                            questoesConteudo.appendChild(divQuestao);
+                        });
+
+                        ativarCorrecao();
+                    }
+                }
+
+                resultados.classList.remove('hidden');
+                resultados.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (erro) {
+                alert('Erro ao processar: ' + erro.message);
+            } finally {
+                carregandoIA.classList.add('hidden');
+            }
         });
 
         // ==================================================
-        // 2. CRONOGRAMA
+        // ✅ SISTEMA DE CORREÇÃO AUTOMÁTICA
         // ==================================================
-        const btnAdicionar = document.getElementById('btnAdicionar');
-        const tabelaCronograma = document.getElementById('tabelaCronograma');
-        let diasCronograma = 0;
+        let acertos = 0;
+        let totalRespostas = 0;
 
-        btnAdicionar.addEventListener('click', () => {
+        function atualizarPainelResultado() {
+            document.getElementById('acertos').textContent = acertos;
+            document.getElementById('totalQuestoes').textContent = totalRespostas;
+            const porcentagem = totalRespostas > 0 ? Math.round((acertos / totalRespostas) * 100) : 0;
+            document.getElementById('porcentagem').textContent = `${porcentagem}%`;
+            document.getElementById('barraProgresso').style.width = `${porcentagem}%`;
+        }
+
+        function ativarCorrecao(container = document) {
+            container.querySelectorAll('.option-btn').forEach(botao => {
+                botao.addEventListener('click', () => {
+                    const questaoDiv = botao.closest('.questao');
+                    const todasOpcoes = questaoDiv.querySelectorAll('.option-btn');
+                    const explicacaoDiv = questaoDiv.querySelector('.explicacao');
+
+                    // Bloquear novas escolhas
+                    todasOpcoes.forEach(op => op.style.pointerEvents = 'none');
+
+                    const ehCorreta = botao.dataset.correct === 'true';
+                    totalRespostas++;
+
+                    if (ehCorreta) {
+                        botao.classList.add('correct');
+                        acertos++;
+                    } else {
+                        botao.classList.add('incorrect');
+                        todasOpcoes.forEach(opcao => {
+                            if (opcao.dataset.correct === 'true') opcao.classList.add('correct');
+                        });
+                    }
+
+                    // Exibir explicação
+                    explicacaoDiv.classList.remove('hidden');
+                    explicacaoDiv.className = `explicacao mt-3 p-3 rounded-xl ${ehCorreta ? 'bg-green-900/30 border border-green-800/50 text-green-300' : 'bg-red-900/30 border border-red-800/50 text-red-300'}`;
+                    explicacaoDiv.textContent = botao.dataset.explicacao;
+
+                    atualizarPainelResultado();
+                }, { once: true });
+            });
+        }
+
+        // Inicializar correção nas questões de exemplo
+        ativarCorrecao();
+
+        // ==================================================
+        // 📅 CRONOGRAMA
+        // ==================================================
+        document.getElementById('btnAdicionar').addEventListener('click', () => {
             const assunto = document.getElementById('assunto').value.trim();
             const data = document.getElementById('dataEstudo').value;
             const duracao = document.getElementById('duracao').value;
@@ -556,234 +660,171 @@ O documento apresenta os conceitos fundamentais da matéria, organizados de form
 
             const dataObj = new Date(data);
             const dataFormatada = dataObj.toLocaleString('pt-BR', {
-                dateStyle: 'full',
+                dateStyle: 'long',
                 timeStyle: 'short'
             });
 
             const linha = document.createElement('tr');
-            linha.className = 'border-b hover:bg-slate-50';
+            linha.className = 'border-b border-dark-700 hover:bg-dark-800/50';
             linha.innerHTML = `
-                <td class="p-3 font-medium">${assunto}</td>
-                <td class="p-3 text-sm">${dataFormatada}</td>
-                <td class="p-3 text-sm">${duracao} min</td>
+                <td class="p-3">${assunto}</td>
+                <td class="p-3 text-sm text-slate-400">${dataFormatada}</td>
+                <td class="p-3 text-sm text-slate-400">${duracao} min</td>
                 <td class="p-3 text-center">
-                    <button class="text-danger hover:text-red-700 excluir">
+                    <button class="text-red-400 hover:text-red-300 excluir">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </td>
             `;
-            tabelaCronograma.appendChild(linha);
+            document.getElementById('tabelaCronograma').appendChild(linha);
 
-            linha.querySelector('.excluir').addEventListener('click', () => {
-                linha.remove();
-                diasCronograma--;
-                document.getElementById('diasEstudo').textContent = diasCronograma;
-            });
+            linha.querySelector('.excluir').addEventListener('click', () => linha.remove());
 
-            diasCronograma++;
-            document.getElementById('diasEstudo').textContent = diasCronograma;
-
-            // Limpar
+            // Limpar campos
             document.getElementById('assunto').value = '';
             document.getElementById('dataEstudo').value = '';
             document.getElementById('duracao').value = '60';
         });
 
         // ==================================================
-        // 3. CORREÇÃO AUTOMÁTICA DE QUESTÕES
+        // 🏛️ BANCAS
         // ==================================================
-        function atualizarEstatisticas() {
-            document.getElementById('totalRespostas').textContent = estatisticas.totalRespostas;
-            document.getElementById('totalAcertos').textContent = estatisticas.totalAcertos;
-            const perc = estatisticas.totalRespostas > 0
-                ? Math.round((estatisticas.totalAcertos / estatisticas.totalRespostas) * 100)
-                : 0;
-            document.getElementById('mediaDesempenho').textContent = `${perc}%`;
-        }
-
-        function atualizarResultadoSimulado() {
-            document.getElementById('acertos').textContent = acertosSimuladoAtual;
-            document.getElementById('totalQuestoes').textContent = totalSimuladoAtual;
-            const perc = totalSimuladoAtual > 0
-                ? Math.round((acertosSimuladoAtual / totalSimuladoAtual) * 100)
-                : 0;
-            document.getElementById('porcentagem').textContent = `${perc}%`;
-            document.getElementById('barraProgresso').style.width = `${perc}%`;
-        }
-
-        function ativarCorrecao(container = document) {
-            const botoes = container.querySelectorAll('.option-btn');
-            botoes.forEach(botao => {
-                botao.addEventListener('click', () => {
-                    const questaoDiv = botao.closest('.questao');
-                    const todasOpcoes = questaoDiv.querySelectorAll('.option-btn');
-                    const explicacaoDiv = questaoDiv.querySelector('.explicacao');
-
-                    // Bloquear escolhas
-                    todasOpcoes.forEach(op => op.style.pointerEvents = 'none');
-
-                    const correta = botao.dataset.correct === 'true';
-                    const explicacao = botao.dataset.explicacao;
-
-                    estatisticas.totalRespostas++;
-                    totalSimuladoAtual++;
-
-                    if (correta) {
-                        botao.classList.add('correct');
-                        estatisticas.totalAcertos++;
-                        acertosSimuladoAtual++;
-                    } else {
-                        botao.classList.add('incorrect');
-                        todasOpcoes.forEach(op => {
-                            if (op.dataset.correct === 'true') op.classList.add('correct');
-                        });
-                    }
-
-                    // Exibir explicação
-                    explicacaoDiv.classList.remove('hidden');
-                    explicacaoDiv.className = `explicacao mt-4 p-4 rounded-xl ${correta ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`;
-                    explicacaoDiv.innerHTML = `<strong>${correta ? '✅ Correto!' : '❌ Incorreto.'}</strong> ${explicacao}`;
-
-                    atualizarEstatisticas();
-                    atualizarResultadoSimulado();
-                }, { once: true });
-            });
-        }
-
-        // Inicializar questões de exemplo
-        ativarCorrecao();
-
-        // ==================================================
-        // 4. BANCAS DE CONCURSO
-        // ==================================================
-        const bancaBtns = document.querySelectorAll('.banca-btn');
-        const questoesBanca = document.getElementById('questoesBanca');
+        const bancaBotoes = document.querySelectorAll('.banca-btn');
+        const areaQuestoesBanca = document.getElementById('questoesBanca');
 
         const questoesPorBanca = {
             cesbraspe: [
-                { enunciado: 'A respeito dos direitos e garantias fundamentais previstos na Constituição Federal de 1988, assinale a alternativa correta:',
-                  opcoes: ['Os direitos individuais podem ser totalmente suspensos em qualquer situação.', 'Ninguém será obrigado a fazer ou deixar de fazer algo senão em virtude de lei.', 'A lei não poderá restringir a publicidade dos atos judiciais.', 'A associação para fins ilícitos é livre, desde que não prejudique terceiros.'],
-                  correta: 1, explicacao: 'Art. 5º, II — ninguém será obrigado...' },
+                { enunciado: 'De acordo com a Constituição Federal de 1988, assinale a alternativa correta:',
+                  opcoes: ['Os direitos individuais podem ser totalmente suspensos em qualquer situação.', 'Ninguém será obrigado a fazer ou deixar de fazer algo senão em virtude de lei.', 'A lei não poderá restringir a publicidade dos atos judiciais.', 'A associação para fins ilícitos é livre.'],
+                  correta: 1, explicacao: 'Art. 5º, II — princípio da legalidade.' },
                 { enunciado: 'Sobre a organização do Estado, é correto afirmar que:',
-                  opcoes: ['O Brasil é um Estado unitário centralizado.', 'A soberania reside no Governo Federal.', 'A República é a forma de governo e a Federação é a forma de Estado.', 'Os Poderes da União são independentes e interdependentes.'],
+                  opcoes: ['O Brasil é Estado unitário centralizado.', 'A soberania reside no Governo Federal.', 'A República é forma de governo e a Federação é forma de Estado.', 'Os Poderes são independentes e absolutos.'],
                   correta: 2, explicacao: 'República = forma de governo; Federação = forma de Estado.' }
             ],
             fgv: [
                 { enunciado: 'Em uma turma, a razão entre meninos e meninas é de 3 para 4. Se há 49 alunos ao todo, quantas são meninas?',
                   opcoes: ['18', '21', '24', '28'],
-                  correta: 3, explicacao: 'Total de partes = 7. Cada parte = 7. Meninas = 4 × 7 = 28.' }
+                  correta: 3, explicacao: 'Total 7 partes = 49 → cada parte = 7. Meninas = 4 × 7 = 28.' }
             ],
             cespe: [
                 { enunciado: 'Certo ou Errado: A Constituição Federal de 1988 foi promulgada em 5 de outubro de 1988.',
                   opcoes: ['Certo', 'Errado'],
-                  correta: 0, explicacao: 'Correto! A CF/88 foi promulgada em 05/10/1988.' }
+                  correta: 0, explicacao: 'Data oficial de promulgação da CF/88: 5 de outubro de 1988.' }
             ],
             ibfc: [
-                { enunciado: 'Assinale a alternativa que completa corretamente: O poder que tem a função de elaborar leis é o ________.',
+                { enunciado: 'A função de elaborar leis é atribuída a qual Poder?',
                   opcoes: ['Executivo', 'Legislativo', 'Judiciário', 'Moderador'],
-                  correta: 1, explicacao: 'Função típica do Poder Legislativo é legislar.' },
-                { enunciado: 'Sobre os seres vivos, é correto afirmar que:',
-                  opcoes: ['Não possuem relação entre si.', 'São formados por células e possuem metabolismo.', 'Todos possuem sistema nervoso.', 'Não dependem do ambiente.'],
-                  correta: 1, explicacao: 'Todos os seres vivos são formados por células e têm metabolismo.' }
+                  correta: 1, explicacao: 'Função típica do Poder Legislativo é legislar.' }
             ],
             ibgp: [
-                { enunciado: 'Analise as afirmativas e assinale a alternativa correta. I — A cidadania é um direito garantido pela Constituição. II — O Brasil adota como forma de Estado a República Federativa. III — Os direitos sociais não estão previstos na CF/88.',
-                  opcoes: ['Apenas I está correta.', 'Apenas II está correta.', 'Apenas I e II estão corretas.', 'Todas estão corretas.'],
-                  correta: 2, explicacao: 'Afirmativas I e II estão corretas. A III está incorreta — os direitos sociais estão no art. 6º da CF/88.' }
+                { enunciado: 'Analise: I — A cidadania é direito garantido pela CF/88. II — O Brasil é República Federativa. III — Os direitos sociais não estão previstos na CF/88. Corretas:',
+                  opcoes: ['Apenas I', 'Apenas II', 'I e II', 'Todas'],
+                  correta: 2, explicacao: 'Afirmativas I e II corretas. III errada — direitos sociais estão no art. 6º.' }
             ],
             idecan: [
-                { enunciado: 'Qual é o resultado de 15% de 240?',
+                { enunciado: 'Qual é 15% de 240?',
                   opcoes: ['32', '34', '36', '38'],
-                  correta: 2, explicacao: '15% de 240 = 0,15 × 240 = 36.' },
-                { enunciado: 'A distância entre duas cidades é de 300 km. Um veículo percorre essa distância em 5 horas. Qual é a velocidade média?',
-                  opcoes: ['50 km/h', '55 km/h', '60 km/h', '65 km/h'],
-                  correta: 2, explicacao: 'Vm = Δs / Δt = 300 / 5 = 60 km/h.' }
+                  correta: 2, explicacao: '0,15 × 240 = 36.' }
             ],
             imeso: [
-                { enunciado: 'De acordo com a Língua Portuguesa, assinale a alternativa correta quanto à ortografia:',
-                  opcoes: ['A palavra "caixa" escreve-se com "x".', '"Caxixa" é a forma correta.', 'A palavra "xícara" tem "c".', 'Todas estão corretas.'],
-                  correta: 0, explicacao: 'A forma correta é "caixa" com x. As demais estão incorretas.' }
+                { enunciado: 'Assinale a alternativa com a grafia correta:',
+                  opcoes: ['Caxixa', 'Caixa', 'Caxixa', 'Caxa'],
+                  correta: 1, explicacao: 'A forma correta é "caixa" com X.' }
             ],
-            vestibular: [
-                { enunciado: 'Sobre a água, é correto afirmar:',
-                  opcoes: ['Possui fórmula química CO₂.', 'É composta por dois átomos de hidrogênio e um de oxigênio.', 'Sua densidade é menor que a do gelo.', 'Ferve a 80°C ao nível do mar.'],
-                  correta: 1, explicacao: 'A fórmula da água é H₂O — dois átomos de hidrogênio e um de oxigênio.' }
+            enem: [
+                { enunciado: 'A fórmula química da água é:',
+                  opcoes: ['CO₂', 'H₂O', 'O₂', 'CH₄'],
+                  correta: 1, explicacao: 'Água = dois átomos de hidrogênio e um de oxigênio.' }
             ]
         };
 
-        bancaBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                bancaBtns.forEach(b => b.classList.remove('border-primary','bg-blue-50'));
-                btn.classList.add('border-primary','bg-blue-50');
+        bancaBotoes.forEach(botao => {
+            botao.addEventListener('click', () => {
+                bancaBotoes.forEach(b => b.classList.remove('border-indigo-500', 'bg-indigo-950/30'));
+                botao.classList.add('border-indigo-500', 'bg-indigo-950/30');
 
-                const banca = btn.dataset.banca;
-                const dados = questoesPorBanca[banca] || [];
-                questoesBanca.innerHTML = '';
+                const banca = botao.dataset.banca;
+                const questoes = questoesPorBanca[banca] || [];
+                areaQuestoesBanca.innerHTML = '';
 
                 const descricao = {
                     cesbraspe: '📘 Estilo CESBRASPE — questões objetivas com análise de afirmações.',
-                    fgv: '📘 Estilo FGV — foco em raciocínio lógico, matemática e interpretação.',
+                    fgv: '📘 Estilo FGV — raciocínio lógico, matemática e interpretação.',
                     cespe: '📘 Estilo CESPE — questões Certo ou Errado com análise de texto.',
-                    ibfc: '📘 Estilo IBFC — questões diretas e objetivas de conhecimento geral.',
-                    ibgp: '📘 Estilo IBGP — questões com múltiplas afirmativas e combinações.',
-                    idecan: '📘 Estilo IDECAN — foco em cálculos e aplicação prática.',
-                    imeso: '📘 Estilo IMESO — questões de Língua Portuguesa e conhecimentos específicos.',
-                    vestibular: '📘 Estilo ENEM/Vestibulares — interpretação e aplicação de conceitos.'
+                    ibfc: '📘 Estilo IBFC — questões diretas e objetivas.',
+                    ibgp: '📘 Estilo IBGP — múltiplas afirmativas e combinações.',
+                    idecan: '📘 Estilo IDECAN — cálculos e aplicação prática.',
+                    imeso: '📘 Estilo IMESO — Língua Portuguesa e conhecimentos específicos.',
+                    enem: '📘 Estilo ENEM — interpretação e aplicação de conceitos.'
                 };
-                questoesBanca.innerHTML = `<p class="text-slate-600 mb-4">${descricao[banca]}</p>`;
+                areaQuestoesBanca.innerHTML = `<p class="text-slate-400 mb-4">${descricao[banca]}</p>`;
 
-                if (dados.length === 0) {
-                    questoesBanca.innerHTML += '<p class="text-slate-500 italic">Em breve: mais questões desta banca!</p>';
+                if (questoes.length === 0) {
+                    areaQuestoesBanca.innerHTML += '<p class="text-slate-500 italic">Mais questões em breve!</p>';
                     return;
                 }
 
-                dados.forEach((q, idx) => {
+                questoes.forEach((q, idx) => {
                     const div = document.createElement('div');
-                    div.className = 'questao border rounded-2xl p-5 hover:shadow-md transition';
+                    div.className = 'questao border border-dark-700 rounded-xl p-4 hover:border-indigo-800/50 transition';
                     div.innerHTML = `
-                        <p class="font-bold text-lg mb-4">${idx + 1}. ${q.enunciado}</p>
-                        <div class="space-y-3 ml-1">
+                        <p class="font-bold mb-3 text-slate-200">${idx + 1}. ${q.enunciado}</p>
+                        <div class="space-y-2 ml-1">
                             ${q.opcoes.map((op, i) => `
-                                <button class="option-btn w-full text-left p-3 rounded-xl"
+                                <button class="option-btn w-full text-left p-3 rounded-xl bg-dark-800"
                                     data-correct="${i === q.correta}"
-                                    data-explicacao="${i === q.correta ? '✅ Correto! ' : '❌ Incorreto. '}${q.explicacao}">
+                                    data-explicacao="${i === q.correta ? '✅ Correto! ' : '❌ Errado. '}${q.explicacao}">
                                     ${String.fromCharCode(65 + i)}) ${op}
                                 </button>
                             `).join('')}
                         </div>
-                        <div class="explicacao mt-4 p-4 rounded-xl hidden"></div>
+                        <div class="explicacao mt-3 p-3 rounded-xl hidden"></div>
                     `;
-                    questoesBanca.appendChild(div);
+                    areaQuestoesBanca.appendChild(div);
                 });
 
-                ativarCorrecao(questoesBanca);
-                questoesBanca.scrollIntoView({behavior:'smooth', block:'start'});
+                ativarCorrecao(areaQuestoesBanca);
+                areaQuestoesBanca.scrollIntoView({ behavior: 'smooth', block: 'start' });
             });
         });
 
         // ==================================================
-        // 5. REPOSITÓRIO DE MATERIAIS
+        // 📁 REPOSITÓRIO DE MATERIAIS
         // ==================================================
-        const materialUpload = document.getElementById('materialUpload');
-        const listaMateriais = document.getElementById('listaMateriais');
-
-        materialUpload.addEventListener('change', e => {
-            if (e.target.files.length === 0) return;
-            listaMateriais.innerHTML = '<h3 class="font-bold text-lg text-slate-700 mb-3">📁 Materiais Disponíveis</h3>';
-            Array.from(e.target.files).forEach(file => {
-                const tamanho = (file.size / 1024 / 1024).toFixed(2);
-                const icone = file.name.endsWith('.pdf') ? 'fa-file-pdf-o text-danger' : 'fa-file-text-o text-primary';
-                const item = document.createElement('div');
-                item.className = 'flex items-center justify-between p-3 border rounded-xl hover:bg-slate-50 transition';
-                item.innerHTML = `
-                    <span class="flex items-center gap-3">
-                        <i class="fa-solid ${icone} text-lg"></i>
-                        <span class="font-medium">${file.name}</span>
-                    </span>
-                    <span class="text-sm text-slate-500">${tamanho} MB</span>
+        document.getElementById('materialUpload').addEventListener('change', e => {
+            if (!e.target.files.length) return;
+            const lista = document.getElementById('listaMateriais');
+            lista.innerHTML = '<h3 class="font-bold text-indigo-300 mb-3">📁 Arquivos Anexados</h3>';
+            Array.from(e.target.files).forEach(arquivo => {
+                const tamanho = (arquivo.size / 1024 / 1024).toFixed(2);
+                const icone = arquivo.name.endsWith('.pdf') ? 'fa-file-pdf text-red-400' : 'fa-file text-indigo-400';
+                lista.innerHTML += `
+                    <div class="flex items-center justify-between p-3 border border-dark-700 rounded-lg mb-2 bg-dark-800/50">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid ${icone} text-lg"></i>
+                            <span class="font-medium text-slate-300">${arquivo.name}</span>
+                        </span>
+                        <span class="text-sm text-slate-500">${tamanho} MB</span>
+                    </div>
                 `;
-                listaMateriais.appendChild(item);
             });
+        });
+
+        // ==================================================
+        // 📱 MENU MOBILE
+        // ==================================================
+        const menuBtn = document.getElementById('menuBtn');
+        const closeMenu = document.getElementById('closeMenu');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        function alternarMenu(abrir) {
+            mobileMenu.classList.toggle('translate-x-full', !abrir);
+        }
+
+        menuBtn.addEventListener('click', () => alternarMenu(true));
+        closeMenu.addEventListener('click', () => alternarMenu(false));
+        document.querySelectorAll('#mobileMenu a').forEach(link => {
+            link.addEventListener('click', () => alternarMenu(false));
         });
     </script>
 </body>
