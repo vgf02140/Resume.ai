@@ -11,11 +11,6 @@ Site voltado para estudantes com ferramentas que auxiliam nos estudos diários e
 - 📚 **Questões por Bancas**: Modelo CESBRASPE, FGV, CESPE e Vestibulares (ENEM, FUVEST, etc.)
 - 📁 **Repositório de Materiais**: Espaço para armazenar e organizar apostilas e arquivos
 
-## 🚀 Como Usar
-
-1. Baixe o arquivo `index.html`
-2. Abra com qualquer navegador
-3. Pronto! Funciona 100% no navegador
 
 ## 🔧 Para Produção
 
