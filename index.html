@@ -7,7 +7,10 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.js"></script>
+    
+    <!-- ✅ PDF.js CORRIGIDO -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>window.pdfjsLib && (window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js');</script>
 
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -249,26 +252,28 @@
             </div>
         </section>
 
-        <!-- ⚙️ CONFIGURAÇÕES (ADMIN) → VOLTOU! -->
+        <!-- ⚙️ CONFIGURAÇÕES -->
         <section id="aba-admin" class="conteudo-aba">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">⚙️ Configurações da IA</h2>
             <div class="card mb-6">
                 <h3 class="text-lg font-semibold mb-3">🔑 Chave da API Gemini</h3>
                 <input type="text" id="chaveAPI" class="input mb-3" placeholder="AIzaSy...">
                 <button onclick="salvarChave()" class="btn">💾 Salvar Chave</button>
-                <p class="text-xs text-slate-400 mt-2">Modelo em uso: gemini-1.5-flash (gratuito)</p>
-                <p class="text-xs text-green-400 mt-1">💡 Sua chave já está salva! Se quiser trocar, cole acima e clique em Salvar.</p>
+                <p class="text-xs text-slate-400 mt-2">Modelo: gemini-1.5-flash (gratuito)</p>
+                <p class="text-xs text-yellow-400 mt-1">⚠️ A chave padrão foi bloqueada. Crie a SUA abaixo e cole aqui!</p>
             </div>
             <div class="card">
-                <h3 class="text-lg font-semibold mb-4">ℹ️ Como conseguir uma chave GRÁTIS:</h3>
+                <h3 class="text-lg font-semibold mb-4">📋 Passo a Passo — Criar chave GRÁTIS:</h3>
                 <ol class="text-sm text-slate-300 space-y-2 list-decimal list-inside">
-                    <li>Acesse: <strong>ai.google.dev</strong> (ou aistudio.google.com)</li>
-                    <li>Faça login com sua conta Google</li>
-                    <li>Clique em "Criar Chave de API"</li>
-                    <li>Copie e cole no campo acima</li>
-                    <li>Clique em Salvar → Pronto! ✅</li>
+                    <li>Acesse: <strong>https://aistudio.google.com</strong></li>
+                    <li>Faça login com sua conta Google (a mesma do Gmail)</li>
+                    <li>Clique em <strong>"Create API Key"</strong> (Criar Chave de API)</li>
+                    <li>Clique em <strong>"Create API key in new project"</strong></li>
+                    <li>✅ Copie a chave (parece com: AIzaSyxxxxxxxxxxx)</li>
+                    <li>Cole no campo acima → clique em <strong>Salvar Chave</strong></li>
+                    <li>✅ Pronto! Já pode usar tudo!</li>
                 </ol>
-                <p class="text-xs text-slate-400 mt-3">⚠️ É totalmente gratuito, não precisa cartão de crédito!</p>
+                <p class="text-xs text-green-400 mt-3">💡 É 100% gratuito. Não pede cartão de crédito. Limite: 60 requisições por minuto.</p>
             </div>
         </section>
     </main>
@@ -290,16 +295,13 @@ const ADMIN_EMAIL = "vitoriagilfigueiredo1@gmail.com";
 const MODELO = "gemini-1.5-flash";
 const API_URL = `https://generativelanguage.googleapis.com/v1/models/${MODELO}:generateContent`;
 
-// ✅ CHAVE PADRÃO SALVA NO CÓDIGO (não precisa digitar!)
-let CHAVE_PADRAO = "AIzaSyDe8Koh4JIy0vJdDwrAsCHr42Ci2Ckv5Tc";
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
 let usuario = null, ehAdmin = false;
-let CHAVE = localStorage.getItem("chaveAPI") || CHAVE_PADRAO;
+let CHAVE = localStorage.getItem("chaveAPI") || "";
 let pastaAtual = null, caminho = [];
 
 // ==============================================
@@ -340,7 +342,6 @@ auth.onAuthStateChanged(async u => {
         const doc = await db.collection("usuarios").doc(u.uid).get();
         ehAdmin = doc.exists ? doc.data().admin : u.email === ADMIN_EMAIL;
 
-        // ✅ Carrega a chave salva ou usa a padrão
         const chaveSalva = localStorage.getItem("chaveAPI");
         if (chaveSalva) CHAVE = chaveSalva;
 
@@ -350,7 +351,6 @@ auth.onAuthStateChanged(async u => {
         document.getElementById("conteudoAbas").classList.remove("hidden");
         document.getElementById("nomeUsuario").textContent = u.displayName || u.email;
 
-        // ✅ Mostra a chave atual na aba de configurações
         document.getElementById("chaveAPI").value = CHAVE;
 
         await atualizarSelectPastas(); await carregarConteudo(); await carregarSugestoesUsuario(); adicionarMateria();
@@ -372,21 +372,21 @@ function irParaAba(nome) {
 }
 
 // ==============================================
-// ✅ SALVAR CHAVE — VOLTOU! Agora salva automaticamente
+// SALVAR CHAVE
 // ==============================================
 function salvarChave() {
     const novaChave = document.getElementById("chaveAPI").value.trim();
-    if (!novaChave) return alert("Digite uma chave válida!");
+    if (!novaChave) return alert("Digite sua chave! Siga o passo a passo na própria aba.");
     CHAVE = novaChave;
     localStorage.setItem("chaveAPI", novaChave);
-    alert("✅ Chave salva com sucesso! Já está funcionando.");
+    alert("✅ Chave salva com sucesso! Já pode usar todas as funções da IA!");
 }
 
 // ==============================================
 // CHAMADA DA IA
 // ==============================================
 async function chamarIA(texto, tentativas = 3) {
-    if (!CHAVE) return "⚠️ Chave da API não configurada. Vá na aba Configurações e cole sua chave.";
+    if (!CHAVE) return "⚠️ Você precisa criar sua chave gratuita primeiro!\n\nVá na aba ⚙️ Configurações e siga o passo a passo para conseguir sua chave do Google AI Studio.";
     const hoje = new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'});
     const prompt = `Hoje é ${hoje}. Responda em português, de forma clara e direta: ${texto}`;
 
@@ -543,11 +543,18 @@ async function criarCronograma() {
 }
 
 // ==============================================
-// RESUMO DE PDF
+// ✅ LEITURA DE PDF — CORRIGIDA!
 // ==============================================
 async function lerPdfEResumir() {
     const arquivo = document.getElementById("arquivoPdf").files[0];
     if (!arquivo) return alert("Selecione um PDF!");
+    
+    // ✅ Verifica se PDF.js carregou
+    if (!window.pdfjsLib) {
+        document.getElementById("textoResumo").textContent = "⏳ Carregando leitor de PDF...\nTente novamente em 5 segundos.";
+        return;
+    }
+
     const resumoDiv = document.getElementById("resultadoResumo");
     const textoResumo = document.getElementById("textoResumo");
     resumoDiv.classList.remove("hidden");
@@ -555,7 +562,7 @@ async function lerPdfEResumir() {
 
     try {
         const arrayBuffer = await arquivo.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         let textoCompleto = "";
         for (let pag = 1; pag <= pdf.numPages; pag++) {
             const pagina = await pdf.getPage(pag);
@@ -563,10 +570,10 @@ async function lerPdfEResumir() {
             textoCompleto += conteudo.items.map(i => i.str).join(" ") + " ";
             if (textoCompleto.length > 15000) break;
         }
-        const resumo = await chamarIA(`Resuma este conteúdo de forma clara e objetiva:\n\n${textoCompleto}`);
+        const resumo = await chamarIA(`Resuma este conteúdo de forma clara e objetiva, destacando os pontos principais:\n\n${textoCompleto}`);
         textoResumo.textContent = resumo;
     } catch (erro) {
-        textoResumo.textContent = "❌ Erro: " + erro.message;
+        textoResumo.textContent = "❌ Erro ao ler PDF: " + erro.message;
     }
 }
 
