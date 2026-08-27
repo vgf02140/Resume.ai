@@ -22,8 +22,7 @@
                     colors: {
                         dark: { 950:'#0a0a0f', 900:'#111118', 800:'#1a1a24', 700:'#252532', 600:'#333344' },
                         indigo: { 950:'#1e1b4b', 900:'#312e81', 800:'#3730a3', 700:'#4338ca', 600:'#4f46e5', 500:'#6366f1', 400:'#818cf8' },
-                        success: '#10b981', error: '#ef4444', warning: '#f59e0b', info: '#3b82f6',
-                        mark: { yellow: '#fef08a', green: '#bbf7d0', blue: '#bfdbfe', pink: '#fbcfe8' }
+                        success: '#10b981', error: '#ef4444', warning: '#f59e0b', info: '#3b82f6'
                     },
                     fontFamily: { sans: ['Inter', 'Segoe UI', 'system-ui', 'sans-serif'] }
                 }
@@ -76,34 +75,21 @@
             <h2 class="text-3xl font-bold text-center text-indigo-400 mb-3">📚 EstudaMais</h2>
             <p class="text-center text-slate-400 mb-8">Faça login para acessar sua conta</p>
             <div id="formLogin">
-                <input type="email" id="emailLogin" placeholder="Seu e-mail" class="input mb-4">
-                <input type="password" id="senhaLogin" placeholder="Sua senha" class="input mb-5">
+                <input type="email" id="emailLogin" placeholder="Seu e-mail" class="input mb-4" onkeydown="if(event.key==='Enter') fazerLogin()">
+                <input type="password" id="senhaLogin" placeholder="Sua senha" class="input mb-5" onkeydown="if(event.key==='Enter') fazerLogin()">
                 <button onclick="fazerLogin()" class="btn w-full mb-4">Entrar</button>
-                <p class="text-center text-sm text-slate-400">Não tem conta? <a href="#" onclick="mostrarCadastro()" class="text-indigo-400">Criar conta</a></p>
+                <p class="text-center text-sm text-slate-400">Não tem conta? <a href="#" onclick="mostrarCadastro()" class="text-indigo-400 font-medium">Criar conta</a></p>
                 <p id="msgErroLogin" class="text-red-400 text-sm mt-4 hidden"></p>
             </div>
             <div id="formCadastro" class="hidden">
-                <input type="text" id="nomeCadastro" placeholder="Seu nome completo" class="input mb-4">
-                <input type="email" id="emailCadastro" placeholder="Seu e-mail" class="input mb-4">
-                <input type="password" id="senhaCadastro" placeholder="Senha (mínimo 6 caracteres)" class="input mb-5">
+                <input type="text" id="nomeCadastro" placeholder="Seu nome completo" class="input mb-4" onkeydown="if(event.key==='Enter') criarConta()">
+                <input type="email" id="emailCadastro" placeholder="Seu e-mail" class="input mb-4" onkeydown="if(event.key==='Enter') criarConta()">
+                <input type="password" id="senhaCadastro" placeholder="Senha (mínimo 6 caracteres)" class="input mb-5" onkeydown="if(event.key==='Enter') criarConta()">
                 <button onclick="criarConta()" class="btn w-full mb-4">Criar Conta</button>
-                <p class="text-center text-sm text-slate-400">Já tem conta? <a href="#" onclick="mostrarLogin()" class="text-indigo-400">Entrar</a></p>
+                <p class="text-center text-sm text-slate-400">Já tem conta? <a href="#" onclick="mostrarLogin()" class="text-indigo-400 font-medium">Entrar</a></p>
                 <p id="msgErroCadastro" class="text-red-400 text-sm mt-4 hidden"></p>
             </div>
         </div>
-    </div>
-
-    <!-- LEITOR PDF -->
-    <div id="leitorPdfModal" class="fixed inset-0 z-50 hidden bg-black/90 flex flex-col">
-        <div class="bg-dark-900 px-4 py-3 flex items-center justify-between border-b border-dark-700">
-            <h3 id="tituloPdfAtual" class="font-semibold text-indigo-400">📄 Visualizando PDF</h3>
-            <div class="flex items-center gap-2">
-                <button onclick="paginaAnterior()" class="btn btn-sm">◀</button>
-                <button onclick="proximaPagina()" class="btn btn-sm">▶</button>
-                <button onclick="fecharLeitorPdf()" class="btn btn-sm bg-error/20 text-error">✕ Fechar</button>
-            </div>
-        </div>
-        <div class="flex-1 overflow-auto p-6 flex justify-center"><div id="pdfContainer"></div></div>
     </div>
 
     <!-- CABEÇALHO -->
@@ -138,9 +124,15 @@
         <section id="aba-desempenho" class="conteudo-aba visivel">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">📊 Seu Desempenho</h2>
             <div class="grid md:grid-cols-3 gap-6 mb-8">
-                <div class="card text-center"><h3 class="text-slate-400 mb-2">Questões Hoje</h3><p class="text-4xl font-bold">0</p></div>
-                <div class="card text-center"><h3 class="text-slate-400 mb-2">Esta Semana</h3><p class="text-4xl font-bold">0</p></div>
-                <div class="card text-center"><h3 class="text-slate-400 mb-2">Taxa de Acerto</h3><p class="text-4xl font-bold">0%</p></div>
+                <div class="card text-center"><h3 class="text-slate-400 mb-2">Questões Hoje</h3><p id="qtdHoje" class="text-4xl font-bold">0</p></div>
+                <div class="card text-center"><h3 class="text-slate-400 mb-2">Esta Semana</h3><p id="qtdSemana" class="text-4xl font-bold">0</p></div>
+                <div class="card text-center"><h3 class="text-slate-400 mb-2">Taxa de Acerto</h3><p id="taxaAcerto" class="text-4xl font-bold">0%</p></div>
+            </div>
+            <div class="card">
+                <h3 class="text-lg font-semibold mb-4">Histórico de Estudos</h3>
+                <div id="historicoLista" class="space-y-2 text-slate-300">
+                    <p class="text-slate-500">Nenhum registro ainda. Comece a responder questões!</p>
+                </div>
             </div>
         </section>
 
@@ -148,116 +140,173 @@
         <section id="aba-pdf" class="conteudo-aba">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">📄 Resumir PDF com IA</h2>
             <div class="card mb-6">
+                <label class="block mb-3 font-medium">Selecione seu arquivo PDF:</label>
                 <input type="file" id="arquivoPdf" accept=".pdf" class="input mb-4">
                 <button onclick="lerPdfEResumir()" class="btn">📝 Gerar Resumo</button>
             </div>
-            <div id="resultadoResumo" class="card hidden"><h3 class="font-semibold mb-2">Resumo:</h3><div id="textoResumo" class="whitespace-pre-wrap"></div></div>
+            <div id="resultadoResumo" class="card hidden">
+                <h3 class="text-lg font-semibold mb-4">📝 Resumo:</h3>
+                <div id="textoResumo" class="text-slate-300 leading-relaxed whitespace-pre-wrap"></div>
+            </div>
         </section>
 
         <!-- SIMULADOS -->
         <section id="aba-simulados" class="conteudo-aba">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">📝 Gerar Simulado</h2>
             <div class="card mb-6">
-                <label class="block mb-2">Assunto:</label>
-                <input type="text" id="temaSimulado" placeholder="Ex: História do Brasil" class="input mb-4">
-                <label class="block mb-2">Quantidade de questões:</label>
+                <label class="block mb-3 font-medium">Digite o assunto ou tema:</label>
+                <input type="text" id="temaSimulado" placeholder="Ex: História do Brasil" class="input mb-4" onkeydown="if(event.key==='Enter') gerarSimulado()">
+                <label class="block mb-3 font-medium">Quantidade de questões:</label>
                 <input type="number" id="qtdQuestoes" value="5" min="3" max="15" class="input mb-4">
                 <button onclick="gerarSimulado()" class="btn">🔄 Gerar Simulado</button>
             </div>
-            <div id="areaSimulado"></div>
+            <div id="areaSimulado" class="space-y-6"></div>
         </section>
 
         <!-- CRONOGRAMA -->
         <section id="aba-cronograma" class="conteudo-aba">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">📅 Cronograma Inteligente</h2>
             <div class="card mb-6">
-                <h3 class="font-semibold mb-3">📚 Matérias e Peso</h3>
+                <h3 class="text-lg font-semibold mb-3">📚 Matérias e Peso</h3>
                 <div id="listaMaterias"></div>
                 <button onclick="adicionarMateria()" class="btn btn-sm mb-4">+ Adicionar Matéria</button>
 
-                <h3 class="font-semibold mb-3 mt-6">📆 Dias Disponíveis</h3>
+                <h3 class="text-lg font-semibold mb-3 mt-6">📆 Dias Disponíveis</h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                    <label><input type="checkbox" value="Segunda" class="dia-check"> Segunda</label>
-                    <label><input type="checkbox" value="Terça" class="dia-check"> Terça</label>
-                    <label><input type="checkbox" value="Quarta" class="dia-check"> Quarta</label>
-                    <label><input type="checkbox" value="Quinta" class="dia-check"> Quinta</label>
-                    <label><input type="checkbox" value="Sexta" class="dia-check"> Sexta</label>
-                    <label><input type="checkbox" value="Sábado" class="dia-check"> Sábado</label>
-                    <label><input type="checkbox" value="Domingo" class="dia-check"> Domingo</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="Segunda" class="dia-check"> Segunda</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="Terça" class="dia-check"> Terça</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="Quarta" class="dia-check"> Quarta</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="Quinta" class="dia-check"> Quinta</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="Sexta" class="dia-check"> Sexta</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="Sábado" class="dia-check"> Sábado</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" value="Domingo" class="dia-check"> Domingo</label>
                 </div>
 
-                <h3 class="font-semibold mb-3">⏰ Horários por Dia</h3>
-                <div class="space-y-2 mb-4">
-                    <label>🌅 Manhã: <input type="number" id="manhaH" value="2" min="0" max="6" class="w-16 p-1 bg-dark-800 rounded">h</label>
-                    <label>☀️ Tarde: <input type="number" id="tardeH" value="2" min="0" max="6" class="w-16 p-1 bg-dark-800 rounded">h</label>
-                    <label>🌙 Noite: <input type="number" id="noiteH" value="2" min="0" max="6" class="w-16 p-1 bg-dark-800 rounded">h</label>
+                <h3 class="text-lg font-semibold mb-3">⏰ Horários por Dia</h3>
+                <div class="space-y-3 mb-4">
+                    <label class="flex items-center gap-3">
+                        <span class="text-yellow-400">🌅 Manhã:</span>
+                        <input type="number" id="manhaH" value="2" min="0" max="6" class="w-16 p-1 bg-dark-800 rounded"> horas
+                    </label>
+                    <label class="flex items-center gap-3">
+                        <span class="text-orange-400">☀️ Tarde:</span>
+                        <input type="number" id="tardeH" value="2" min="0" max="6" class="w-16 p-1 bg-dark-800 rounded"> horas
+                    </label>
+                    <label class="flex items-center gap-3">
+                        <span class="text-indigo-400">🌙 Noite:</span>
+                        <input type="number" id="noiteH" value="2" min="0" max="6" class="w-16 p-1 bg-dark-800 rounded"> horas
+                    </label>
                 </div>
 
-                <button onclick="criarCronograma()" class="btn w-full">✨ Gerar Cronograma</button>
+                <button onclick="criarCronograma()" class="btn w-full mt-4">✨ Gerar Cronograma</button>
             </div>
             <div id="resultadoCronograma"></div>
         </section>
 
-        <!-- ARQUIVOS -->
+        <!-- ARQUIVOS / CURSOS - CORRIGIDO -->
         <section id="aba-arquivos" class="conteudo-aba">
-            <h2 class="text-2xl font-bold mb-6 text-indigo-400">📁 Meus Arquivos</h2>
+            <h2 class="text-2xl font-bold mb-6 text-indigo-400">📁 Meus Arquivos e Cursos</h2>
+
             <div class="card mb-6">
-                <h3 class="font-semibold mb-3">📤 Enviar Arquivo</h3>
-                <input type="text" id="nomeArquivo" placeholder="Nome do arquivo" class="input mb-3">
-                <select id="pastaDestino" class="input mb-3"><option value="">📁 Raiz</option></select>
-                <input type="file" id="arquivoSelecionado" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx" class="input mb-3">
-                <div id="barraProgresso" class="progress-bar hidden"><div id="pctFill" class="progress-fill"></div></div>
-                <button onclick="enviarArquivo()" class="btn mt-3">📤 Enviar</button>
+                <h3 class="text-lg font-semibold mb-4">📤 Enviar Arquivo</h3>
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block mb-2 text-sm">Nome do Arquivo</label>
+                        <input type="text" id="nomeArquivo" placeholder="Nome..." class="input" onkeydown="if(event.key==='Enter') enviarArquivo()">
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm">Pasta de Destino</label>
+                        <select id="pastaDestino" class="input">
+                            <option value="">📁 Raiz</option>
+                        </select>
+                    </div>
+                </div>
+                <label class="block mb-2 text-sm">Selecione o Arquivo</label>
+                <input type="file" id="arquivoSelecionado" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.jpg,.png" class="input mb-3">
+                <div id="barraProgresso" class="progress-bar hidden mb-3">
+                    <div id="pctFill" class="progress-fill" style="width:0%"></div>
+                </div>
+                <button onclick="enviarArquivo()" class="btn">📤 Enviar Arquivo</button>
             </div>
+
             <div class="card mb-6">
-                <h3 class="font-semibold mb-3">📁 Criar Pasta</h3>
-                <input type="text" id="nomePasta" placeholder="Nome da pasta" class="input mb-3">
-                <select id="pastaPai" class="input mb-3"><option value="">📁 Raiz</option></select>
-                <button onclick="criarPasta()" class="btn">📁 Criar</button>
+                <h3 class="text-lg font-semibold mb-4">📁 Criar Pasta / Curso</h3>
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block mb-2 text-sm">Nome da Pasta</label>
+                        <input type="text" id="nomePasta" placeholder="Nome..." class="input" onkeydown="if(event.key==='Enter') criarPasta()">
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm">Pasta Pai</label>
+                        <select id="pastaPai" class="input">
+                            <option value="">📁 Raiz</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="criarPasta()" class="btn">📁 Criar Pasta</button>
             </div>
-            <div class="mb-4">Caminho: <span class="text-indigo-400 cursor-pointer" onclick="irRaiz()">🏠 Raiz</span> <span id="caminho"></span></div>
-            <div id="listaConteudo"><p class="text-slate-500">Carregando...</p></div>
+
+            <div class="mb-4 text-sm">
+                <span class="text-slate-400">Caminho: </span>
+                <span class="text-indigo-400 cursor-pointer hover:underline" onclick="irRaiz()">🏠 Raiz</span>
+                <span id="caminho"></span>
+            </div>
+
+            <div id="listaConteudo" class="space-y-2">
+                <p class="text-slate-500">Carregando...</p>
+            </div>
         </section>
 
         <!-- SUGESTÕES -->
         <section id="aba-sugestoes" class="conteudo-aba">
-            <h2 class="text-2xl font-bold mb-6 text-indigo-400">💡 Sugestões</h2>
+            <h2 class="text-2xl font-bold mb-6 text-indigo-400">💡 Sugestões de Melhorias</h2>
             <div class="card mb-6">
-                <textarea id="textoSugestao" class="textarea mb-3" placeholder="Sua sugestão..."></textarea>
-                <button onclick="enviarSugestao()" class="btn">Enviar</button>
+                <textarea id="textoSugestao" class="textarea mb-3" placeholder="Descreva sua sugestão..." onkeydown="if(event.key==='Enter' && !event.shiftKey) { enviarSugestao(); event.preventDefault(); }"></textarea>
+                <button onclick="enviarSugestao()" class="btn">Enviar Sugestão</button>
             </div>
-            <div id="listaSugestoes"></div>
+            <div class="card">
+                <h3 class="text-lg font-semibold mb-4">📋 Minhas Sugestões</h3>
+                <div id="listaSugestoes">
+                    <p class="text-slate-500">Você ainda não enviou nenhuma sugestão.</p>
+                </div>
+            </div>
         </section>
 
         <!-- DÚVIDAS -->
         <section id="aba-duvidas" class="conteudo-aba">
-            <h2 class="text-2xl font-bold mb-6 text-indigo-400">❓ Dúvidas com IA</h2>
+            <h2 class="text-2xl font-bold mb-6 text-indigo-400">❓ Tirar Dúvidas com a IA</h2>
             <div id="caixaChat" class="card mb-4 h-[450px] overflow-y-auto">
-                <div class="mensagem ia"><strong>🤖 IA:</strong> Olá! Pergunte-me qualquer coisa.</div>
+                <div class="mensagem ia"><strong>🤖 IA:</strong> Olá! Sou sua assistente de estudos. Pergunte-me qualquer coisa!</div>
             </div>
             <div class="flex gap-3">
-                <input type="text" id="pergunta" placeholder="Sua dúvida..." class="input flex-1">
+                <input type="text" id="pergunta" placeholder="Digite sua dúvida..." class="input flex-1" onkeydown="if(event.key==='Enter') perguntarIA()">
                 <button onclick="perguntarIA()" class="btn">Enviar</button>
             </div>
         </section>
 
         <!-- ADMIN -->
         <section id="aba-admin" class="conteudo-aba">
-            <h2 class="text-2xl font-bold mb-6 text-indigo-400">⚙️ Painel Admin</h2>
+            <h2 class="text-2xl font-bold mb-6 text-indigo-400">⚙️ Painel Administrativo</h2>
             <div class="card mb-6">
-                <h3 class="font-semibold mb-3">🔑 Chave Gemini API</h3>
-                <input type="text" id="chaveAPI" class="input mb-3" placeholder="AIzaSy...">
+                <h3 class="text-lg font-semibold mb-3">🔑 Chave da API Gemini</h3>
+                <input type="text" id="chaveAPI" class="input mb-3" placeholder="Cole sua chave aqui..." onkeydown="if(event.key==='Enter') salvarChave()">
                 <button onclick="salvarChave()" class="btn">Salvar Chave</button>
+                <p class="text-xs text-slate-400 mt-2">Modelo em uso: gemini-2.0-flash</p>
             </div>
             <div class="card">
-                <h3 class="font-semibold mb-3">💡 Sugestões Recebidas</h3>
-                <div id="sugestoesAdmin"></div>
+                <h3 class="text-lg font-semibold mb-4">💡 Sugestões Recebidas</h3>
+                <div id="sugestoesAdmin">
+                    <p class="text-slate-500">Nenhuma sugestão recebida ainda.</p>
+                </div>
             </div>
         </section>
 
     </main>
 
 <script>
+// ==============================================
+// CONFIGURAÇÕES
+// ==============================================
 const firebaseConfig = {
     apiKey: "AIzaSyDe8Koh4JIy0vJdDwrAsCHr42Ci2Ckv5Tc",
     authDomain: "resume-ai-8c0ab.firebaseapp.com",
@@ -268,7 +317,7 @@ const firebaseConfig = {
 };
 
 const ADMIN_EMAIL = "vitoriagilfigueiredo1@gmail.com";
-const MODELO = "gemini-1.5-flash";
+const MODELO = "gemini-2.0-flash"; // ✅ MODELO CORRIGIDO
 const API_URL = `https://generativelanguage.googleapis.com/v1/models/${MODELO}:generateContent`;
 
 firebase.initializeApp(firebaseConfig);
@@ -278,58 +327,96 @@ const storage = firebase.storage();
 
 let usuario = null, ehAdmin = false, CHAVE = "";
 let pastaAtual = null, caminho = [];
-let materias = [];
 
-// LOGIN
-function mostrarCadastro() { document.getElementById("formLogin").classList.add("hidden"); document.getElementById("formCadastro").classList.remove("hidden"); }
-function mostrarLogin() { document.getElementById("formCadastro").classList.add("hidden"); document.getElementById("formLogin").classList.remove("hidden"); }
-function erro(id, msg) { const e = document.getElementById(id); e.textContent = msg; e.classList.remove("hidden"); }
+// ==============================================
+// LOGIN / CADASTRO
+// ==============================================
+function mostrarCadastro() {
+    document.getElementById("formLogin").classList.add("hidden");
+    document.getElementById("formCadastro").classList.remove("hidden");
+    limparErros();
+}
+function mostrarLogin() {
+    document.getElementById("formCadastro").classList.add("hidden");
+    document.getElementById("formLogin").classList.remove("hidden");
+    limparErros();
+}
+function limparErros() {
+    document.getElementById("msgErroLogin").classList.add("hidden");
+    document.getElementById("msgErroCadastro").classList.add("hidden");
+}
+function exibirErro(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = "❌ " + msg;
+    el.classList.remove("hidden");
+}
 
 async function criarConta() {
     const nome = document.getElementById("nomeCadastro").value.trim();
     const email = document.getElementById("emailCadastro").value.trim();
     const senha = document.getElementById("senhaCadastro").value;
-    if (!nome || !email || senha.length < 6) return erro("msgErroCadastro", "Preencha tudo (senha mínimo 6 caracteres)");
+
+    if (!nome || !email || senha.length < 6) {
+        return exibirErro("msgErroCadastro", "Preencha todos os campos (senha mínimo 6 caracteres)");
+    }
+
     try {
         const cred = await auth.createUserWithEmailAndPassword(email, senha);
         await db.collection("usuarios").doc(cred.user.uid).set({
-            nome, email, admin: email === ADMIN_EMAIL, criadoEm: new Date()
+            nome, email,
+            admin: email === ADMIN_EMAIL,
+            criadoEm: firebase.firestore.FieldValue.serverTimestamp()
         });
         await cred.user.updateProfile({ displayName: nome });
-    } catch (e) { erro("msgErroCadastro", e.message); }
+    } catch (e) {
+        exibirErro("msgErroCadastro", e.message);
+    }
 }
 
 async function fazerLogin() {
     const email = document.getElementById("emailLogin").value.trim();
     const senha = document.getElementById("senhaLogin").value;
     if (!email || !senha) return;
-    try { await auth.signInWithEmailAndPassword(email, senha); }
-    catch (e) { erro("msgErroLogin", e.message); }
+
+    try {
+        await auth.signInWithEmailAndPassword(email, senha);
+    } catch (e) {
+        exibirErro("msgErroLogin", e.message);
+    }
 }
 
-function sair() { auth.signOut(); }
+function sair() {
+    auth.signOut();
+}
 
-// VERIFICAR LOGIN
-auth.onAuthStateChanged(async u => {
+// ==============================================
+// VERIFICAR AUTENTICAÇÃO
+// ==============================================
+auth.onAuthStateChanged(async (u) => {
     if (u) {
         usuario = u;
         const doc = await db.collection("usuarios").doc(u.uid).get();
         ehAdmin = doc.exists ? doc.data().admin : u.email === ADMIN_EMAIL;
+
         const cfg = await db.collection("configuracoes").doc("gemini").get();
-        if (cfg.exists) CHAVE = cfg.data().chave;
+        if (cfg.exists) CHAVE = cfg.data().chave || "";
 
         document.getElementById("telaLogin").classList.add("hidden");
         document.getElementById("cabecalho").classList.remove("hidden");
         document.getElementById("navegacaoAbas").classList.remove("hidden");
         document.getElementById("conteudoAbas").classList.remove("hidden");
         document.getElementById("nomeUsuario").textContent = u.displayName || u.email;
-        if (ehAdmin) document.getElementById("abaAdmin").classList.remove("hidden");
+
+        if (ehAdmin) {
+            document.getElementById("abaAdmin").classList.remove("hidden");
+            document.getElementById("chaveAPI").value = CHAVE;
+            carregarSugestoesAdmin();
+        }
 
         await atualizarSelectPastas();
         await carregarConteudo();
         await carregarSugestoesUsuario();
-        await adicionarMateria();
-        if (ehAdmin) { document.getElementById("chaveAPI").value = CHAVE; carregarSugestoesAdmin(); }
+        adicionarMateria();
     } else {
         usuario = null;
         document.getElementById("telaLogin").classList.remove("hidden");
@@ -339,229 +426,427 @@ auth.onAuthStateChanged(async u => {
     }
 });
 
+// ==============================================
 // NAVEGAÇÃO DE ABAS
+// ==============================================
 function irParaAba(nome) {
-    document.querySelectorAll(".aba").forEach(a => { a.classList.toggle("ativa", a.dataset.aba === nome); });
-    document.querySelectorAll(".conteudo-aba").forEach(s => { s.classList.toggle("visivel", s.id === "aba-" + nome); });
+    document.querySelectorAll(".aba").forEach(a => {
+        a.classList.toggle("ativa", a.dataset.aba === nome);
+    });
+    document.querySelectorAll(".conteudo-aba").forEach(s => {
+        s.classList.toggle("visivel", s.id === "aba-" + nome);
+    });
 }
 
-// CHAMAR IA
-async function ia(texto, tentativas = 3) {
-    if (!CHAVE) return "⚠️ Chave não configurada.";
-    const hoje = new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'});
+// ==============================================
+// CHAMADA DA IA (com modelo CORRIGIDO + retentativa)
+// ==============================================
+async function chamarIA(texto, tentativas = 3) {
+    if (!CHAVE) return "⚠️ Chave da API não configurada. Peça ao administrador configurar na aba Admin.";
+
+    const hoje = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    const prompt = `Hoje é ${hoje}. Responda em português de forma clara e objetiva: ${texto}`;
+
     for (let i = 0; i < tentativas; i++) {
         try {
             const res = await fetch(`${API_URL}?key=${CHAVE}`, {
-                method: "POST", headers: {"Content-Type":"application/json"},
-                body: JSON.stringify({contents:[{parts:[{text:`Hoje é ${hoje}. ${texto}`}]}], generationConfig:{temperature:0.7, maxOutputTokens:2048}})
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+                })
             });
-            const d = await res.json();
-            if (d.error) throw new Error(d.error.message);
-            return d?.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta.";
+
+            const dados = await res.json();
+            if (dados.error) throw new Error(dados.error.message);
+            return dados?.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta da IA.";
+
         } catch (e) {
-            if (i === tentativas-1) return "❌ " + e.message;
-            await new Promise(r => setTimeout(r, 2000));
+            if (i === tentativas - 1) return "❌ Erro: " + e.message;
+            await new Promise(r => setTimeout(r, 2000 * (i + 1)));
         }
     }
 }
 
-// DÚVIDAS
+// ==============================================
+// DÚVIDAS / CHAT
+// ==============================================
 async function perguntarIA() {
-    const txt = document.getElementById("pergunta").value.trim();
-    if (!txt) return;
+    const texto = document.getElementById("pergunta").value.trim();
+    if (!texto) return;
+
     const chat = document.getElementById("caixaChat");
-    chat.innerHTML += `<div class="mensagem usuario"><strong>Você:</strong> ${txt}</div>`;
+    chat.innerHTML += `<div class="mensagem usuario"><strong>Você:</strong> ${texto}</div>`;
     document.getElementById("pergunta").value = "";
-    const id = "r" + Date.now();
-    chat.innerHTML += `<div class="mensagem ia" id="${id}"><strong>🤖 IA:</strong> Escrevendo...</div>`;
+
+    const idResposta = "resp-" + Date.now();
+    chat.innerHTML += `<div class="mensagem ia" id="${idResposta}"><strong>🤖 IA:</strong> Escrevendo...</div>`;
     chat.scrollTop = chat.scrollHeight;
-    document.getElementById(id).innerHTML = "<strong>🤖 IA:</strong> " + (await ia(txt));
+
+    const resposta = await chamarIA(texto);
+    document.getElementById(idResposta).innerHTML = `<strong>🤖 IA:</strong> ${resposta}`;
     chat.scrollTop = chat.scrollHeight;
 }
 
-// SIMULADO
+// ==============================================
+// SIMULADOS
+// ==============================================
 async function gerarSimulado() {
     const tema = document.getElementById("temaSimulado").value.trim();
     const qtd = parseInt(document.getElementById("qtdQuestoes").value);
     if (!tema) return alert("Informe o assunto!");
-    const area = document.getElementById("areaSimulado");
-    area.innerHTML = "<p>🔄 Gerando...</p>";
 
-    const resp = await ia(`Gere simulado sobre "${tema}" com ${qtd} questões A/B/C/D. Retorne JSON:
+    const area = document.getElementById("areaSimulado");
+    area.innerHTML = "<p class='text-slate-400'>🔄 Gerando simulado, aguarde...</p>";
+
+    const prompt = `Gere um simulado sobre "${tema}" com ${qtd} questões de múltipla escolha (A, B, C, D).
+Retorne APENAS JSON no formato:
 {
-  "questoes": [{"enunciado":"...","alternativas":["A) ...","B) ...","C) ...","D) ..."],"correta":"A","explicaCorreta":"...","explicaErrada":"..."}]
-}`);
+  "questoes": [
+    {
+      "enunciado": "Pergunta...",
+      "alternativas": ["A) ...", "B) ...", "C) ...", "D) ..."],
+      "correta": "A",
+      "explicaCorreta": "Por que está correta...",
+      "explicaErrada": "Por que as outras estão erradas..."
+    }
+  ]
+}`;
+
+    const resposta = await chamarIA(prompt);
+
     try {
-        const json = JSON.parse(resp.slice(resp.indexOf("{"), resp.lastIndexOf("}")+1));
+        const inicio = resposta.indexOf("{");
+        const fim = resposta.lastIndexOf("}");
+        if (inicio === -1 || fim === -1) throw new Error("JSON não encontrado");
+
+        const dados = JSON.parse(resposta.slice(inicio, fim + 1));
         area.innerHTML = "";
-        json.questoes.forEach((q, i) => {
-            area.innerHTML += `<div class="card" id="q${i}">
-                <p class="font-semibold mb-3">${i+1}. ${q.enunciado}</p>
-                ${q.alternativas.map((a,j)=>`<div class="option-btn" onclick="checarQ('q${i}',${j},'${q.correta}','${(q.explicaCorreta||'').replace(/'/g,"")}','${(q.explicaErrada||'').replace(/'/g,"")}')">${a}</div>`).join("")}
-                <div id="eq${i}" class="hidden mt-2"></div>
+
+        dados.questoes.forEach((q, i) => {
+            const id = "q-" + i;
+            area.innerHTML += `
+            <div class="card" id="${id}">
+                <p class="font-semibold mb-4">${i + 1}. ${q.enunciado}</p>
+                ${q.alternativas.map((alt, j) => `
+                <div class="option-btn" onclick="verificarResposta('${id}', ${j}, '${q.correta}', \`${(q.explicaCorreta||"").replace(/`/g, "'")}\`, \`${(q.explicaErrada||"").replace(/`/g, "'")}\`)">
+                    ${alt}
+                </div>`).join("")}
+                <div id="exp-${id}" class="hidden mt-3"></div>
             </div>`;
         });
-    } catch { area.innerHTML = `<pre class="text-red-400">${resp}</pre>`; }
-}
-function checarQ(id, alt, correta, expC, expE) {
-    const letras = ["A","B","C","D"];
-    const div = document.getElementById(id), divE = document.getElementById("e"+id);
-    div.querySelectorAll(".option-btn").forEach((b,i)=>{
-        b.onclick=null;
-        if (letras[i]===correta) b.classList.add("correct");
-        else if (i===alt) b.classList.add("incorrect");
-    });
-    divE.classList.remove("hidden");
-    divE.innerHTML = letras[alt]===correta
-        ? `<div class="explicacao correta">✅ Correto! ${expC}</div>`
-        : `<div class="explicacao errada">❌ Errado. ${expE}</div>`;
+
+    } catch (erro) {
+        area.innerHTML = `<div class="card text-red-400">
+            ❌ Erro ao processar resposta. Tente novamente.<br>
+            <details class="mt-2"><summary class="cursor-pointer">Ver resposta bruta</summary>
+            <pre class="text-xs mt-2 text-slate-400 whitespace-pre-wrap">${resposta}</pre></details>
+        </div>`;
+    }
 }
 
+function verificarResposta(idDiv, altEscolhida, respCorreta, expC, expE) {
+    const letras = ["A", "B", "C", "D"];
+    const div = document.getElementById(idDiv);
+    const divExp = document.getElementById("exp-" + idDiv);
+
+    div.querySelectorAll(".option-btn").forEach((botao, indice) => {
+        botao.onclick = null;
+        const letra = letras[indice];
+        if (letra === respCorreta) {
+            botao.classList.add("correct");
+        } else if (indice === altEscolhida) {
+            botao.classList.add("incorrect");
+        }
+    });
+
+    divExp.classList.remove("hidden");
+    if (letras[altEscolhida] === respCorreta) {
+        divExp.innerHTML = `<div class="explicacao correta">✅ <strong>Correto!</strong> ${expC}</div>`;
+    } else {
+        divExp.innerHTML = `<div class="explicacao errada">❌ <strong>Incorreto.</strong> ${expE}</div>`;
+    }
+}
+
+// ==============================================
 // CRONOGRAMA
-async function adicionarMateria() {
+// ==============================================
+function adicionarMateria() {
     const id = Date.now();
-    document.getElementById("listaMaterias").innerHTML += `<div class="materia-item" id="m${id}">
-        <div class="flex gap-3">
-            <input type="text" placeholder="Matéria" class="input flex-1 nome-m">
-            <select class="input w-24 peso-m">
-                <option value="1">P1</option><option value="2">P2</option><option value="3" selected>P3</option>
-                <option value="4">P4</option><option value="5">P5</option>
+    document.getElementById("listaMaterias").innerHTML += `
+    <div class="materia-item" id="mat-${id}">
+        <div class="flex gap-3 flex-wrap items-center">
+            <input type="text" placeholder="Nome da matéria" class="input flex-1 nome-materia" onkeydown="if(event.key==='Enter') criarCronograma()">
+            <select class="input w-24 peso-materia">
+                <option value="1">Peso 1</option>
+                <option value="2">Peso 2</option>
+                <option value="3" selected>Peso 3</option>
+                <option value="4">Peso 4</option>
+                <option value="5">Peso 5</option>
             </select>
             <button onclick="this.closest('.materia-item').remove()" class="btn-error btn-sm">✕</button>
         </div>
     </div>`;
 }
+
 async function criarCronograma() {
-    const mats = [];
-    document.querySelectorAll(".materia-item").forEach(b=>{
-        const n = b.querySelector(".nome-m").value.trim();
-        const p = parseInt(b.querySelector(".peso-m").value);
-        if (n) mats.push({nome:n, peso:p});
+    const materias = [];
+    document.querySelectorAll(".materia-item").forEach(bloco => {
+        const nome = bloco.querySelector(".nome-materia").value.trim();
+        const peso = parseInt(bloco.querySelector(".peso-materia").value);
+        if (nome) materias.push({ nome, peso });
     });
-    if (!mats.length) return alert("Adicione matérias!");
-    const dias = Array.from(document.querySelectorAll(".dia-check:checked")).map(c=>c.value);
-    if (!dias.length) return alert("Selecione dias!");
+
+    if (!materias.length) return alert("Adicione pelo menos uma matéria!");
+
+    const dias = Array.from(document.querySelectorAll(".dia-check:checked")).map(c => c.value);
+    if (!dias.length) return alert("Selecione pelo menos um dia!");
+
     const manha = +document.getElementById("manhaH").value;
     const tarde = +document.getElementById("tardeH").value;
     const noite = +document.getElementById("noiteH").value;
-    if (manha+tarde+noite===0) return alert("Informe horas!");
+    if (manha + tarde + noite === 0) return alert("Informe pelo menos 1 hora de estudo!");
 
     const res = document.getElementById("resultadoCronograma");
-    res.innerHTML = "<p>🔄 Gerando cronograma...</p>";
-    const resp = await ia(`Matérias: ${JSON.stringify(mats)}. Dias: ${dias.join(", ")}. Manhã ${manha}h (leitura), Tarde ${tarde}h (exercícios), Noite ${noite}h (revisão). Distribua proporcional ao peso. JSON: {cronograma:[{dia:"",blocos:[{periodo:"",materia:"",duracao:"Xh",tipo:""}]}]}`);
+    res.innerHTML = "<p class='text-slate-400'>🔄 Gerando cronograma inteligente...</p>";
+
+    const prompt = `Com base nos dados abaixo, crie um cronograma de estudos distribuindo as matérias proporcionalmente ao PESO.
+
+📚 MATÉRIAS: ${JSON.stringify(materias)}
+📆 DIAS: ${dias.join(", ")}
+⏰ HORÁRIOS POR DIA:
+- Manhã: ${manha}h → Leitura e teoria
+- Tarde: ${tarde}h → Exercícios e prática
+- Noite: ${noite}h → Revisão e conteúdo difícil
+
+Retorne APENAS JSON: { "cronograma": [ { "dia": "Segunda", "blocos": [ { "periodo": "Manhã", "materia": "Nome", "duracao": "Xh", "tipo": "Leitura" } ] } ] }`;
+
+    const resposta = await chamarIA(prompt);
+
     try {
-        const d = JSON.parse(resp.slice(resp.indexOf("{"), resp.lastIndexOf("}")+1));
+        const inicio = resposta.indexOf("{");
+        const fim = resposta.lastIndexOf("}");
+        const dados = JSON.parse(resposta.slice(inicio, fim + 1));
+
         res.innerHTML = "<h3 class='text-xl font-bold text-indigo-400 mb-4'>📅 Seu Cronograma</h3>";
-        d.cronograma.forEach(dia=>{
-            res.innerHTML += `<div class="dia-cronograma"><h4 class="font-bold mb-2">📆 ${dia.dia}</h4>`;
-            dia.blocos.forEach(b=>{
-                const cls = b.periodo==="Manhã"?"bloco-manha":b.periodo==="Tarde"?"bloco-tarde":"bloco-noite";
-                res.innerHTML += `<div class="bloco-estudo ${cls}"><strong>${b.periodo}</strong> — ${b.materia} (${b.duracao}) · ${b.tipo}</div>`;
+        dados.cronograma.forEach(dia => {
+            res.innerHTML += `<div class="dia-cronograma">
+                <h4 class="font-bold text-lg mb-3">📆 ${dia.dia}</h4>`;
+            dia.blocos.forEach(b => {
+                const classe = b.periodo === "Manhã" ? "bloco-manha" :
+                               b.periodo === "Tarde" ? "bloco-tarde" : "bloco-noite";
+                res.innerHTML += `<div class="bloco-estudo ${classe}">
+                    <strong>${b.periodo}</strong> — ${b.materia} (${b.duracao})
+                    <span class="text-sm text-slate-400 ml-2">${b.tipo||""}</span>
+                </div>`;
             });
-            res.innerHTML += `</div>`;
+            res.innerHTML += "</div>";
         });
-    } catch { res.innerHTML = `<pre class="text-red-400">${resp}</pre>`; }
+
+    } catch {
+        res.innerHTML = `<div class="card text-red-400">❌ Erro ao gerar cronograma.<pre class="text-xs mt-2 text-slate-400">${resposta}</pre></div>`;
+    }
 }
 
-// ARQUIVOS
+// ==============================================
+// ARQUIVOS / PASTAS — CORRIGIDO E OTIMIZADO
+// ==============================================
 async function atualizarSelectPastas() {
-    const snaps = await db.collection("pastas").orderBy("nome").get();
+    const snaps = await db.collection("pastas").where("criadoPor", "==", usuario.uid).orderBy("nome").get();
     let opts = `<option value="">📁 Raiz</option>`;
-    snaps.forEach(d=>{ opts += `<option value="${d.id}">📁 ${d.data().nome}</option>`; });
+    snaps.forEach(d => {
+        opts += `<option value="${d.id}">📁 ${d.data().nome}</option>`;
+    });
     document.getElementById("pastaDestino").innerHTML = opts;
     document.getElementById("pastaPai").innerHTML = opts;
 }
+
 async function criarPasta() {
     const nome = document.getElementById("nomePasta").value.trim();
-    const pai = document.getElementById("pastaPai").value||null;
-    if (!nome) return alert("Nome?");
-    await db.collection("pastas").add({nome, pastaPai:pai, usuario:usuario.uid, criadoEm:new Date()});
-    document.getElementById("nomePasta").value="";
-    await atualizarSelectPastas(); await carregarConteudo();
+    const pai = document.getElementById("pastaPai").value || null;
+    if (!nome) return alert("Informe o nome da pasta!");
+
+    await db.collection("pastas").add({
+        nome,
+        pastaPai: pai,
+        criadoPor: usuario.uid,
+        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    document.getElementById("nomePasta").value = "";
+    await atualizarSelectPastas();
+    await carregarConteudo();
 }
-async function irRaiz() { pastaAtual=null; caminho=[]; document.getElementById("caminho").innerHTML=""; await carregarConteudo(); }
-async function abrirPasta(id, nome) { pastaAtual=id; caminho.push({id,nome}); document.getElementById("caminho").innerHTML = caminho.map(p=>` › ${p.nome}`).join(""); await carregarConteudo(); }
+
+function irRaiz() {
+    pastaAtual = null;
+    caminho = [];
+    document.getElementById("caminho").innerHTML = "";
+    carregarConteudo();
+}
+
+async function abrirPasta(id, nome) {
+    pastaAtual = id;
+    caminho.push({ id, nome });
+    document.getElementById("caminho").innerHTML = caminho.map(p => ` › ${p.nome}`).join("");
+    await carregarConteudo();
+}
+
 async function carregarConteudo() {
     const lista = document.getElementById("listaConteudo");
-    const [pastas, arqs] = await Promise.all([
-        db.collection("pastas").where("pastaPai","==",pastaAtual).orderBy("nome").get(),
-        db.collection("arquivos").where("pastaPai","==",pastaAtual).orderBy("nome").get()
-    ]);
-    if (pastas.empty && arqs.empty) return lista.innerHTML="<p class='text-slate-500'>Vazio</p>";
-    lista.innerHTML="";
-    pastas.forEach(d=>{ lista.innerHTML += `<div class="pasta-item" onclick="abrirPasta('${d.id}','${d.data().nome}')">📁 ${d.data().nome}</div>`; });
-    arqs.forEach(d=>{ const a=d.data(); lista.innerHTML += `<div class="arquivo-item"><a href="${a.url}" target="_blank" class="flex-1">📄 ${a.nome}</a></div>`; });
+    lista.innerHTML = "<p class='text-slate-400'>Carregando...</p>";
+
+    try {
+        const [pastas, arquivos] = await Promise.all([
+            db.collection("pastas")
+                .where("criadoPor", "==", usuario.uid)
+                .where("pastaPai", "==", pastaAtual)
+                .orderBy("nome").get(),
+            db.collection("arquivos")
+                .where("enviadoPor", "==", usuario.uid)
+                .where("pastaPai", "==", pastaAtual)
+                .orderBy("nome").get()
+        ]);
+
+        if (pastas.empty && arquivos.empty) {
+            lista.innerHTML = "<p class='text-slate-500'>Pasta vazia.</p>";
+            return;
+        }
+
+        lista.innerHTML = "";
+        pastas.forEach(d => {
+            const p = d.data();
+            lista.innerHTML += `<div class="pasta-item" onclick="abrirPasta('${d.id}', '${p.nome.replace(/'/g, "\\'")}')">📁 ${p.nome}</div>`;
+        });
+        arquivos.forEach(d => {
+            const a = d.data();
+            lista.innerHTML += `<div class="arquivo-item">
+                <a href="${a.url}" target="_blank" class="flex-1 hover:text-indigo-400">📄 ${a.nome}</a>
+                <span class="text-xs text-slate-500">${(a.tipo||"").split("/")[1] || "arquivo"}</span>
+            </div>`;
+        });
+
+    } catch (e) {
+        lista.innerHTML = `<p class="text-red-400">Erro ao carregar: ${e.message}</p>`;
+    }
 }
+
 async function enviarArquivo() {
-    const arquivo = document.getElementById("arquivoSelecionado").files[0];
-    const nome = document.getElementById("nomeArquivo").value.trim() || arquivo.name;
-    const pastaPai = document.getElementById("pastaDestino").value||null;
-    if (!arquivo) return alert("Selecione o arquivo!");
-    const caminhoArq = `arquivos/${usuario.uid}/${Date.now()}_${arquivo.name}`;
-    const ref = storage.ref(caminhoArq);
+    const input = document.getElementById("arquivoSelecionado");
+    const arquivo = input.files[0];
+    const nome = document.getElementById("nomeArquivo").value.trim() || (arquivo ? arquivo.name : "");
+    const pai = document.getElementById("pastaDestino").value || null;
+
+    if (!arquivo) return alert("Selecione um arquivo!");
+
+    const caminhoStorage = `arquivos/${usuario.uid}/${Date.now()}_${arquivo.name}`;
+    const ref = storage.ref(caminhoStorage);
     const tarefa = ref.put(arquivo);
+
     document.getElementById("barraProgresso").classList.remove("hidden");
-    tarefa.on("state_changed", s=>{
-        const pct = Math.round((s.bytesTransferred/s.totalBytes)*100);
-        document.getElementById("pctFill").style.width = pct+"%";
-    }, e=>{ alert("Erro: "+e.message); }, async ()=>{
-        const url = await tarefa.snapshot.ref.getDownloadURL();
-        await db.collection("arquivos").add({nome, url, pastaPai, tipo:arquivo.type, enviadoPor:usuario.uid, criadoEm:new Date()});
-        document.getElementById("barraProgresso").classList.add("hidden");
-        document.getElementById("nomeArquivo").value="";
-        document.getElementById("arquivoSelecionado").value="";
-        await carregarConteudo();
-        alert("✅ Arquivo enviado!");
-    });
+    document.getElementById("pctFill").style.width = "0%";
+
+    tarefa.on("state_changed", 
+        (s) => {
+            const pct = Math.round((s.bytesTransferred / s.totalBytes) * 100);
+            document.getElementById("pctFill").style.width = pct + "%";
+        },
+        (erro) => {
+            alert("❌ Erro: " + erro.message);
+            document.getElementById("barraProgresso").classList.add("hidden");
+        },
+        async () => {
+            const url = await tarefa.snapshot.ref.getDownloadURL();
+            await db.collection("arquivos").add({
+                nome, url, pastaPai: pai,
+                tipo: arquivo.type,
+                enviadoPor: usuario.uid,
+                criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            document.getElementById("barraProgresso").classList.add("hidden");
+            document.getElementById("nomeArquivo").value = "";
+            input.value = "";
+            await carregarConteudo();
+            alert("✅ Arquivo enviado com sucesso!");
+        }
+    );
 }
 
-// SUGESTÕES
-async function enviarSugestao() {
-    const txt = document.getElementById("textoSugestao").value.trim();
-    if (!txt) return alert("Escreva algo!");
-    await db.collection("sugestoes").add({texto:txt, usuario:usuario.uid, data:new Date()});
-    document.getElementById("textoSugestao").value="";
-    alert("✅ Enviado!");
-    await carregarSugestoesUsuario();
-    if (ehAdmin) carregarSugestoesAdmin();
-}
-async function carregarSugestoesUsuario() {
-    const snaps = await db.collection("sugestoes").where("usuario","==",usuario.uid).orderBy("data","desc").get();
-    const lista = document.getElementById("listaSugestoes");
-    lista.innerHTML = snaps.empty?"<p class='text-slate-500'>Nenhuma sugestão enviada.</p>":"";
-    snaps.forEach(d=>{ lista.innerHTML += `<div class="card-sm">${d.data().texto}</div>`; });
-}
-async function carregarSugestoesAdmin() {
-    const snaps = await db.collection("sugestoes").orderBy("data","desc").limit(50).get();
-    const lista = document.getElementById("sugestoesAdmin");
-    lista.innerHTML = snaps.empty?"<p class='text-slate-500'>Nenhuma sugestão recebida.</p>":"";
-    snaps.forEach(d=>{ lista.innerHTML += `<div class="card-sm">${d.data().texto}</div>`; });
-}
-
-// ADMIN - CHAVE
-async function salvarChave() {
-    CHAVE = document.getElementById("chaveAPI").value.trim();
-    await db.collection("configuracoes").doc("gemini").set({chave:CHAVE});
-    alert("✅ Chave salva!");
-}
-
-// PDF RESUMO
+// ==============================================
+// RESUMIR PDF
+// ==============================================
 async function lerPdfEResumir() {
-    const arquivo = document.getElementById("arquivoPdf").files[0];
+    const input = document.getElementById("arquivoPdf");
+    const arquivo = input.files[0];
     if (!arquivo) return alert("Selecione um PDF!");
+
     const leitor = new FileReader();
-    leitor.onload = async e=>{
-        const res = await ia(`Resuma este conteúdo de forma clara e objetiva: ${e.target.result.slice(0, 12000)}`);
+    leitor.onload = async (e) => {
+        const texto = e.target.result;
+        const resumo = await chamarIA(`Resuma este texto de forma clara e objetiva: ${texto.slice(0, 15000)}`);
         document.getElementById("resultadoResumo").classList.remove("hidden");
-        document.getElementById("textoResumo").textContent = res;
+        document.getElementById("textoResumo").textContent = resumo;
     };
     leitor.readAsText(arquivo);
 }
 
-// LEITOR PDF (básico)
-function paginaAnterior() {}
-function proximaPagina() {}
-function fecharLeitorPdf() { document.getElementById("leitorPdfModal").classList.add("hidden"); }
+// ==============================================
+// SUGESTÕES
+// ==============================================
+async function enviarSugestao() {
+    const texto = document.getElementById("textoSugestao").value.trim();
+    if (!texto) return alert("Escreva sua sugestão!");
+
+    await db.collection("sugestoes").add({
+        texto, usuario: usuario.uid,
+        data: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    document.getElementById("textoSugestao").value = "";
+    alert("✅ Sugestão enviada!");
+    await carregarSugestoesUsuario();
+    if (ehAdmin) carregarSugestoesAdmin();
+}
+
+async function carregarSugestoesUsuario() {
+    const snaps = await db.collection("sugestoes")
+        .where("usuario", "==", usuario.uid)
+        .orderBy("data", "desc").limit(10).get();
+
+    const lista = document.getElementById("listaSugestoes");
+    lista.innerHTML = snaps.empty
+        ? "<p class='text-slate-500'>Você ainda não enviou nenhuma sugestão.</p>"
+        : "";
+    snaps.forEach(d => {
+        const s = d.data();
+        lista.innerHTML += `<div class="card-sm">${s.texto}</div>`;
+    });
+}
+
+async function carregarSugestoesAdmin() {
+    const snaps = await db.collection("sugestoes")
+        .orderBy("data", "desc").limit(50).get();
+
+    const lista = document.getElementById("sugestoesAdmin");
+    lista.innerHTML = snaps.empty
+        ? "<p class='text-slate-500'>Nenhuma sugestão recebida.</p>"
+        : "";
+    snaps.forEach(d => {
+        const s = d.data();
+        lista.innerHTML += `<div class="card-sm">${s.texto}</div>`;
+    });
+}
+
+// ==============================================
+// ADMIN — SALVAR CHAVE
+// ==============================================
+async function salvarChave() {
+    CHAVE = document.getElementById("chaveAPI").value.trim();
+    await db.collection("configuracoes").doc("gemini").set({ chave: CHAVE });
+    alert("✅ Chave salva com sucesso!");
+}
 
 </script>
 </body>
