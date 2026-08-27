@@ -1,79 +1,84 @@
-# 📚 EstudaMais — Plataforma Completa de Estudos
-
-
----
-
-## 📖 Sobre o Projeto
-
-O **EstudaMais** é uma plataforma web completa e gratuita, desenvolvida especialmente para **estudantes, concurseiros e vestibulandos**, com o objetivo de tornar os estudos mais organizados, eficientes e produtivos. Reúne em um só lugar todas as ferramentas essenciais para o aprendizado, eliminando a necessidade de usar vários sites ou aplicativos diferentes.
-
-Com uma interface moderna, intuitiva e totalmente responsiva, funciona perfeitamente em **celulares, tablets e computadores**, permitindo que você estude de qualquer lugar, a qualquer momento.
+# 📚 EstudaMais — Plataforma Completa de Estudos com Inteligência Artificial
 
 ---
 
-## ✅ Funcionalidades Principais
+## 🌟 Apresentação
 
-### 📄 Processamento de PDF com Geração de Conteúdo
-- Faça upload de qualquer arquivo em formato **PDF**
-- Gere **resumos estruturados** automaticamente a partir de materiais extensos
-- Crie **questões de múltipla escolha** com base no conteúdo do documento
-- Defina a quantidade de questões desejada (5, 10, 15 ou 20)
-- Suporta **arrastar e soltar** arquivos para facilitar o uso
+O **EstudaMais** é uma plataforma web moderna, gratuita e totalmente responsiva, desenvolvida para transformar a forma como você estuda. Reúne em um único lugar tudo o que estudantes, concurseiros e vestibulandos precisam: **Inteligência Artificial integrada** que lê seus materiais, gera resumos, cria questões personalizadas e explica cada resposta, além de ferramentas de organização e simulados no estilo das principais bancas de concursos do Brasil.
+
+Funciona em **celular, tablet ou computador**, sem precisar instalar nada — basta abrir no navegador e usar! 🚀
+
+---
+
+## ✨ Diferencial: Inteligência Artificial Própria Integrada 🤖
+
+A plataforma conta com **IA do Google Gemini integrada**, que faz todo o trabalho pesado por você:
+
+- 📖 **Lê o conteúdo real de seus PDFs** — extrai o texto diretamente do arquivo enviado
+- 📝 **Gera resumos estruturados** — organiza os pontos principais em tópicos claros e fáceis de revisar
+- 📋 **Cria questões personalizadas** — gera perguntas de múltipla escolha com 4 alternativas, resposta correta e explicação detalhada
+- ✅ **Corrige com explicação** — ao responder, a IA diz se você acertou e explica o porquê da resposta, ajudando a entender e não esquecer
+- 🔑 **Segurança e privacidade** — você usa sua própria chave gratuita do Gemini, que fica salva apenas no seu navegador
+
+---
+
+## 📚 Funcionalidades Completas
+
+### 🤖 Processamento de PDF com IA
+- Faça upload de qualquer arquivo PDF
+- Defina se deseja gerar **resumo**, **questões** ou ambos
+- Escolha a quantidade de questões (5, 10 ou 15)
+- Arraste e solte o arquivo para maior praticidade
 
 ### 📅 Cronograma de Estudos
-- Crie e gerencie seu **plano de estudos personalizado**
+- Monte seu plano de estudos personalizado
 - Registre assunto, data, horário e duração de cada sessão
-- Visualize todos os compromissos em uma tabela organizada
-- Remova atividades com facilidade
-- Acompanhe quantos dias de estudo você já programou
+- Visualize tudo em uma tabela organizada
+- Remova atividades quando quiser
 
 ### ✅ Simulados com Correção Imediata
-- Resolva questões e receba a **correção no mesmo instante** ao selecionar a resposta
-- Se errar, veja **exatamente o porquê da resposta estar incorreta** e qual é a alternativa certa, com explicação detalhada
-- Acompanhe seu **desempenho em tempo real**: número de acertos, porcentagem e barra de progresso visual
-- Cada questão pode ser respondida **apenas uma vez**, garantindo seriedade nos simulados
+- Responda questões e veja o resultado **na hora**
+- Se errar, veja **exatamente o motivo** com explicação detalhada
+- Acompanhe seu desempenho: número de acertos, porcentagem e barra de progresso visual
 
 ### 🏛️ Questões por Bancas e Vestibulares
-- Estude questões no **estilo das principais bancas organizadoras** do Brasil:
-  - ✅ **FGV** — foco em raciocínio lógico, matemática e interpretação
-  - ✅ **CESPE / CEBRASPE** — questões de Certo ou Errado
-  - ✅ **IBFC** — questões diretas e objetivas de conhecimento geral
-  - ✅ **IBGP** — questões com múltiplas afirmativas e combinações
-  - ✅ **IDECAN** — foco em cálculos e aplicação prática
-  - ✅ **IMESO** — foco em Língua Portuguesa e conhecimentos específicos
-  - ✅ **ENEM e Vestibulares** — interpretação e aplicação de conceitos
-- Cada banca apresenta questões com o perfil e estilo de cobrança reais
+Estude no estilo real das principais organizadoras:
+
+| Banca | Estilo de Questão |
+|---|---|
+| ✅ CESBRASPE | Análise de afirmações e objetivas |
+| ✅ FGV | Raciocínio lógico, interpretação e matemática |
+| ✅ CESPE / CEBRASPE | Certo ou Errado com análise de texto |
+| ✅ IBFC | Diretas e objetivas de conhecimento geral |
+| ✅ IBGP | Múltiplas afirmativas e combinações |
+| ✅ IDECAN | Cálculos e aplicação prática |
+| ✅ IMESO | Língua Portuguesa e conhecimentos específicos |
+| ✅ ENEM / Vestibulares | Interpretação e aplicação de conceitos |
 
 ### 📁 Repositório de Materiais
-- Anexe e armazene **seus materiais de estudo** em um só lugar
-- Suporta vários arquivos de uma vez (PDF, apostilas, slides, resumos, etc.)
-- Visualize nome e tamanho de cada arquivo enviado
-- Mantenha todo o material organizado e acessível
-
-### 📊 Acompanhamento de Desempenho
-- Estatísticas completas: total de questões respondidas, número de acertos e porcentagem de aproveitamento
-- Histórico de desempenho acumulado
-- Contador de dias de estudo programados no cronograma
+- Anexe e organize seus arquivos em um só lugar
+- Suporta vários arquivos de uma vez
+- Visualize nome e tamanho de cada documento
 
 ---
 
 ## 🚀 Como Usar
 
-1. **Baixe o arquivo `index.html`**
-2. **Abra com qualquer navegador** (Chrome, Edge, Firefox, Safari...)
-3. Pronto! Todas as funcionalidades já estão disponíveis e funcionando
+### Passo 1 — Obter a chave de IA (gratuito)
+1. Acesse 👉 **aistudio.google.com/apikey**
+2. Faça login com sua conta Google
+3. Clique em **"Create API Key"** → copie a chave gerada
 
-> 💡 Também pode ser acessado diretamente pelo endereço: **https://vgf02140.github.io/Resume.ai/**
+### Passo 2 — Configurar no EstudaMais
+1. Abra o site **https://vgf02140.github.io/Resume.ai/**
+2. Cole sua chave no campo **"Configurar Inteligência Artificial"**
+3. Clique em **Salvar** ✅ — pronto! Sua IA já está ativa
 
----
-
-## 🔧 Para Versão Completa com Inteligência Artificial
-
-A versão atual já funciona com exemplos práticos. Para que a geração de **resumos e questões leia de fato o conteúdo do seu PDF** e crie perguntas e resumos personalizados, é necessário conectar a plataforma a uma API de Inteligência Artificial, como:
-
-- **Google Gemini** (recomendado — gratuito com limites)
-- **OpenAI / ChatGPT API**
-- **Llama** ou outros modelos de IA
+### Passo 3 — Estudar!
+- Envie um PDF → a IA lê e gera resumo + questões
+- Monte seu cronograma
+- Faça simulados por banca
+- Acompanhe seu desempenho e evolua a cada dia!
 
 ---
 
@@ -83,16 +88,30 @@ A versão atual já funciona com exemplos práticos. Para que a geração de **r
 - 🏛️ Concurseiros de todas as áreas
 - 📚 Candidatos ao ENEM e vestibulares
 - 📖 Professores que desejam criar materiais e exercícios
-- ✨ Qualquer pessoa que busca organização e eficiência nos estudos
+- ✨ Qualquer pessoa que busca **organização, produtividade e inteligência** nos estudos
+
+---
+
+## 📖 Sobre a Tecnologia
+
+- **Interface moderna e responsiva** — funciona em qualquer tamanho de tela
+- **Leitura de PDF nativa** — sem precisar de serviços externos
+- **Inteligência Artificial Google Gemini** — gratuita e com limites generosos de uso
+- **Armazenamento local** — sua chave e seus dados ficam no seu próprio navegador
+- **Código aberto e gratuito** — use, adapte e compartilhe sem restrições
+
+---
+
+## 💬 Mensagem da Criadora
+
+> "Criei o EstudaMais com o objetivo de reunir todas as ferramentas que um estudante precisa em um só lugar, com a força da Inteligência Artificial para tornar o aprendizado mais dinâmico e eficiente. Que este projeto possa te ajudar a conquistar seus sonhos! 📚✨"
+>
+> — **Vitória Gil**
 
 ---
 
 ## 📝 Licença
 
-Projeto livre e gratuito. Você pode usar, adaptar e compartilhar!
+Projeto livre e gratuito. Você pode usar, adaptar e compartilhar! 💙
 
-> Feito com 💙 por **Vitória Gil**
-
----
-
-Pode copiar este texto e substituir todo o conteúdo do seu arquivo `README.md` no GitHub! Quer que eu faça mais alguma alteração ou adição na descrição?
+Boa sorte na sua jornada!
