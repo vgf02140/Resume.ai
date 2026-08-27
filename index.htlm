@@ -3,116 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EstudaMais — Sua Plataforma de Estudos</title>
+    <meta name="description" content="Plataforma de estudos: gerador de questões e resumos de PDF, cronograma, simulados com correção automática, questões de concursos e vestibulares">
+    <title>EstudaMais — Sua Plataforma Completa de Estudos</title>
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- PDF.js para leitura de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#2563eb',
-                        secondary: '#10b981',
-                        accent: '#f59e0b',
-                        danger: '#ef4444',
-                        light: '#f3f4f6',
-                        dark: '#1f2937'
+                        primary: '#1d4ed8',
+                        primaryDark: '#1e40af',
+                        secondary: '#059669',
+                        accent: '#d97706',
+                        danger: '#dc2626',
+                        info: '#0891b2',
+                        light: '#f8fafc',
+                        dark: '#0f172a',
+                        neutral: '#475569'
                     },
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        sans: ['Inter', 'Segoe UI', 'system-ui', 'sans-serif'],
                     },
+                    boxShadow: {
+                        'soft': '0 8px 30px rgba(0,0,0,0.08)',
+                        'card': '0 4px 20px rgba(29, 78, 216, 0.08)',
+                        'hover': '0 12px 32px rgba(29, 78, 216, 0.15)'
+                    }
                 }
             }
         }
     </script>
+
     <style type="text/tailwindcss">
         @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .tab-content {
-                display: none;
-            }
-            .tab-content.active {
-                display: block;
-            }
-            .card-shadow {
-                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            }
+            .content-auto { content-visibility: auto; }
+            .tab-content { display: none; }
+            .tab-content.active { display: block; }
             .option-btn {
                 transition: all 0.2s ease;
+                border: 2px solid #e2e8f0;
             }
             .option-btn:hover:not(.correct):not(.incorrect) {
-                transform: translateX(5px);
+                transform: translateX(6px);
+                border-color: #93c5fd;
                 background-color: #eff6ff;
             }
             .correct {
-                background-color: #dcfce7 !important;
+                background-color: #f0fdf4 !important;
                 border-color: #22c55e !important;
                 color: #166534 !important;
+                font-weight: 500;
             }
             .incorrect {
-                background-color: #fee2e2 !important;
+                background-color: #fef2f2 !important;
                 border-color: #ef4444 !important;
                 color: #991b1b !important;
+                font-weight: 500;
+            }
+            .glass {
+                background: rgba(255,255,255,0.9);
+                backdrop-filter: blur(10px);
+            }
+            .scroll-smooth { scroll-behavior: smooth; }
+            .animate-fade { animation: fadeIn 0.4s ease-out; }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(12px); }
+                to { opacity: 1; transform: translateY(0); }
             }
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body class="bg-slate-50 text-slate-800 font-sans scroll-smooth">
+
+    <!-- Navegação Lateral em Celular -->
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
     <!-- Cabeçalho -->
-    <header class="bg-primary text-white shadow-lg">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold flex items-center gap-2">
-                <i class="fa fa-book"></i> EstudaMais
+    <header class="glass sticky top-0 z-50 border-b border-slate-200">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-primary flex items-center gap-2">
+                <i class="fa-solid fa-book-open-reader text-accent"></i>
+                <span class="hidden sm:inline">EstudaMais</span>
             </h1>
-            <nav class="hidden md:flex gap-6">
-                <a href="#pdf" class="hover:text-blue-200 transition">PDF & Conteúdo</a>
-                <a href="#cronograma" class="hover:text-blue-200 transition">Cronograma</a>
-                <a href="#simulado" class="hover:text-blue-200 transition">Simulados</a>
-                <a href="#bancas" class="hover:text-blue-200 transition">Bancas & Vestibulares</a>
-                <a href="#materiais" class="hover:text-blue-200 transition">Materiais</a>
+
+            <nav class="hidden md:flex gap-6 text-sm font-medium">
+                <a href="#pdf" class="hover:text-primary transition-colors">📄 PDF & IA</a>
+                <a href="#cronograma" class="hover:text-primary transition-colors">📅 Cronograma</a>
+                <a href="#simulado" class="hover:text-primary transition-colors">📝 Simulados</a>
+                <a href="#bancas" class="hover:text-primary transition-colors">🏛️ Bancas</a>
+                <a href="#materiais" class="hover:text-primary transition-colors">📁 Materiais</a>
+                <a href="#resultados" class="hover:text-primary transition-colors">📊 Desempenho</a>
             </nav>
-            <button class="md:hidden text-2xl"><i class="fa fa-bars"></i></button>
+
+            <button id="menuBtn" class="md:hidden text-2xl text-primary">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Menu Mobile -->
+        <div id="mobileMenu" class="fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-50 p-6 transform translate-x-full transition-transform duration-300 md:hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-primary">Menu</h2>
+                <button id="closeMenu" class="text-xl text-slate-500"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <nav class="flex flex-col gap-4 text-lg">
+                <a href="#pdf" class="py-2 border-b border-slate-100">📄 PDF & IA</a>
+                <a href="#cronograma" class="py-2 border-b border-slate-100">📅 Cronograma</a>
+                <a href="#simulado" class="py-2 border-b border-slate-100">📝 Simulados</a>
+                <a href="#bancas" class="py-2 border-b border-slate-100">🏛️ Bancas</a>
+                <a href="#materiais" class="py-2 border-b border-slate-100">📁 Materiais</a>
+                <a href="#resultados" class="py-2 border-b border-slate-100">📊 Desempenho</a>
+            </nav>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-8">
-        <!-- Seção 1: Envio de PDF e Geração de Conteúdo -->
-        <section id="pdf" class="mb-16 bg-white rounded-2xl p-6 card-shadow">
-            <h2 class="text-2xl font-bold mb-6 text-primary flex items-center gap-2">
-                <i class="fa fa-file-pdf-o text-danger"></i> Processar PDF — Gerar Questões e Resumos
-            </h2>
-            
+    <main class="container mx-auto px-4 py-8 space-y-16">
+
+        <!-- ============================================== -->
+        <!-- SEÇÃO 1 → PDF: Gerar Questões e Resumos       -->
+        <!-- ============================================== -->
+        <section id="pdf" class="bg-white rounded-3xl p-6 md:p-8 shadow-card animate-fade">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="w-12 h-12 rounded-2xl bg-red-50 text-danger flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-file-pdf"></i>
+                </span>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Processar PDF com IA</h2>
+                    <p class="text-slate-500 text-sm">Envie um PDF e gere resumos e questões automaticamente</p>
+                </div>
+            </div>
+
             <div class="grid md:grid-cols-2 gap-8">
-                <!-- Upload de PDF -->
-                <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-primary transition">
+                <!-- Área de Upload -->
+                <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:border-primary hover:bg-blue-50/50 transition-all cursor-pointer">
                     <input type="file" id="pdfUpload" accept=".pdf" class="hidden">
                     <label for="pdfUpload" class="cursor-pointer block">
-                        <i class="fa fa-cloud-upload text-5xl text-gray-400 mb-4"></i>
-                        <p class="text-lg font-medium">Clique ou arraste seu PDF aqui</p>
-                        <p class="text-sm text-gray-500 mt-2">O sistema irá ler o conteúdo e gerar questões personalizadas e resumos</p>
+                        <i class="fa-solid fa-cloud-arrow-up text-5xl text-slate-400 mb-4"></i>
+                        <p class="text-lg font-semibold text-slate-700">Clique ou arraste seu PDF aqui</p>
+                        <p class="text-sm text-slate-500 mt-2">O conteúdo será lido e processado</p>
                     </label>
                     <div id="fileInfo" class="mt-4 text-green-600 font-medium hidden">
-                        <i class="fa fa-check-circle"></i> <span id="fileName"></span> carregado!
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span id="fileName"></span>
+                        <span id="fileSize" class="text-sm text-slate-500 ml-2"></span>
                     </div>
                 </div>
 
                 <!-- Opções de Geração -->
                 <div class="space-y-4">
-                    <h3 class="font-bold text-lg">O que deseja gerar?</h3>
+                    <h3 class="font-bold text-lg text-slate-700">O que deseja gerar?</h3>
                     <div class="space-y-3">
-                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-blue-50 cursor-pointer">
-                            <input type="checkbox" id="gerarQuestoes" checked class="w-5 h-5 text-primary">
-                            <span>Gerar questões de acordo com o conteúdo</span>
-                        </label>
-                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-blue-50 cursor-pointer">
+                        <label class="flex items-center gap-3 p-3 border rounded-xl hover:bg-blue-50 cursor-pointer transition">
                             <input type="checkbox" id="gerarResumo" checked class="w-5 h-5 text-primary">
-                            <span>Criar resumo do conteúdo do PDF</span>
+                            <span>📝 Criar resumo estruturado do conteúdo</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 border rounded-xl hover:bg-blue-50 cursor-pointer transition">
+                            <input type="checkbox" id="gerarQuestoes" checked class="w-5 h-5 text-primary">
+                            <span>📋 Gerar questões de múltipla escolha</span>
                         </label>
                         <div class="pl-8 space-y-2">
-                            <label class="block">Quantidade de questões:</label>
-                            <select id="qtdQuestoes" class="w-full p-2 border rounded-lg">
+                            <label class="block text-sm font-medium">Quantidade de questões:</label>
+                            <select id="qtdQuestoes" class="w-full p-2 border rounded-xl">
                                 <option value="5">5 questões</option>
                                 <option value="10" selected>10 questões</option>
                                 <option value="15">15 questões</option>
@@ -120,312 +178,462 @@
                             </select>
                         </div>
                     </div>
-                    <button id="btnGerar" class="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition mt-4">
-                        <i class="fa fa-magic mr-2"></i> Gerar Conteúdo
+                    <button id="btnGerar" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-primaryDark transition-all shadow-md hover:shadow-lg mt-2">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Gerar com IA
                     </button>
                 </div>
             </div>
 
             <!-- Resultados -->
-            <div id="resultados" class="mt-8 space-y-8 hidden">
-                <!-- Resumo Gerado -->
-                <div id="resumoBox" class="border rounded-xl p-4 bg-blue-50">
-                    <h3 class="font-bold text-xl mb-3 text-primary">📝 Resumo</h3>
-                    <div id="resumoConteudo" class="text-gray-700 leading-relaxed">
-                        <!-- Conteúdo do resumo aparecerá aqui -->
-                    </div>
+            <div id="resultados" class="mt-10 space-y-8 hidden animate-fade">
+                <div id="resumoBox" class="border border-blue-100 rounded-2xl p-5 bg-blue-50/50">
+                    <h3 class="font-bold text-xl mb-4 text-primary flex items-center gap-2">
+                        <i class="fa-solid fa-file-lines"></i> Resumo Gerado
+                    </h3>
+                    <div id="resumoConteudo" class="text-slate-700 leading-relaxed whitespace-pre-line"></div>
                 </div>
 
-                <!-- Questões Geradas -->
                 <div id="questoesBox">
-                    <h3 class="font-bold text-xl mb-4 text-primary">📋 Questões Geradas</h3>
-                    <div id="questoesConteudo" class="space-y-6">
-                        <!-- Questões aparecerão aqui -->
-                    </div>
+                    <h3 class="font-bold text-xl mb-4 text-primary flex items-center gap-2">
+                        <i class="fa-solid fa-list-ol"></i> Questões Geradas
+                    </h3>
+                    <div id="questoesConteudo" class="space-y-5"></div>
                 </div>
             </div>
         </section>
 
-        <!-- Seção 2: Cronograma de Estudos -->
-        <section id="cronograma" class="mb-16 bg-white rounded-2xl p-6 card-shadow">
-            <h2 class="text-2xl font-bold mb-6 text-primary flex items-center gap-2">
-                <i class="fa fa-calendar-check-o text-accent"></i> Cronograma de Estudos
-            </h2>
-
-            <div class="grid md:grid-cols-3 gap-4 mb-6">
+        <!-- ============================================== -->
+        <!-- SEÇÃO 2 → Cronograma de Estudos               -->
+        <!-- ============================================== -->
+        <section id="cronograma" class="bg-white rounded-3xl p-6 md:p-8 shadow-card animate-fade">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="w-12 h-12 rounded-2xl bg-amber-50 text-accent flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-calendar-days"></i>
+                </span>
                 <div>
-                    <label class="block font-medium mb-1">Matéria/Assunto</label>
-                    <input type="text" id="assunto" placeholder="Ex: Matemática - Equações" class="w-full p-2 border rounded-lg">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">Data e Horário</label>
-                    <input type="datetime-local" id="dataEstudo" class="w-full p-2 border rounded-lg">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">Duração (min)</label>
-                    <input type="number" id="duracao" placeholder="60" class="w-full p-2 border rounded-lg">
+                    <h2 class="text-2xl font-bold text-slate-800">Cronograma de Estudos</h2>
+                    <p class="text-slate-500 text-sm">Organize seus horários e assuntos</p>
                 </div>
             </div>
-            <button id="btnAdicionar" class="bg-secondary text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition mb-6">
-                <i class="fa fa-plus mr-2"></i> Adicionar ao Cronograma
+
+            <div class="grid md:grid-cols-4 gap-4 mb-6">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium mb-1">Matéria / Assunto</label>
+                    <input type="text" id="assunto" placeholder="Ex: Direito Constitucional" class="w-full p-3 border rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Data e Horário</label>
+                    <input type="datetime-local" id="dataEstudo" class="w-full p-3 border rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Duração (min)</label>
+                    <input type="number" id="duracao" value="60" class="w-full p-3 border rounded-xl">
+                </div>
+            </div>
+            <button id="btnAdicionar" class="bg-secondary text-white px-6 py-3 rounded-xl font-bold hover:bg-green-800 transition shadow-md mb-6">
+                <i class="fa-solid fa-plus mr-2"></i> Adicionar ao Cronograma
             </button>
 
-            <div class="overflow-x-auto">
-                <table class="w-full border-collapse">
-                    <thead>
-                        <tr class="bg-gray-100 text-left">
-                            <th class="p-3 border-b">Assunto</th>
-                            <th class="p-3 border-b">Data e Horário</th>
-                            <th class="p-3 border-b">Duração</th>
-                            <th class="p-3 border-b">Ações</th>
+            <div class="overflow-x-auto rounded-xl border">
+                <table class="w-full text-sm">
+                    <thead class="bg-slate-50 text-left">
+                        <tr>
+                            <th class="p-3 font-semibold">Assunto</th>
+                            <th class="p-3 font-semibold">Data e Horário</th>
+                            <th class="p-3 font-semibold">Duração</th>
+                            <th class="p-3 font-semibold text-center">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="tabelaCronograma">
-                        <!-- Itens do cronograma aparecem aqui -->
-                    </tbody>
+                    <tbody id="tabelaCronograma"></tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Seção 3: Simulado com Correção Automática -->
-        <section id="simulado" class="mb-16 bg-white rounded-2xl p-6 card-shadow">
-            <h2 class="text-2xl font-bold mb-6 text-primary flex items-center gap-2">
-                <i class="fa fa-graduation-cap text-secondary"></i> Simulado — Correção Imediata
-            </h2>
+        <!-- ============================================== -->
+        <!-- SEÇÃO 3 → Simulado com Correção Automática    -->
+        <!-- ============================================== -->
+        <section id="simulado" class="bg-white rounded-3xl p-6 md:p-8 shadow-card animate-fade">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="w-12 h-12 rounded-2xl bg-green-50 text-secondary flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </span>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Simulado — Correção Imediata</h2>
+                    <p class="text-slate-500 text-sm">Resolva e veja o resultado na hora com explicação</p>
+                </div>
+            </div>
 
-            <div id="simuladoContainer" class="space-y-8">
+            <div id="simuladoContainer" class="space-y-6">
                 <!-- Questão 1 -->
-                <div class="questao border rounded-xl p-5 hover:shadow-md transition">
-                    <p class="font-bold text-lg mb-4">01. Analise as afirmativas sobre o conceito de Estado:</p>
-                    <div class="space-y-3 ml-2">
-                        <button class="option-btn w-full text-left p-3 border rounded-lg" data-correct="false" data-explicacao="Soberania é o poder supremo, mas não é ilimitada; está sujeita à ordem jurídica e aos direitos fundamentais.">
+                <div class="questao border rounded-2xl p-5 hover:shadow-md transition">
+                    <p class="font-bold text-lg mb-4">01. De acordo com a Constituição Federal de 1988, assinale a alternativa correta:</p>
+                    <div class="space-y-3 ml-1">
+                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="A soberania não é absoluta; está sujeita à ordem jurídica e aos direitos fundamentais previstos na CF/88.">
                             A) A soberania do Estado é absoluta e não tem qualquer limite.
                         </button>
-                        <button class="option-btn w-full text-left p-3 border rounded-lg" data-correct="true" data-explicacao="O Estado é composto por população, território e governo, sendo esses os elementos essenciais para sua existência.">
+                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="true" data-explicacao="Correto! Os três elementos essenciais do Estado são: população, território e governo.">
                             B) São elementos essenciais do Estado: população, território e governo.
                         </button>
-                        <button class="option-btn w-full text-left p-3 border rounded-lg" data-correct="false" data-explicacao="O Estado é uma entidade permanente, ao passo que o governo é temporário e pode ser substituído.">
-                            C) O Estado e o governo são instituições idênticas e têm a mesma duração.
+                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="O Estado é permanente; o governo é temporário e pode ser substituído.">
+                            C) Estado e governo são idênticos e têm a mesma duração.
                         </button>
-                        <button class="option-btn w-full text-left p-3 border rounded-lg" data-correct="false" data-explicacao="A organização política refere-se à forma como o Estado se estrutura, não sendo um elemento constitutivo ao lado de povo, território e poder.">
-                            D) Os elementos constitutivos do Estado são: povo, território, poder e organização política.
+                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="Os elementos constitutivos são povo, território e poder soberano; organização política não é elemento.">
+                            D) Os elementos são: povo, território, poder e organização política.
                         </button>
                     </div>
-                    <div class="explicacao mt-4 p-3 rounded-lg hidden"></div>
+                    <div class="explicacao mt-4 p-4 rounded-xl hidden"></div>
                 </div>
 
                 <!-- Questão 2 -->
-                <div class="questao border rounded-xl p-5 hover:shadow-md transition">
-                    <p class="font-bold text-lg mb-4">02. Qual é a raiz quadrada de 144?</p>
-                    <div class="space-y-3 ml-2">
-                        <button class="option-btn w-full text-left p-3 border rounded-lg" data-correct="false" data-explicacao="12 ao quadrado é 144, não 11.">
-                            A) 11
-                        </button>
-                        <button class="option-btn w-full text-left p-3 border rounded-lg" data-correct="true" data-explicacao="12 multiplicado por 12 é igual a 144, logo √144 = 12.">
-                            B) 12
-                        </button>
-                        <button class="option-btn w-full text-left p-3 border rounded-lg" data-correct="false" data-explicacao="13 ao quadrado é 169.">
-                            C) 13
-                        </button>
-                        <button class="option-btn w-full text-left p-3 border rounded-lg" data-correct="false" data-explicacao="14 ao quadrado é 196.">
-                            D) 14
-                        </button>
+                <div class="questao border rounded-2xl p-5 hover:shadow-md transition">
+                    <p class="font-bold text-lg mb-4">02. Qual é o valor de √144?</p>
+                    <div class="space-y-3 ml-1">
+                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="11² = 121, não 144.">A) 11</button>
+                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="true" data-explicacao="Correto! 12 × 12 = 144, logo √144 = 12.">B) 12</button>
+                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="13² = 169.">C) 13</button>
+                        <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="14² = 196.">D) 14</button>
                     </div>
-                    <div class="explicacao mt-4 p-3 rounded-lg hidden"></div>
+                    <div class="explicacao mt-4 p-4 rounded-xl hidden"></div>
                 </div>
             </div>
 
-            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-                <p class="font-medium">📊 Resultado: <span id="acertos">0</span> acertos de <span id="totalQuestoes">2</span> — <span id="porcentagem">0%</span></p>
+            <div class="mt-8 p-5 bg-blue-50 rounded-2xl border border-blue-100">
+                <p class="font-semibold text-lg">📊 Resultado: <span id="acertos">0</span> acertos de <span id="totalQuestoes">2</span> — <span id="porcentagem">0%</span></p>
+                <div class="w-full bg-slate-200 rounded-full h-3 mt-3">
+                    <div id="barraProgresso" class="bg-primary h-3 rounded-full transition-all duration-500" style="width:0%"></div>
+                </div>
             </div>
         </section>
 
-        <!-- Seção 4: Questões por Bancas e Vestibulares -->
-        <section id="bancas" class="mb-16 bg-white rounded-2xl p-6 card-shadow">
-            <h2 class="text-2xl font-bold mb-6 text-primary flex items-center gap-2">
-                <i class="fa fa-university text-accent"></i> Questões por Bancas e Vestibulares
-            </h2>
-
-            <div class="grid md:grid-cols-4 gap-4 mb-8">
-                <button class="banca-btn p-4 border rounded-xl hover:bg-blue-50 hover:border-primary transition font-medium" data-banca="cesbraspe">
-                    CESBRASPE
-                </button>
-                <button class="banca-btn p-4 border rounded-xl hover:bg-blue-50 hover:border-primary transition font-medium" data-banca="fgv">
-                    FGV
-                </button>
-                <button class="banca-btn p-4 border rounded-xl hover:bg-blue-50 hover:border-primary transition font-medium" data-banca="cef">
-                    CEBRASPE / CESPE
-                </button>
-                <button class="banca-btn p-4 border rounded-xl hover:bg-blue-50 hover:border-primary transition font-medium" data-banca="vestibular">
-                    Vestibulares (ENEM, FUVEST, UNICAMP...)
-                </button>
+        <!-- ============================================== -->
+        <!-- SEÇÃO 4 → Bancas e Vestibulares               -->
+        <!-- ============================================== -->
+        <section id="bancas" class="bg-white rounded-3xl p-6 md:p-8 shadow-card animate-fade">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="w-12 h-12 rounded-2xl bg-sky-50 text-info flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-landmark"></i>
+                </span>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Questões por Bancas e Vestibulares</h2>
+                    <p class="text-slate-500 text-sm">Estude no estilo das principais organizadoras</p>
+                </div>
             </div>
 
-            <div id="questoesBanca" class="space-y-6">
-                <p class="text-gray-500 italic">Selecione uma banca acima para carregar questões com perfil daquele estilo</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="cesbraspe">CESBRASPE</button>
+                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="fgv">FGV</button>
+                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="cespe">CESPE / CEBRASPE</button>
+                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="ibfc">IBFC</button>
+                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="ibgp">IBGP</button>
+                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="idecan">IDECAN</button>
+                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="imeso">IMESO</button>
+                <button class="banca-btn p-4 border-2 rounded-xl hover:border-primary hover:bg-blue-50 transition font-semibold text-sm" data-banca="vestibular">ENEM / Vestibulares</button>
+            </div>
+
+            <div id="questoesBanca" class="space-y-5">
+                <p class="text-slate-500 italic">👆 Selecione uma banca acima para carregar questões no estilo dela</p>
             </div>
         </section>
 
-        <!-- Seção 5: Espaço de Materiais -->
-        <section id="materiais" class="mb-16 bg-white rounded-2xl p-6 card-shadow">
-            <h2 class="text-2xl font-bold mb-6 text-primary flex items-center gap-2">
-                <i class="fa fa-folder-open text-danger"></i> Espaço de Materiais de Estudo
-            </h2>
+        <!-- ============================================== -->
+        <!-- SEÇÃO 5 → Materiais de Estudo                 -->
+        <!-- ============================================== -->
+        <section id="materiais" class="bg-white rounded-3xl p-6 md:p-8 shadow-card animate-fade">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="w-12 h-12 rounded-2xl bg-orange-50 text-accent flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-folder-open"></i>
+                </span>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Repositório de Materiais</h2>
+                    <p class="text-slate-500 text-sm">Anexe e organize suas apostilas, PDFs e arquivos</p>
+                </div>
+            </div>
 
-            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center mb-8 hover:border-secondary transition">
+            <div class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center mb-6 hover:border-secondary hover:bg-green-50/50 transition">
                 <input type="file" id="materialUpload" multiple class="hidden">
-                <label for="materialUpload" class="cursor-pointer">
-                    <i class="fa fa-plus-circle text-4xl text-gray-400 mb-2"></i>
-                    <p class="font-medium">Clique para anexar materiais (PDF, slides, apostilas, etc.)</p>
-                    <p class="text-sm text-gray-500 mt-1">Todos os materiais ficam organizados aqui para seus estudos</p>
+                <label for="materialUpload" class="cursor-pointer block">
+                    <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 mb-3"></i>
+                    <p class="font-semibold text-lg">Clique para anexar materiais</p>
+                    <p class="text-sm text-slate-500 mt-1">PDF, DOCX, slides, apostilas — tudo organizado aqui</p>
                 </label>
             </div>
 
-            <div id="listaMateriais" class="space-y-3">
-                <h3 class="font-bold text-lg mb-2">📁 Materiais Disponíveis</h3>
-                <p class="text-gray-500 italic">Nenhum material enviado ainda. Anexe arquivos acima!</p>
+            <div id="listaMateriais" class="space-y-2">
+                <h3 class="font-bold text-lg text-slate-700">📁 Materiais Disponíveis</h3>
+                <p class="text-slate-500 italic">Nenhum material enviado ainda. Anexe arquivos acima!</p>
             </div>
         </section>
+
+        <!-- ============================================== -->
+        <!-- SEÇÃO 6 → Desempenho / Resultados            -->
+        <!-- ============================================== -->
+        <section id="resultados" class="bg-white rounded-3xl p-6 md:p-8 shadow-card animate-fade">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="w-12 h-12 rounded-2xl bg-blue-50 text-primary flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </span>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Seu Desempenho</h2>
+                    <p class="text-slate-500 text-sm">Acompanhe sua evolução nos estudos</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-4">
+                <div class="bg-blue-50 rounded-2xl p-5 text-center">
+                    <p class="text-3xl font-bold text-primary" id="totalRespostas">0</p>
+                    <p class="text-sm text-slate-600 mt-1">Questões Respondidas</p>
+                </div>
+                <div class="bg-green-50 rounded-2xl p-5 text-center">
+                    <p class="text-3xl font-bold text-secondary" id="totalAcertos">0</p>
+                    <p class="text-sm text-slate-600 mt-1">Acertos</p>
+                </div>
+                <div class="bg-amber-50 rounded-2xl p-5 text-center">
+                    <p class="text-3xl font-bold text-accent" id="mediaDesempenho">0%</p>
+                    <p class="text-sm text-slate-600 mt-1">Aproveitamento</p>
+                </div>
+                <div class="bg-sky-50 rounded-2xl p-5 text-center">
+                    <p class="text-3xl font-bold text-info" id="diasEstudo">0</p>
+                    <p class="text-sm text-slate-600 mt-1">Dias no Cronograma</p>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <footer class="bg-dark text-white py-6 mt-8">
+    <footer class="bg-slate-900 text-white py-8 mt-12">
         <div class="container mx-auto px-4 text-center">
-            <p>📚 EstudaMais — Plataforma Completa de Estudos | Gerador de questões, resumos, cronogramas e simulados</p>
-            <p class="text-sm text-gray-400 mt-2">Para funcionamento completo com IA, conecte a uma API de geração de conteúdo (Gemini, OpenAI, etc.)</p>
+            <p class="text-xl font-bold mb-2">📚 EstudaMais</p>
+            <p class="text-slate-400">Plataforma completa de estudos — questões, resumos, cronogramas e simulados</p>
+            <p class="text-sm text-slate-500 mt-3">Para geração real por IA, conecte a API do Google Gemini ou OpenAI</p>
         </div>
     </footer>
 
     <script>
-        // ====== 1. Upload de PDF e Geração de Conteúdo ======
+        // ==================================================
+        // VARIÁVEIS GLOBAIS
+        // ==================================================
+        let estatisticas = {
+            totalRespostas: 0,
+            totalAcertos: 0
+        };
+        let acertosSimuladoAtual = 0;
+        let totalSimuladoAtual = 0;
+
+        // ==================================================
+        // MENU MOBILE
+        // ==================================================
+        const menuBtn = document.getElementById('menuBtn');
+        const closeMenu = document.getElementById('closeMenu');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const overlay = document.getElementById('overlay');
+
+        function toggleMenu(abrir) {
+            if (abrir) {
+                mobileMenu.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                mobileMenu.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        menuBtn.addEventListener('click', () => toggleMenu(true));
+        closeMenu.addEventListener('click', () => toggleMenu(false));
+        overlay.addEventListener('click', () => toggleMenu(false));
+        document.querySelectorAll('#mobileMenu a').forEach(a => {
+            a.addEventListener('click', () => toggleMenu(false));
+        });
+
+        // ==================================================
+        // 1. UPLOAD DE PDF E GERAÇÃO DE CONTEÚDO
+        // ==================================================
         const pdfUpload = document.getElementById('pdfUpload');
         const fileInfo = document.getElementById('fileInfo');
         const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
         const btnGerar = document.getElementById('btnGerar');
         const resultados = document.getElementById('resultados');
         const resumoConteudo = document.getElementById('resumoConteudo');
         const questoesConteudo = document.getElementById('questoesConteudo');
 
-        pdfUpload.addEventListener('change', (e) => {
+        pdfUpload.addEventListener('change', e => {
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
                 fileName.textContent = file.name;
+                fileSize.textContent = `(${ (file.size / 1024 / 1024).toFixed(2) } MB)`;
                 fileInfo.classList.remove('hidden');
+            }
+        });
+
+        // Drag & Drop
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('border-primary','bg-blue-50'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-primary','bg-blue-50'));
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropZone.classList.remove('border-primary','bg-blue-50');
+            if (e.dataTransfer.files.length) {
+                pdfUpload.files = e.dataTransfer.files;
+                pdfUpload.dispatchEvent(new Event('change'));
             }
         });
 
         btnGerar.addEventListener('click', () => {
             if (!pdfUpload.files.length) {
-                alert('Por favor, selecione um PDF primeiro!');
+                alert('⚠️ Selecione um PDF antes de gerar!');
                 return;
             }
-
             resultados.classList.remove('hidden');
-            const qtd = document.getElementById('qtdQuestoes').value;
+            const qtd = parseInt(document.getElementById('qtdQuestoes').value);
             const gerarResumo = document.getElementById('gerarResumo').checked;
             const gerarQuestoes = document.getElementById('gerarQuestoes').checked;
 
-            // Simulação de resumo
+            // Resumo simulado
             if (gerarResumo) {
-                resumoConteudo.innerHTML = `
-                    <p>📌 <strong>Resumo gerado com base no conteúdo do PDF enviado:</strong></p>
-                    <p class="mt-2">O conteúdo aborda temas fundamentais relacionados ao assunto estudante, organizado em tópicos claros. Os principais pontos incluem: conceitos básicos, aplicações práticas, exemplos e exercícios de fixação. Recomenda-se focar nas definições e nas questões de múltipla escolha que aparecem ao final de cada seção.</p>
-                    <p class="mt-2">💡 <strong>Dica de estudo:</strong> Estude o conteúdo em partes, faça pausas e resolva questões após cada tópico para fixar o conhecimento!</p>
-                `;
+                resumoConteudo.textContent = `📌 Resumo gerado com base no conteúdo do PDF enviado.
+
+O documento apresenta os conceitos fundamentais da matéria, organizados de forma lógica. Os principais pontos abordados incluem: definições, princípios, aplicações práticas e exemplos que facilitam a compreensão.
+
+💡 Dica de estudo:
+→ Leia o PDF uma vez e depois este resumo para fixar.
+→ Resolva as questões abaixo para testar o conhecimento.
+→ Revise os tópicos que errar após cada simulado.
+
+*Este é um resumo de demonstração. Conecte a API do Google Gemini para gerar com base no conteúdo real do PDF.*`;
                 document.getElementById('resumoBox').classList.remove('hidden');
             } else {
                 document.getElementById('resumoBox').classList.add('hidden');
             }
 
-            // Simulação de questões geradas
+            // Questões simuladas
             if (gerarQuestoes) {
                 questoesConteudo.innerHTML = '';
                 for (let i = 1; i <= qtd; i++) {
-                    const questao = document.createElement('div');
-                    questao.className = 'border rounded-xl p-4 hover:shadow-md transition';
-                    questao.innerHTML = `
-                        <p class="font-bold mb-3">${i}. Questão gerada a partir do conteúdo do PDF — Assunto abordado no documento</p>
-                        <div class="space-y-2 ml-2">
-                            <button class="option-btn w-full text-left p-3 border rounded-lg" data-correct="false" data-explicacao="Esta alternativa está incorreta pois contradiz o que está definido no conteúdo do PDF.">
-                                A) Afirmação incorreta presente no conteúdo
+                    const q = document.createElement('div');
+                    q.className = 'questao border rounded-2xl p-5 hover:shadow-md transition';
+                    q.innerHTML = `
+                        <p class="font-bold text-lg mb-4">${i}. Questão baseada no conteúdo do PDF enviado</p>
+                        <div class="space-y-3 ml-1">
+                            <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="Esta alternativa está incorreta, pois o conteúdo do PDF apresenta informação diferente.">
+                                A) Afirmação incorreta de acordo com o conteúdo
                             </button>
-                            <button class="option-btn w-full text-left p-3 border rounded-lg" data-correct="true" data-explicacao="Correta! Esta informação está explicitamente no conteúdo enviado no PDF.">
+                            <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="true" data-explicacao="✅ Correto! Esta informação está presente no conteúdo do PDF.">
                                 B) Afirmação correta de acordo com o conteúdo do PDF
                             </button>
-                            <button class="option-btn w-full text-left p-3 border rounded-lg" data-correct="false" data-explicacao="Está errada porque o conteúdo apresenta definição diferente.">
+                            <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="Incorreta. O PDF explica que o conceito é outro.">
                                 C) Outra afirmação incorreta
                             </button>
-                            <button class="option-btn w-full text-left p-3 border rounded-lg" data-correct="false" data-explicacao="Errada, pois o conteúdo explica que o conceito é outro.">
-                                D) Afirmação que também está incorreta
+                            <button class="option-btn w-full text-left p-3 rounded-xl" data-correct="false" data-explicacao="Errada. Contradiz o que está definido no documento.">
+                                D) Também incorreta
                             </button>
                         </div>
-                        <div class="explicacao mt-3 p-3 rounded-lg hidden"></div>
+                        <div class="explicacao mt-4 p-4 rounded-xl hidden"></div>
                     `;
-                    questoesConteudo.appendChild(questao);
+                    questoesConteudo.appendChild(q);
                 }
-                // Ativar correção automática nas novas questões
                 ativarCorrecao();
             }
+
+            resultados.scrollIntoView({behavior:'smooth', block:'start'});
         });
 
-        // ====== 2. Cronograma ======
+        // ==================================================
+        // 2. CRONOGRAMA
+        // ==================================================
         const btnAdicionar = document.getElementById('btnAdicionar');
         const tabelaCronograma = document.getElementById('tabelaCronograma');
+        let diasCronograma = 0;
 
         btnAdicionar.addEventListener('click', () => {
-            const assunto = document.getElementById('assunto').value;
+            const assunto = document.getElementById('assunto').value.trim();
             const data = document.getElementById('dataEstudo').value;
             const duracao = document.getElementById('duracao').value;
 
             if (!assunto || !data || !duracao) {
-                alert('Preencha todos os campos!');
+                alert('⚠️ Preencha todos os campos!');
                 return;
             }
 
+            const dataObj = new Date(data);
+            const dataFormatada = dataObj.toLocaleString('pt-BR', {
+                dateStyle: 'full',
+                timeStyle: 'short'
+            });
+
             const linha = document.createElement('tr');
+            linha.className = 'border-b hover:bg-slate-50';
             linha.innerHTML = `
-                <td class="p-3 border-b">${assunto}</td>
-                <td class="p-3 border-b">${new Date(data).toLocaleString('pt-BR')}</td>
-                <td class="p-3 border-b">${duracao} min</td>
-                <td class="p-3 border-b">
-                    <button class="text-danger excluir"><i class="fa fa-trash"></i> Excluir</button>
+                <td class="p-3 font-medium">${assunto}</td>
+                <td class="p-3 text-sm">${dataFormatada}</td>
+                <td class="p-3 text-sm">${duracao} min</td>
+                <td class="p-3 text-center">
+                    <button class="text-danger hover:text-red-700 excluir">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
                 </td>
             `;
             tabelaCronograma.appendChild(linha);
 
-            linha.querySelector('.excluir').addEventListener('click', () => linha.remove());
+            linha.querySelector('.excluir').addEventListener('click', () => {
+                linha.remove();
+                diasCronograma--;
+                document.getElementById('diasEstudo').textContent = diasCronograma;
+            });
 
-            // Limpar campos
+            diasCronograma++;
+            document.getElementById('diasEstudo').textContent = diasCronograma;
+
+            // Limpar
             document.getElementById('assunto').value = '';
             document.getElementById('dataEstudo').value = '';
-            document.getElementById('duracao').value = '';
+            document.getElementById('duracao').value = '60';
         });
 
-        // ====== 3. Correção Automática de Questões ======
-        let acertos = 0;
-        const totalEl = document.getElementById('totalQuestoes');
-        const acertosEl = document.getElementById('acertos');
-        const porcentagemEl = document.getElementById('porcentagem');
+        // ==================================================
+        // 3. CORREÇÃO AUTOMÁTICA DE QUESTÕES
+        // ==================================================
+        function atualizarEstatisticas() {
+            document.getElementById('totalRespostas').textContent = estatisticas.totalRespostas;
+            document.getElementById('totalAcertos').textContent = estatisticas.totalAcertos;
+            const perc = estatisticas.totalRespostas > 0
+                ? Math.round((estatisticas.totalAcertos / estatisticas.totalRespostas) * 100)
+                : 0;
+            document.getElementById('mediaDesempenho').textContent = `${perc}%`;
+        }
 
-        function ativarCorrecao() {
-            const botoes = document.querySelectorAll('.option-btn');
+        function atualizarResultadoSimulado() {
+            document.getElementById('acertos').textContent = acertosSimuladoAtual;
+            document.getElementById('totalQuestoes').textContent = totalSimuladoAtual;
+            const perc = totalSimuladoAtual > 0
+                ? Math.round((acertosSimuladoAtual / totalSimuladoAtual) * 100)
+                : 0;
+            document.getElementById('porcentagem').textContent = `${perc}%`;
+            document.getElementById('barraProgresso').style.width = `${perc}%`;
+        }
+
+        function ativarCorrecao(container = document) {
+            const botoes = container.querySelectorAll('.option-btn');
             botoes.forEach(botao => {
                 botao.addEventListener('click', () => {
-                    const questaoDiv = botao.closest('.questao') || botao.closest('div');
+                    const questaoDiv = botao.closest('.questao');
                     const todasOpcoes = questaoDiv.querySelectorAll('.option-btn');
                     const explicacaoDiv = questaoDiv.querySelector('.explicacao');
 
-                    // Bloquear novas escolhas
+                    // Bloquear escolhas
                     todasOpcoes.forEach(op => op.style.pointerEvents = 'none');
 
                     const correta = botao.dataset.correct === 'true';
                     const explicacao = botao.dataset.explicacao;
 
+                    estatisticas.totalRespostas++;
+                    totalSimuladoAtual++;
+
                     if (correta) {
                         botao.classList.add('correct');
-                        acertos++;
+                        estatisticas.totalAcertos++;
+                        acertosSimuladoAtual++;
                     } else {
                         botao.classList.add('incorrect');
-                        // Mostrar a correta
                         todasOpcoes.forEach(op => {
                             if (op.dataset.correct === 'true') op.classList.add('correct');
                         });
@@ -433,90 +641,149 @@
 
                     // Exibir explicação
                     explicacaoDiv.classList.remove('hidden');
-                    explicacaoDiv.className = `explicacao mt-4 p-3 rounded-lg ${correta ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`;
+                    explicacaoDiv.className = `explicacao mt-4 p-4 rounded-xl ${correta ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`;
                     explicacaoDiv.innerHTML = `<strong>${correta ? '✅ Correto!' : '❌ Incorreto.'}</strong> ${explicacao}`;
 
-                    // Atualizar contador
-                    acertosEl.textContent = acertos;
-                    const total = parseInt(totalEl.textContent);
-                    porcentagemEl.textContent = `${Math.round((acertos / total) * 100)}%`;
-                });
+                    atualizarEstatisticas();
+                    atualizarResultadoSimulado();
+                }, { once: true });
             });
         }
 
-        // Inicializar correção nas questões padrão
+        // Inicializar questões de exemplo
         ativarCorrecao();
 
-        // ====== 4. Bancas e Vestibulares ======
+        // ==================================================
+        // 4. BANCAS DE CONCURSO
+        // ==================================================
         const bancaBtns = document.querySelectorAll('.banca-btn');
         const questoesBanca = document.getElementById('questoesBanca');
 
         const questoesPorBanca = {
             cesbraspe: [
-                { enunciado: 'Com base na Constituição Federal de 1988, assinale a alternativa correta:', opcoes: ['A soberania é absoluta.', 'Os direitos individuais podem ser suspensos a qualquer momento.', 'A República é forma de governo e a Federação é a forma de Estado.', 'O Brasil é um Estado unitário.'], correta: 2, explicacao: 'A CF/88 estabelece que o Brasil é uma República Federativa, logo República = forma de governo; Federação = forma de Estado.' },
-                { enunciado: 'De acordo com a ordem jurídica vigente, o poder que tem a função de legislar é:', opcoes: ['Executivo', 'Judiciário', 'Legislativo', 'Moderador'], correta: 2, explicacao: 'São funções típicas: Legislativo legisla, Executivo administra e Judiciário julga.' }
+                { enunciado: 'A respeito dos direitos e garantias fundamentais previstos na Constituição Federal de 1988, assinale a alternativa correta:',
+                  opcoes: ['Os direitos individuais podem ser totalmente suspensos em qualquer situação.', 'Ninguém será obrigado a fazer ou deixar de fazer algo senão em virtude de lei.', 'A lei não poderá restringir a publicidade dos atos judiciais.', 'A associação para fins ilícitos é livre, desde que não prejudique terceiros.'],
+                  correta: 1, explicacao: 'Art. 5º, II — ninguém será obrigado...' },
+                { enunciado: 'Sobre a organização do Estado, é correto afirmar que:',
+                  opcoes: ['O Brasil é um Estado unitário centralizado.', 'A soberania reside no Governo Federal.', 'A República é a forma de governo e a Federação é a forma de Estado.', 'Os Poderes da União são independentes e interdependentes.'],
+                  correta: 2, explicacao: 'República = forma de governo; Federação = forma de Estado.' }
             ],
             fgv: [
-                { enunciado: 'Em uma empresa, a razão entre o número de funcionários homens e mulheres é de 3 para 5. Se há 120 funcionários no total, quantas mulheres trabalham na empresa?', opcoes: ['45', '50', '75', '80'], correta: 2, explicacao: 'Total de partes = 3 + 5 = 8. Cada parte = 120 ÷ 8 = 15. Mulheres = 5 × 15 = 75.' }
+                { enunciado: 'Em uma turma, a razão entre meninos e meninas é de 3 para 4. Se há 49 alunos ao todo, quantas são meninas?',
+                  opcoes: ['18', '21', '24', '28'],
+                  correta: 3, explicacao: 'Total de partes = 7. Cada parte = 7. Meninas = 4 × 7 = 28.' }
+            ],
+            cespe: [
+                { enunciado: 'Certo ou Errado: A Constituição Federal de 1988 foi promulgada em 5 de outubro de 1988.',
+                  opcoes: ['Certo', 'Errado'],
+                  correta: 0, explicacao: 'Correto! A CF/88 foi promulgada em 05/10/1988.' }
+            ],
+            ibfc: [
+                { enunciado: 'Assinale a alternativa que completa corretamente: O poder que tem a função de elaborar leis é o ________.',
+                  opcoes: ['Executivo', 'Legislativo', 'Judiciário', 'Moderador'],
+                  correta: 1, explicacao: 'Função típica do Poder Legislativo é legislar.' },
+                { enunciado: 'Sobre os seres vivos, é correto afirmar que:',
+                  opcoes: ['Não possuem relação entre si.', 'São formados por células e possuem metabolismo.', 'Todos possuem sistema nervoso.', 'Não dependem do ambiente.'],
+                  correta: 1, explicacao: 'Todos os seres vivos são formados por células e têm metabolismo.' }
+            ],
+            ibgp: [
+                { enunciado: 'Analise as afirmativas e assinale a alternativa correta. I — A cidadania é um direito garantido pela Constituição. II — O Brasil adota como forma de Estado a República Federativa. III — Os direitos sociais não estão previstos na CF/88.',
+                  opcoes: ['Apenas I está correta.', 'Apenas II está correta.', 'Apenas I e II estão corretas.', 'Todas estão corretas.'],
+                  correta: 2, explicacao: 'Afirmativas I e II estão corretas. A III está incorreta — os direitos sociais estão no art. 6º da CF/88.' }
+            ],
+            idecan: [
+                { enunciado: 'Qual é o resultado de 15% de 240?',
+                  opcoes: ['32', '34', '36', '38'],
+                  correta: 2, explicacao: '15% de 240 = 0,15 × 240 = 36.' },
+                { enunciado: 'A distância entre duas cidades é de 300 km. Um veículo percorre essa distância em 5 horas. Qual é a velocidade média?',
+                  opcoes: ['50 km/h', '55 km/h', '60 km/h', '65 km/h'],
+                  correta: 2, explicacao: 'Vm = Δs / Δt = 300 / 5 = 60 km/h.' }
+            ],
+            imeso: [
+                { enunciado: 'De acordo com a Língua Portuguesa, assinale a alternativa correta quanto à ortografia:',
+                  opcoes: ['A palavra "caixa" escreve-se com "x".', '"Caxixa" é a forma correta.', 'A palavra "xícara" tem "c".', 'Todas estão corretas.'],
+                  correta: 0, explicacao: 'A forma correta é "caixa" com x. As demais estão incorretas.' }
             ],
             vestibular: [
-                { enunciado: 'Sobre as características gerais dos seres vivos, é correto afirmar que:', opcoes: ['Possuem composição química baseada exclusivamente em proteínas.', 'São formados por células e possuem metabolismo e capacidade de reprodução.', 'Todos possuem sistema digestório e respiratório.', 'Apenas os animais são formados por células.'], correta: 1, explicacao: 'Todos os seres vivos são formados por células, têm metabolismo, reagem a estímulos, crescem, se reproduzem e evoluem.' }
+                { enunciado: 'Sobre a água, é correto afirmar:',
+                  opcoes: ['Possui fórmula química CO₂.', 'É composta por dois átomos de hidrogênio e um de oxigênio.', 'Sua densidade é menor que a do gelo.', 'Ferve a 80°C ao nível do mar.'],
+                  correta: 1, explicacao: 'A fórmula da água é H₂O — dois átomos de hidrogênio e um de oxigênio.' }
             ]
         };
 
         bancaBtns.forEach(btn => {
             btn.addEventListener('click', () => {
+                bancaBtns.forEach(b => b.classList.remove('border-primary','bg-blue-50'));
+                btn.classList.add('border-primary','bg-blue-50');
+
                 const banca = btn.dataset.banca;
                 const dados = questoesPorBanca[banca] || [];
-
                 questoesBanca.innerHTML = '';
-                if (banca === 'cef') {
-                    questoesBanca.innerHTML = '<p class="text-gray-600">📘 Estilo CESPE/CESPEBRASPE — questões de Certo ou Errado e análise de afirmações em sequência.</p>';
+
+                const descricao = {
+                    cesbraspe: '📘 Estilo CESBRASPE — questões objetivas com análise de afirmações.',
+                    fgv: '📘 Estilo FGV — foco em raciocínio lógico, matemática e interpretação.',
+                    cespe: '📘 Estilo CESPE — questões Certo ou Errado com análise de texto.',
+                    ibfc: '📘 Estilo IBFC — questões diretas e objetivas de conhecimento geral.',
+                    ibgp: '📘 Estilo IBGP — questões com múltiplas afirmativas e combinações.',
+                    idecan: '📘 Estilo IDECAN — foco em cálculos e aplicação prática.',
+                    imeso: '📘 Estilo IMESO — questões de Língua Portuguesa e conhecimentos específicos.',
+                    vestibular: '📘 Estilo ENEM/Vestibulares — interpretação e aplicação de conceitos.'
+                };
+                questoesBanca.innerHTML = `<p class="text-slate-600 mb-4">${descricao[banca]}</p>`;
+
+                if (dados.length === 0) {
+                    questoesBanca.innerHTML += '<p class="text-slate-500 italic">Em breve: mais questões desta banca!</p>';
                     return;
-                }
-                if (banca === 'vestibular') {
-                    questoesBanca.innerHTML += '<p class="text-gray-600 mb-4">📘 Estilo ENEM, FUVEST, UNICAMP e outros vestibulares — foco em interpretação e aplicação de conceitos.</p>';
                 }
 
                 dados.forEach((q, idx) => {
                     const div = document.createElement('div');
-                    div.className = 'questao border rounded-xl p-4';
+                    div.className = 'questao border rounded-2xl p-5 hover:shadow-md transition';
                     div.innerHTML = `
-                        <p class="font-bold mb-3">${idx + 1}. ${q.enunciado}</p>
-                        <div class="space-y-2 ml-2">
+                        <p class="font-bold text-lg mb-4">${idx + 1}. ${q.enunciado}</p>
+                        <div class="space-y-3 ml-1">
                             ${q.opcoes.map((op, i) => `
-                                <button class="option-btn w-full text-left p-3 border rounded-lg" 
+                                <button class="option-btn w-full text-left p-3 rounded-xl"
                                     data-correct="${i === q.correta}"
-                                    data-explicacao="${i === q.correta ? 'Correto! ' + q.explicacao : 'Incorreto. ' + q.explicacao}">
+                                    data-explicacao="${i === q.correta ? '✅ Correto! ' : '❌ Incorreto. '}${q.explicacao}">
                                     ${String.fromCharCode(65 + i)}) ${op}
                                 </button>
                             `).join('')}
                         </div>
-                        <div class="explicacao mt-3 p-3 rounded-lg hidden"></div>
+                        <div class="explicacao mt-4 p-4 rounded-xl hidden"></div>
                     `;
                     questoesBanca.appendChild(div);
                 });
-                ativarCorrecao();
+
+                ativarCorrecao(questoesBanca);
+                questoesBanca.scrollIntoView({behavior:'smooth', block:'start'});
             });
         });
 
-        // ====== 5. Área de Materiais ======
+        // ==================================================
+        // 5. REPOSITÓRIO DE MATERIAIS
+        // ==================================================
         const materialUpload = document.getElementById('materialUpload');
         const listaMateriais = document.getElementById('listaMateriais');
 
-        materialUpload.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                listaMateriais.innerHTML = '<h3 class="font-bold text-lg mb-2">📁 Materiais Disponíveis</h3>';
-                Array.from(e.target.files).forEach(file => {
-                    const item = document.createElement('div');
-                    item.className = 'flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50';
-                    item.innerHTML = `
-                        <span class="flex items-center gap-2"><i class="fa fa-file-text-o text-primary"></i> ${file.name}</span>
-                        <span class="text-sm text-gray-500">${(file.size / 1024).toFixed(1)} KB</span>
-                    `;
-                    listaMateriais.appendChild(item);
-                });
-            }
+        materialUpload.addEventListener('change', e => {
+            if (e.target.files.length === 0) return;
+            listaMateriais.innerHTML = '<h3 class="font-bold text-lg text-slate-700 mb-3">📁 Materiais Disponíveis</h3>';
+            Array.from(e.target.files).forEach(file => {
+                const tamanho = (file.size / 1024 / 1024).toFixed(2);
+                const icone = file.name.endsWith('.pdf') ? 'fa-file-pdf-o text-danger' : 'fa-file-text-o text-primary';
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-3 border rounded-xl hover:bg-slate-50 transition';
+                item.innerHTML = `
+                    <span class="flex items-center gap-3">
+                        <i class="fa-solid ${icone} text-lg"></i>
+                        <span class="font-medium">${file.name}</span>
+                    </span>
+                    <span class="text-sm text-slate-500">${tamanho} MB</span>
+                `;
+                listaMateriais.appendChild(item);
+            });
         });
     </script>
 </body>
