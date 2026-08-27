@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EstudaMais | IA + Conta + Administração</title>
+    <title>EstudaMais | Plataforma de Estudos com IA</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -13,7 +13,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
     <script>
         tailwind.config = {
@@ -32,16 +31,21 @@
 
     <style type="text/tailwindcss">
         @layer utilities {
-            .glass { background: rgba(17,17,24,0.85); backdrop-filter: blur(12px); }
-            .option-btn { transition: all 0.25s ease; border: 2px solid #333344; }
-            .option-btn:hover:not(.correct):not(.incorrect) { border-color: #6366f1; background: rgba(99,102,241,0.08); transform: translateX(4px); }
-            .correct { background: rgba(16,185,129,0.12) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
-            .incorrect { background: rgba(239,68,68,0.12) !important; border-color: #ef4444 !important; color: #fca5a5 !important; }
-            .card { @apply bg-dark-900 border border-dark-700 rounded-2xl p-5 shadow-lg; }
-            .btn { @apply bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 rounded-lg font-medium transition; }
-            .btn-outline { @apply border border-indigo-500 text-indigo-400 hover:bg-indigo-900/30 py-2 px-4 rounded-lg font-medium transition; }
-            .input { @apply w-full p-2 bg-dark-800 border border-dark-600 rounded-lg text-slate-200 focus:outline-none focus:border-indigo-500; }
-            .hidden-section { display: none !important; }
+            .card { @apply bg-dark-900 border border-dark-700 rounded-2xl p-7 shadow-lg; }
+            .btn { @apply bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 px-5 rounded-xl font-medium transition-all; }
+            .btn-outline { @apply border border-indigo-500 text-indigo-400 hover:bg-indigo-900/30 py-2.5 px-5 rounded-xl font-medium transition-all; }
+            .input { @apply w-full p-3 bg-dark-800 border border-dark-600 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-500; }
+            .aba { @apply px-5 py-3 text-sm font-medium rounded-t-xl transition-all cursor-pointer border-b-4 border-transparent; }
+            .aba.ativa { @apply bg-dark-800 text-indigo-400 border-indigo-500; }
+            .aba:hover:not(.ativa) { @apply text-slate-300 bg-dark-800/50 border-slate-600; }
+            .conteudo-aba { @apply hidden; }
+            .conteudo-aba.visivel { @apply block; }
+            .option-btn { @apply w-full text-left p-4 mb-3 rounded-xl border-2 border-dark-600 hover:border-indigo-500 transition-all cursor-pointer; }
+            .option-btn.correct { @apply border-success text-success bg-success/10; }
+            .option-btn.incorrect { @apply border-error text-error bg-error/10; }
+            .mensagem { @apply p-3 rounded-xl mb-3 max-w-[85%]; }
+            .mensagem.usuario { @apply bg-indigo-600/20 text-indigo-200 ml-auto; }
+            .mensagem.ia { @apply bg-dark-800 text-slate-200 mr-auto; }
         }
     </style>
 </head>
@@ -49,212 +53,176 @@
 
     <!-- ============== TELA DE LOGIN ============== -->
     <div id="telaLogin" class="fixed inset-0 z-50 flex items-center justify-center bg-dark-950">
-        <div class="w-full max-w-md p-6 card">
-            <h2 class="text-2xl font-bold text-center text-indigo-400 mb-6">📚 EstudaMais</h2>
-            <p class="text-center text-slate-400 mb-6">Faça login para acessar sua conta</p>
+        <div class="w-full max-w-md p-7 card">
+            <h2 class="text-3xl font-bold text-center text-indigo-400 mb-3">📚 EstudaMais</h2>
+            <p class="text-center text-slate-400 mb-8">Faça login para acessar sua conta</p>
 
             <div id="formLogin">
-                <input type="email" id="emailLogin" placeholder="Seu e-mail" class="input mb-3">
-                <input type="password" id="senhaLogin" placeholder="Sua senha" class="input mb-4">
-                <button onclick="fazerLogin()" class="btn w-full mb-3">Entrar</button>
+                <input type="email" id="emailLogin" placeholder="Seu e-mail" class="input mb-4">
+                <input type="password" id="senhaLogin" placeholder="Sua senha" class="input mb-5">
+                <button onclick="fazerLogin()" class="btn w-full mb-4">Entrar</button>
                 <p class="text-center text-sm text-slate-400">
-                    Não tem conta? <a href="#" onclick="mostrarCadastro()" class="text-indigo-400">Criar conta</a>
+                    Não tem conta? <a href="#" onclick="mostrarCadastro()" class="text-indigo-400 font-medium">Criar conta</a>
                 </p>
-                <p id="msgErroLogin" class="text-red-400 text-sm mt-3 hidden"></p>
+                <p id="msgErroLogin" class="text-red-400 text-sm mt-4 hidden"></p>
             </div>
 
             <div id="formCadastro" class="hidden">
-                <input type="text" id="nomeCadastro" placeholder="Seu nome completo" class="input mb-3">
-                <input type="email" id="emailCadastro" placeholder="Seu e-mail" class="input mb-3">
-                <input type="password" id="senhaCadastro" placeholder="Crie uma senha (mín. 6 caracteres)" class="input mb-4">
-                <button onclick="fazerCadastro()" class="btn w-full mb-3">Criar Conta</button>
+                <input type="text" id="nomeCadastro" placeholder="Seu nome completo" class="input mb-4">
+                <input type="email" id="emailCadastro" placeholder="Seu e-mail" class="input mb-4">
+                <input type="password" id="senhaCadastro" placeholder="Crie uma senha (mínimo 6 caracteres)" class="input mb-5">
+                <button onclick="criarConta()" class="btn w-full mb-4">Criar Conta</button>
                 <p class="text-center text-sm text-slate-400">
-                    Já tem conta? <a href="#" onclick="mostrarLogin()" class="text-indigo-400">Entrar</a>
+                    Já tem conta? <a href="#" onclick="mostrarLogin()" class="text-indigo-400 font-medium">Entrar</a>
                 </p>
-                <p id="msgErroCadastro" class="text-red-400 text-sm mt-3 hidden"></p>
+                <p id="msgErroCadastro" class="text-red-400 text-sm mt-4 hidden"></p>
             </div>
         </div>
     </div>
 
-    <!-- ============== CABEÇALHO PRINCIPAL ============== -->
-    <header id="cabecalho" class="glass sticky top-0 z-40 border-b border-dark-700 hidden-section">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-xl font-bold text-indigo-400 flex items-center gap-2">
-                <i class="fa-solid fa-book-open-reader"></i> EstudaMais
-                <span class="text-xs bg-indigo-600 px-2 py-0.5 rounded-full">IA</span>
-            </h1>
-
-            <nav class="hidden md:flex gap-4 text-sm font-medium text-slate-300">
-                <a href="#estatisticas" class="hover:text-indigo-400">📊 Estatísticas</a>
-                <a href="#pdf" class="hover:text-indigo-400">📄 PDF com IA</a>
-                <a href="#cronograma" class="hover:text-indigo-400">📅 Cronograma</a>
-                <a href="#salvas" class="hover:text-indigo-400">✅ Questões Salvas</a>
-                <a href="#materiais" class="hover:text-indigo-400">📁 Materiais</a>
-                <a href="#" id="linkAdmin" class="hover:text-indigo-400 hidden-section">🔧 Admin</a>
-            </nav>
-
-            <div class="flex items-center gap-3">
-                <span id="nomeUsuario" class="text-sm text-slate-300 hidden md:inline"></span>
-                <button onclick="sair()" class="btn-outline text-sm py-1 px-3">Sair</button>
+    <!-- ============== CABEÇALHO ============== -->
+    <header id="cabecalho" class="hidden py-6 px-6 border-b border-dark-800">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-indigo-400">📚 EstudaMais</h1>
+            <div class="flex items-center gap-4">
+                <span id="nomeUsuario" class="text-slate-300"></span>
+                <button onclick="sair()" class="btn-outline text-sm py-2 px-4">Sair</button>
             </div>
         </div>
     </header>
 
-    <!-- ============== CONTEÚDO PRINCIPAL ============== -->
-    <main id="conteudoPrincipal" class="container mx-auto px-4 py-8 space-y-10 hidden-section">
+    <!-- ============== NAVEGAÇÃO ABA ============== -->
+    <nav id="navegacaoAbas" class="hidden px-6 mt-4 border-b border-dark-800">
+        <div class="max-w-7xl mx-auto flex flex-wrap gap-1">
+            <div class="aba ativa" data-aba="desempenho"><i class="fa-solid fa-chart-line mr-2"></i>Desempenho</div>
+            <div class="aba" data-aba="pdf"><i class="fa-solid fa-file-pdf mr-2"></i>Resumir PDF</div>
+            <div class="aba" data-aba="simulados"><i class="fa-solid fa-list-check mr-2"></i>Simulados</div>
+            <div class="aba" data-aba="cronograma"><i class="fa-solid fa-calendar-days mr-2"></i>Cronograma</div>
+            <div class="aba" data-aba="cursos"><i class="fa-solid fa-book mr-2"></i>Cursos</div>
+            <div class="aba" data-aba="duvidas"><i class="fa-solid fa-question-circle mr-2"></i>Tirar Dúvidas</div>
+            <div id="abaAdmin" class="aba hidden" data-aba="admin"><i class="fa-solid fa-gear mr-2"></i>Administração</div>
+        </div>
+    </nav>
 
-        <!-- 📊 ESTATÍSTICAS DE USO -->
-        <section id="estatisticas" class="card">
-            <h2 class="text-xl font-bold text-indigo-400 mb-5">📊 Seu Desempenho</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-dark-800 p-4 rounded-xl text-center">
-                    <p class="text-sm text-slate-400">Hoje</p>
-                    <p class="text-2xl font-bold text-indigo-400" id="qtdHoje">0</p>
-                    <p class="text-xs text-slate-500">questões</p>
+    <!-- ============== CONTEÚDO DAS ABAS ============== -->
+    <main id="conteudoAbas" class="hidden max-w-7xl mx-auto px-6 py-8">
+
+        <!-- ABA 1: DESEMPENHO -->
+        <section id="aba-desempenho" class="conteudo-aba visivel">
+            <h2 class="text-2xl font-bold mb-8 text-indigo-400">📊 Seu Desempenho</h2>
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="card text-center">
+                    <h3 class="text-slate-400 mb-2">Questões Hoje</h3>
+                    <p id="qtdHoje" class="text-4xl font-bold text-white">0</p>
                 </div>
-                <div class="bg-dark-800 p-4 rounded-xl text-center">
-                    <p class="text-sm text-slate-400">Esta Semana</p>
-                    <p class="text-2xl font-bold text-indigo-400" id="qtdSemana">0</p>
-                    <p class="text-xs text-slate-500">questões</p>
+                <div class="card text-center">
+                    <h3 class="text-slate-400 mb-2">Esta Semana</h3>
+                    <p id="qtdSemana" class="text-4xl font-bold text-white">0</p>
                 </div>
-                <div class="bg-dark-800 p-4 rounded-xl text-center">
-                    <p class="text-sm text-slate-400">Este Mês</p>
-                    <p class="text-2xl font-bold text-indigo-400" id="qtdMes">0</p>
-                    <p class="text-xs text-slate-500">questões</p>
+                <div class="card text-center">
+                    <h3 class="text-slate-400 mb-2">Taxa de Acerto</h3>
+                    <p id="taxaAcerto" class="text-4xl font-bold text-white">0%</p>
                 </div>
-                <div class="bg-dark-800 p-4 rounded-xl text-center">
-                    <p class="text-sm text-slate-400">Tempo Estudado</p>
-                    <p class="text-2xl font-bold text-indigo-400" id="tempoTotal">0h</p>
-                    <p class="text-xs text-slate-500">total</p>
+            </div>
+            <div class="card">
+                <h3 class="text-lg font-semibold mb-4">Histórico de Estudos</h3>
+                <div id="historicoLista" class="space-y-2 text-slate-300">
+                    <p class="text-slate-500">Nenhum registro ainda. Comece a responder questões!</p>
                 </div>
             </div>
         </section>
 
-        <!-- 📄 PDF COM IA -->
-        <section id="pdf" class="card">
-            <h2 class="text-xl font-bold text-indigo-400 mb-5">📄 Processar PDF com IA</h2>
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="border-2 border-dashed border-dark-600 rounded-xl p-6 text-center hover:border-indigo-500 cursor-pointer">
-                    <input type="file" id="pdfUpload" accept=".pdf" class="hidden">
-                    <label for="pdfUpload" class="cursor-pointer block">
-                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-500 mb-2"></i>
-                        <p class="font-semibold">Clique ou arraste seu PDF</p>
-                    </label>
-                    <div id="fileInfo" class="mt-3 text-success hidden"><i class="fa-solid fa-check-circle"></i> <span id="fileName"></span></div>
-                </div>
-                <div class="space-y-3">
-                    <label class="flex items-center gap-3 p-3 border border-dark-700 rounded-xl cursor-pointer">
-                        <input type="checkbox" id="gerarResumo" checked class="accent-indigo-500"> Gerar resumo
-                    </label>
-                    <label class="flex items-center gap-3 p-3 border border-dark-700 rounded-xl cursor-pointer">
-                        <input type="checkbox" id="gerarQuestoes" checked class="accent-indigo-500"> Gerar questões
-                    </label>
-                    <select id="qtdQuestoes" class="input">
-                        <option value="5">5 questões</option>
-                        <option value="10" selected>10 questões</option>
-                        <option value="15">15 questões</option>
-                    </select>
-                    <button onclick="gerarComIA()" class="btn w-full mt-2">
-                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Gerar com IA
-                    </button>
-                </div>
+        <!-- ABA 2: RESUMIR PDF -->
+        <section id="aba-pdf" class="conteudo-aba">
+            <h2 class="text-2xl font-bold mb-8 text-indigo-400">📄 Resumir PDF com IA</h2>
+            <div class="card mb-6">
+                <label class="block mb-3 font-medium">Selecione seu arquivo PDF:</label>
+                <input type="file" id="arquivoPdf" accept=".pdf" class="input mb-4">
+                <button onclick="lerPdfEResumir()" class="btn">📝 Gerar Resumo</button>
             </div>
-            <div id="carregandoIA" class="hidden mt-4 p-4 bg-indigo-950/50 rounded-xl text-center text-indigo-300">
-                <i class="fa-solid fa-gear fa-spin mr-2"></i> Processando...
-            </div>
-            <div id="resultados" class="mt-6 space-y-6 hidden">
-                <div id="resumoBox" class="border border-indigo-800/40 rounded-xl p-4 bg-indigo-950/30">
-                    <h3 class="font-bold text-indigo-300 mb-2">📝 Resumo</h3>
-                    <div id="resumoConteudo" class="text-slate-300 whitespace-pre-line"></div>
-                </div>
-                <div id="questoesBox">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="font-bold text-indigo-300">📋 Questões</h3>
-                        <button onclick="salvarQuestoesAtuais()" class="btn-outline text-sm py-1 px-3">💾 Salvar</button>
-                    </div>
-                    <div id="questoesConteudo" class="space-y-3"></div>
-                </div>
+            <div id="resultadoResumo" class="card hidden">
+                <h3 class="text-lg font-semibold mb-4">📝 Resumo:</h3>
+                <div id="textoResumo" class="text-slate-300 leading-relaxed whitespace-pre-wrap"></div>
             </div>
         </section>
 
-        <!-- ✅ QUESTÕES SALVAS -->
-        <section id="salvas" class="card">
-            <h2 class="text-xl font-bold text-indigo-400 mb-5">✅ Suas Questões Salvas</h2>
-            <div id="listaSalvas" class="space-y-3">
-                <p class="text-slate-500 italic">Nenhuma questão salva ainda. Após gerar, clique em "Salvar".</p>
+        <!-- ABA 3: SIMULADOS -->
+        <section id="aba-simulados" class="conteudo-aba">
+            <h2 class="text-2xl font-bold mb-8 text-indigo-400">📝 Gerar Simulado</h2>
+            <div class="card mb-6">
+                <label class="block mb-3 font-medium">Digite o assunto ou tema:</label>
+                <input type="text" id="temaSimulado" placeholder="Ex: História do Brasil" class="input mb-4">
+                <label class="block mb-3 font-medium">Quantidade de questões:</label>
+                <input type="number" id="qtdQuestoes" value="5" min="3" max="20" class="input mb-4">
+                <button onclick="gerarSimulado()" class="btn">Gerar Simulado</button>
+            </div>
+            <div id="areaSimulado" class="space-y-8"></div>
+        </section>
+
+        <!-- ABA 4: CRONOGRAMA -->
+        <section id="aba-cronograma" class="conteudo-aba">
+            <h2 class="text-2xl font-bold mb-8 text-indigo-400">📅 Cronograma de Estudos</h2>
+            <div class="card mb-6">
+                <h3 class="text-lg font-semibold mb-4">Adicionar Tarefa</h3>
+                <input type="text" id="nomeTarefa" placeholder="Ex: Estudar Matemática" class="input mb-3">
+                <input type="date" id="dataTarefa" class="input mb-4">
+                <button onclick="adicionarTarefa()" class="btn">Adicionar</button>
+            </div>
+            <div class="card">
+                <h3 class="text-lg font-semibold mb-4">Seu Cronograma</h3>
+                <div id="listaTarefas" class="space-y-3"></div>
             </div>
         </section>
 
-        <!-- 📅 CRONOGRAMA -->
-        <section id="cronograma" class="card">
-            <h2 class="text-xl font-bold text-indigo-400 mb-5">📅 Cronograma de Estudos</h2>
-            <div class="grid md:grid-cols-4 gap-3 mb-4">
-                <input type="text" id="assunto" placeholder="Assunto" class="input md:col-span-2">
-                <input type="datetime-local" id="dataEstudo" class="input">
-                <input type="number" id="duracao" value="60" placeholder="Min" class="input">
-            </div>
-            <button onclick="adicionarCronograma()" class="btn mb-4">+ Adicionar</button>
-            <div class="overflow-x-auto border border-dark-700 rounded-xl">
-                <table class="w-full text-sm">
-                    <thead class="bg-dark-800 text-indigo-300">
-                        <tr>
-                            <th class="p-2 text-left">Assunto</th><th class="p-2 text-left">Data</th><th class="p-2 text-left">Min</th><th class="p-2">Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaCronograma"></tbody>
-                </table>
+        <!-- ABA 5: CURSOS -->
+        <section id="aba-cursos" class="conteudo-aba">
+            <h2 class="text-2xl font-bold mb-8 text-indigo-400">📚 Cursos Disponíveis</h2>
+            <div id="listaCursos" class="grid md:grid-cols-2 gap-6">
+                <div class="card text-center text-slate-400">Aguarde o admin disponibilizar os cursos.</div>
             </div>
         </section>
 
-        <!-- 📁 MATERIAIS DO ADMIN -->
-        <section id="materiais" class="card">
-            <h2 class="text-xl font-bold text-indigo-400 mb-5">📁 Materiais Disponíveis</h2>
-            <div id="listaMateriaisAdmin">
-                <p class="text-slate-500 italic">Carregando materiais...</p>
-            </div>
-        </section>
-
-        <!-- 🔧 PAINEL ADMIN -->
-        <section id="painelAdmin" class="card border-2 border-indigo-600 hidden-section">
-            <h2 class="text-xl font-bold text-indigo-400 mb-5">🔧 Painel Administrativo</h2>
-            <p class="text-sm text-slate-400 mb-4">Aqui você gerencia tudo sem precisar alterar código!</p>
-
-            <div class="grid md:grid-cols-2 gap-6">
-                <!-- Subir Arquivos -->
-                <div class="border border-dark-700 rounded-xl p-4">
-                    <h3 class="font-bold text-indigo-300 mb-3">📤 Subir Arquivos para o Site</h3>
-                    <input type="file" id="arquivoAdmin" class="input mb-3">
-                    <input type="text" id="tituloArquivo" placeholder="Nome exibido para os usuários" class="input mb-3">
-                    <button onclick="subirArquivoAdmin()" class="btn w-full">Enviar Arquivo</button>
-                </div>
-
-                <!-- Gerenciar Usuários -->
-                <div class="border border-dark-700 rounded-xl p-4">
-                    <h3 class="font-bold text-indigo-300 mb-3">👥 Usuários do Sistema</h3>
-                    <div id="listaUsuarios" class="text-sm space-y-2 max-h-60 overflow-y-auto">
-                        <p class="text-slate-500">Carregando...</p>
-                    </div>
+        <!-- ABA 6: TIRAR DÚVIDAS COM IA ← NOVO! -->
+        <section id="aba-duvidas" class="conteudo-aba">
+            <h2 class="text-2xl font-bold mb-8 text-indigo-400">💬 Tirar Dúvidas com a IA</h2>
+            <div class="card mb-4 h-[450px] overflow-y-auto" id="caixaConversa">
+                <div class="mensagem ia">
+                    <strong>🤖 IA:</strong> Olá! Sou sua assistente de estudos. Pergunte qualquer dúvida que tiver que eu te ajudo!
                 </div>
             </div>
+            <div class="flex gap-3">
+                <input type="text" id="perguntaDuvida" placeholder="Digite sua dúvida aqui..." class="input flex-1">
+                <button onclick="enviarDuvida()" class="btn">Enviar</button>
+            </div>
+        </section>
 
-            <div class="mt-6 border border-dark-700 rounded-xl p-4">
-                <h3 class="font-bold text-indigo-300 mb-3">🔑 Configurar Chave da IA (Gemini)</h3>
-                <input type="text" id="chaveIA" placeholder="Cole sua chave do Gemini aqui" class="input mb-3">
-                <button onclick="salvarChaveIA()" class="btn">Salvar Chave da IA</button>
+        <!-- ABA 7: ADMINISTRAÇÃO (SÓ ADMIN VÊ) -->
+        <section id="aba-admin" class="conteudo-aba">
+            <h2 class="text-2xl font-bold mb-8 text-indigo-400">⚙️ Painel Administrativo</h2>
+
+            <div class="card mb-8">
+                <h3 class="text-lg font-semibold mb-4">🔑 Chave da IA (Gemini)</h3>
+                <input type="text" id="chaveIA" placeholder="Cole sua chave aqui" class="input mb-4">
+                <button onclick="salvarChaveIA()" class="btn">Salvar Chave</button>
+            </div>
+
+            <div class="card mb-8">
+                <h3 class="text-lg font-semibold mb-4">📚 Gerenciar Cursos / Pastas</h3>
+                <input type="text" id="nomeCurso" placeholder="Nome do curso ou pasta" class="input mb-4">
+                <button onclick="adicionarCurso()" class="btn mb-6">Adicionar Curso</button>
+                <div id="listaCursosAdmin" class="space-y-3"></div>
+            </div>
+
+            <div class="card">
+                <h3 class="text-lg font-semibold mb-4">👥 Usuários Cadastrados</h3>
+                <div id="listaUsuariosAdmin" class="space-y-2"></div>
             </div>
         </section>
 
     </main>
 
-    <footer class="bg-dark-900 border-t border-dark-700 py-4 mt-8">
-        <p class="text-center text-slate-400 text-sm">📚 EstudaMais — Criado por Vitória Gil | IA Integrada + Dados Salvos com Segurança</p>
-    </footer>
-
     <script>
-        // ==================================================
-        // ✅ SUAS CHAVES JÁ ESTÃO PREENCHIDAS!
-        // ==================================================
-
+        // ============== SUAS CHAVES JÁ PREENCHIDAS ==============
         const firebaseConfig = {
             apiKey: "AIzaSyDe8Koh4JIy0vJdDwrAsCHr42Ci2Ckv5Tc",
             authDomain: "resume-ai-8c0ab.firebaseapp.com",
@@ -264,65 +232,60 @@
             appId: "1:687956768440:web:93d8e7104bf09821c4264d"
         };
 
-        // 👇 COLOQUE SEU E-MAIL AQUI
+        // 👇 COLOQUE SEU E-MAIL DE ADMIN AQUI
         const ADMIN_EMAIL = "vitoriagilfigueiredo1@gmail.com";
-
-        // ==================================================
-        // ✅ NÃO ALTERE O RESTO DO CÓDIGO ABAIXO ✅
-        // ==================================================
 
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const storage = firebase.storage();
 
-        // Variáveis Globais
-        let usuarioAtual = null;
-        let textoPDF = "";
-        let questoesGeradas = [];
-        let GEMINI_API_KEY = "";
+        let usuarioLogado = null;
+        let ehAdmin = false;
+        let CHAVE_GEMINI = "";
+        const API_URL_BASE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
-        // ==================================================
-        // 🔐 AUTENTICAÇÃO
-        // ==================================================
+        // ============== AUTENTICAÇÃO ==============
         function mostrarCadastro() {
-            document.getElementById('formLogin').classList.add('hidden');
-            document.getElementById('formCadastro').classList.remove('hidden');
+            document.getElementById("formLogin").classList.add("hidden");
+            document.getElementById("formCadastro").classList.remove("hidden");
         }
         function mostrarLogin() {
-            document.getElementById('formCadastro').classList.add('hidden');
-            document.getElementById('formLogin').classList.remove('hidden');
+            document.getElementById("formCadastro").classList.add("hidden");
+            document.getElementById("formLogin").classList.remove("hidden");
+        }
+        function mostrarErro(id, texto) {
+            const el = document.getElementById(id);
+            el.textContent = texto;
+            el.classList.remove("hidden");
         }
 
-        async function fazerCadastro() {
-            const nome = document.getElementById('nomeCadastro').value.trim();
-            const email = document.getElementById('emailCadastro').value.trim();
-            const senha = document.getElementById('senhaCadastro').value;
-            const msg = document.getElementById('msgErroCadastro');
-
+        async function criarConta() {
+            const nome = document.getElementById("nomeCadastro").value.trim();
+            const email = document.getElementById("emailCadastro").value.trim();
+            const senha = document.getElementById("senhaCadastro").value;
+            if (!nome || !email || senha.length < 6) {
+                return mostrarErro("msgErroCadastro", "Preencha todos os campos (senha com mínimo 6 caracteres)");
+            }
             try {
                 const cred = await auth.createUserWithEmailAndPassword(email, senha);
-                await db.collection('usuarios').doc(cred.user.uid).set({
-                    nome, email, dataCriacao: firebase.firestore.FieldValue.serverTimestamp(),
-                    isAdmin: email === ADMIN_EMAIL,
-                    estatisticas: { questoesHoje:0, questoesSemana:0, questoesMes:0, tempoTotalMin:0 },
-                    questoesSalvas: [], cronograma: []
+                await db.collection("usuarios").doc(cred.user.uid).set({
+                    nome, email, criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+                    isAdmin: email === ADMIN_EMAIL
                 });
                 await cred.user.updateProfile({ displayName: nome });
-            } catch (e) {
-                msg.textContent = e.message; msg.classList.remove('hidden');
+            } catch(e) {
+                mostrarErro("msgErroCadastro", "Erro: " + e.message);
             }
         }
 
         async function fazerLogin() {
-            const email = document.getElementById('emailLogin').value.trim();
-            const senha = document.getElementById('senhaLogin').value;
-            const msg = document.getElementById('msgErroLogin');
+            const email = document.getElementById("emailLogin").value.trim();
+            const senha = document.getElementById("senhaLogin").value;
             try {
                 await auth.signInWithEmailAndPassword(email, senha);
-            } catch (e) {
-                msg.textContent = "E-mail ou senha incorretos"; msg.classList.remove('hidden');
+            } catch(e) {
+                mostrarErro("msgErroLogin", "Erro: " + e.message);
             }
         }
 
@@ -330,339 +293,288 @@
             auth.signOut();
         }
 
-        // Verificar estado do login
-        auth.onAuthStateChanged(async user => {
+        // ============== VERIFICAR LOGIN ==============
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
-                usuarioAtual = user;
-                document.getElementById('telaLogin').classList.add('hidden-section');
-                document.getElementById('cabecalho').classList.remove('hidden-section');
-                document.getElementById('conteudoPrincipal').classList.remove('hidden-section');
-                document.getElementById('nomeUsuario').textContent = user.displayName || user.email;
+                usuarioLogado = user;
+                ehAdmin = user.email === ADMIN_EMAIL;
 
-                // Verificar se é admin
-                const ehAdmin = user.email === ADMIN_EMAIL;
-                if (ehAdmin) {
-                    document.getElementById('linkAdmin').classList.remove('hidden-section');
-                    document.getElementById('painelAdmin').classList.remove('hidden-section');
-                    carregarMateriaisAdmin();
-                    carregarListaUsuarios();
-                    carregarChaveIA();
+                // Carregar dados do usuário
+                const doc = await db.collection("usuarios").doc(user.uid).get();
+                if (doc.exists) {
+                    const dados = doc.data();
+                    ehAdmin = dados.isAdmin === true;
                 }
 
-                await carregarDadosUsuario();
-                carregarMateriaisPublicos();
+                // Carregar chave da IA
+                const cfg = await db.collection("configuracoes").doc("gemini").get();
+                if (cfg.exists) CHAVE_GEMINI = cfg.data().chave || "";
+
+                // Mostrar interface
+                document.getElementById("telaLogin").classList.add("hidden");
+                document.getElementById("cabecalho").classList.remove("hidden");
+                document.getElementById("navegacaoAbas").classList.remove("hidden");
+                document.getElementById("conteudoAbas").classList.remove("hidden");
+                document.getElementById("nomeUsuario").textContent = user.displayName || user.email;
+
+                // Mostrar aba Admin SÓ se for admin
+                if (ehAdmin) {
+                    document.getElementById("abaAdmin").classList.remove("hidden");
+                    carregarDadosAdmin();
+                }
+
+                carregarCursos();
+                carregarDesempenho();
+                carregarTarefas();
+
             } else {
-                usuarioAtual = null;
-                document.getElementById('telaLogin').classList.remove('hidden-section');
-                document.getElementById('cabecalho').classList.add('hidden-section');
-                document.getElementById('conteudoPrincipal').classList.add('hidden-section');
+                usuarioLogado = null;
+                document.getElementById("telaLogin").classList.remove("hidden");
+                document.getElementById("cabecalho").classList.add("hidden");
+                document.getElementById("navegacaoAbas").classList.add("hidden");
+                document.getElementById("conteudoAbas").classList.add("hidden");
             }
         });
 
-        // ==================================================
-        // 📊 ESTATÍSTICAS E DADOS DO USUÁRIO
-        // ==================================================
-        let dadosUsuario = null;
+        // ============== NAVEGAÇÃO DE ABAS ==============
+        document.querySelectorAll(".aba").forEach(aba => {
+            aba.addEventListener("click", () => {
+                document.querySelectorAll(".aba").forEach(a => a.classList.remove("ativa"));
+                aba.classList.add("ativa");
+                document.querySelectorAll(".conteudo-aba").forEach(c => c.classList.remove("visivel"));
+                document.getElementById("aba-" + aba.dataset.aba).classList.add("visivel");
+            });
+        });
 
-        async function carregarDadosUsuario() {
-            const doc = await db.collection('usuarios').doc(usuarioAtual.uid).get();
-            if (doc.exists) {
-                dadosUsuario = doc.data();
-                atualizarTelaEstatisticas();
-                renderizarQuestoesSalvas();
-                renderizarCronograma();
+        // ============== FUNÇÃO AUXILIAR: CHAMAR IA ==============
+        async function chamarIA(pergunta) {
+            if (!CHAVE_GEMINI) return "⚠️ Chave da IA não configurada. Peça ao administrador.";
+            try {
+                const res = await fetch(`${API_URL_BASE}?key=${CHAVE_GEMINI}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: pergunta }] }],
+                        generationConfig: { temperature: 0.7 }
+                    })
+                });
+                const dados = await res.json();
+                if (dados.error) return "Erro: " + dados.error.message;
+                return dados?.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta.";
+            } catch(e) { return "Erro de conexão: " + e.message; }
+        }
+
+        // ============== ABA: TIRAR DÚVIDAS ==============
+        async function enviarDuvida() {
+            const campo = document.getElementById("perguntaDuvida");
+            const pergunta = campo.value.trim();
+            if (!pergunta) return;
+
+            const caixa = document.getElementById("caixaConversa");
+            caixa.innerHTML += `<div class="mensagem usuario"><strong>Você:</strong> ${pergunta}</div>`;
+            campo.value = "";
+
+            caixa.innerHTML += `<div class="mensagem ia" id="ultimaResposta"><strong>🤖 IA:</strong> Escrevendo...</div>`;
+            caixa.scrollTop = caixa.scrollHeight;
+
+            const resposta = await chamarIA("Responda de forma clara e educada, em português: " + pergunta);
+            document.getElementById("ultimaResposta").innerHTML = `<strong>🤖 IA:</strong> ${resposta}`;
+            caixa.scrollTop = caixa.scrollHeight;
+        }
+
+        // ============== ABA: RESUMIR PDF ==============
+        async function lerPdfEResumir() {
+            const arq = document.getElementById("arquivoPdf").files[0];
+            if (!arq) return alert("Selecione um PDF");
+            const leitor = new FileReader();
+            leitor.onload = async (e) => {
+                const texto = e.target.result;
+                const resumo = await chamarIA("Faça um resumo bem estruturado e completo deste texto, destacando os pontos principais:\n\n" + texto.slice(0, 12000));
+                document.getElementById("resultadoResumo").classList.remove("hidden");
+                document.getElementById("textoResumo").textContent = resumo;
+            };
+            leitor.readAsText(arq);
+        }
+
+        // ============== ABA: SIMULADOS ==============
+        async function gerarSimulado() {
+            const tema = document.getElementById("temaSimulado").value.trim();
+            const qtd = document.getElementById("qtdQuestoes").value || 5;
+            if (!tema) return alert("Digite o tema");
+            const area = document.getElementById("areaSimulado");
+            area.innerHTML = "<p>Gerando simulado...</p>";
+
+            const prompt = `Crie um simulado sobre ${tema} com ${qtd} questões de múltipla escolha. Responda APENAS com JSON no formato:
+            [{"enunciado":"...","opcoes":["A) ...","B) ...","C) ...","D) ..."],"respostaCorreta":0}]`;
+
+            const resp = await chamarIA(prompt);
+            try {
+                const jsonTexto = resp.slice(resp.indexOf("["), resp.lastIndexOf("]") + 1);
+                const questoes = JSON.parse(jsonTexto);
+                area.innerHTML = "";
+                questoes.forEach((q, i) => {
+                    const div = document.createElement("div");
+                    div.className = "card";
+                    div.innerHTML = `
+                        <h4 class="font-semibold text-lg mb-4">${i+1}. ${q.enunciado}</h4>
+                        ${q.opcoes.map((op, j) => `<button class="option-btn" onclick="verificarResposta(this, ${j}, ${q.respostaCorreta}, 'q${i}')">${op}</button>`).join("")}
+                    `;
+                    area.appendChild(div);
+                });
+            } catch {
+                area.innerHTML = `<div class="card">${resp}</div>`;
             }
         }
 
-        function atualizarTelaEstatisticas() {
-            if (!dadosUsuario?.estatisticas) return;
-            const e = dadosUsuario.estatisticas;
-            document.getElementById('qtdHoje').textContent = e.questoesHoje || 0;
-            document.getElementById('qtdSemana').textContent = e.questoesSemana || 0;
-            document.getElementById('qtdMes').textContent = e.questoesMes || 0;
-            const h = Math.floor((e.tempoTotalMin || 0)/60);
-            const m = (e.tempoTotalMin || 0) % 60;
-            document.getElementById('tempoTotal').textContent = h > 0 ? `${h}h ${m}m` : `${m}m`;
-        }
+        async function verificarResposta(botao, escolhida, correta, idQuestao) {
+            const botoes = botao.parentElement.querySelectorAll(".option-btn");
+            botoes.forEach(b => b.style.pointerEvents = "none");
+            botoes[correta].classList.add("correct");
+            if (escolhida !== correta) botao.classList.add("incorrect");
 
-        async function registrarQuestaoRespondida(minutos=10) {
-            const ref = db.collection('usuarios').doc(usuarioAtual.uid);
-            await ref.update({
-                "estatisticas.questoesHoje": firebase.firestore.Increment(1),
-                "estatisticas.questoesSemana": firebase.firestore.Increment(1),
-                "estatisticas.questoesMes": firebase.firestore.Increment(1),
-                "estatisticas.tempoTotalMin": firebase.firestore.Increment(minutos)
+            // Salvar no desempenho
+            await db.collection("usuarios").doc(usuarioLogado.uid).collection("respostas").add({
+                data: new Date().toISOString().slice(0,10),
+                acerto: escolhida === correta,
+                horario: new Date()
             });
-            await carregarDadosUsuario();
+            carregarDesempenho();
         }
 
-        // ==================================================
-        // ✅ SALVAR E CARREGAR QUESTÕES
-        // ==================================================
-        async function salvarQuestoesAtuais() {
-            if (!questoesGeradas.length) return alert('Gere questões primeiro!');
-            const ref = db.collection('usuarios').doc(usuarioAtual.uid);
-            await ref.update({
-                questoesSalvas: firebase.firestore.FieldValue.arrayUnion(...questoesGeradas)
+        // ============== ABA: DESEMPENHO ==============
+        async function carregarDesempenho() {
+            if (!usuarioLogado) return;
+            const hoje = new Date().toISOString().slice(0,10);
+            const seteDias = new Date(Date.now() - 7*86400000).toISOString().slice(0,10);
+
+            const res = await db.collection("usuarios").doc(usuarioLogado.uid).collection("respostas")
+                .where("data", ">=", seteDias).orderBy("data").get();
+
+            let qtdHoje = 0, qtdSemana = 0, acertos = 0;
+            res.docs.forEach(d => {
+                const x = d.data();
+                if (x.data === hoje) qtdHoje++;
+                qtdSemana++;
+                if (x.acerto) acertos++;
             });
-            alert('✅ Questões salvas!');
-            await carregarDadosUsuario();
+
+            document.getElementById("qtdHoje").textContent = qtdHoje;
+            document.getElementById("qtdSemana").textContent = qtdSemana;
+            document.getElementById("taxaAcerto").textContent = qtdSemana > 0 ? Math.round((acertos/qtdSemana)*100)+"%" : "0%";
         }
 
-        function renderizarQuestoesSalvas() {
-            const container = document.getElementById('listaSalvas');
-            const lista = dadosUsuario?.questoesSalvas || [];
-            if (!lista.length) {
-                container.innerHTML = '<p class="text-slate-500 italic">Nenhuma questão salva ainda.</p>';
+        // ============== ABA: CRONOGRAMA ==============
+        async function carregarTarefas() {
+            if (!usuarioLogado) return;
+            const res = await db.collection("usuarios").doc(usuarioLogado.uid).collection("tarefas").orderBy("data").get();
+            const lista = document.getElementById("listaTarefas");
+            lista.innerHTML = "";
+            res.docs.forEach(d => {
+                const t = d.data();
+                lista.innerHTML += `
+                    <div class="flex justify-between items-center p-3 bg-dark-800 rounded-xl">
+                        <span><strong>${t.data}</strong> — ${t.nome}</span>
+                        <button onclick="excluirTarefa('${d.id}')" class="text-red-400 hover:text-red-300">❌</button>
+                    </div>`;
+            });
+        }
+        async function adicionarTarefa() {
+            const nome = document.getElementById("nomeTarefa").value.trim();
+            const data = document.getElementById("dataTarefa").value;
+            if (!nome || !data) return alert("Preencha tudo");
+            await db.collection("usuarios").doc(usuarioLogado.uid).collection("tarefas").add({ nome, data });
+            document.getElementById("nomeTarefa").value = "";
+            carregarTarefas();
+        }
+        async function excluirTarefa(id) {
+            await db.collection("usuarios").doc(usuarioLogado.uid).collection("tarefas").doc(id).delete();
+            carregarTarefas();
+        }
+
+        // ============== ABA: CURSOS ==============
+        async function carregarCursos() {
+            const res = await db.collection("cursos").orderBy("ordem").get();
+            const lista = document.getElementById("listaCursos");
+            if (res.empty) {
+                lista.innerHTML = `<div class="card text-center text-slate-400">Nenhum curso disponível ainda.</div>`;
                 return;
             }
-            container.innerHTML = lista.map((q, i) => `
-                <div class="border border-dark-700 rounded-xl p-3 bg-dark-800/50">
-                    <p class="font-bold mb-2">${i+1}. ${q.pergunta}</p>
-                    ${q.alternativas.map((a,j) => `<p class="text-sm ${j===q.respostaCorreta?'text-success font-medium':''}">${String.fromCharCode(65+j)}) ${a}</p>`).join('')}
-                    <p class="text-xs text-slate-400 mt-2">💡 ${q.explicacao}</p>
-                </div>
-            `).join('');
-        }
-
-        // ==================================================
-        // 📅 CRONOGRAMA SALVO
-        // ==================================================
-        async function adicionarCronograma() {
-            const assunto = document.getElementById('assunto').value.trim();
-            const data = document.getElementById('dataEstudo').value;
-            const duracao = parseInt(document.getElementById('duracao').value);
-            if (!assunto || !data) return alert('Preencha tudo!');
-
-            const novo = { assunto, data, duracao, criadoEm: new Date().toISOString() };
-            await db.collection('usuarios').doc(usuarioAtual.uid).update({
-                cronograma: firebase.firestore.FieldValue.arrayUnion(novo)
+            lista.innerHTML = "";
+            res.docs.forEach(d => {
+                const c = d.data();
+                lista.innerHTML += `
+                    <div class="card">
+                        <h4 class="text-lg font-semibold text-indigo-400 mb-2">📁 ${c.nome}</h4>
+                        <p class="text-slate-400 text-sm">${c.descricao || "Criado pelo administrador"}</p>
+                    </div>`;
             });
-            document.getElementById('assunto').value = '';
-            document.getElementById('dataEstudo').value = '';
-            await carregarDadosUsuario();
         }
 
-        function renderizarCronograma() {
-            const tbody = document.getElementById('tabelaCronograma');
-            const lista = dadosUsuario?.cronograma || [];
-            tbody.innerHTML = lista.map((item, i) => {
-                const dt = new Date(item.data);
-                return `<tr class="border-b border-dark-700">
-                    <td class="p-2">${item.assunto}</td>
-                    <td class="p-2 text-sm">${dt.toLocaleString('pt-BR')}</td>
-                    <td class="p-2 text-sm">${item.duracao} min</td>
-                    <td class="p-2 text-center"><button class="text-red-400 text-sm" onclick="removerItem(${i})">✕</button></td>
-                </tr>`;
-            }).join('');
-        }
+        // ============== ABA: ADMIN ==============
+        async function carregarDadosAdmin() {
+            if (!ehAdmin) return;
+            const cfg = await db.collection("configuracoes").doc("gemini").get();
+            if (cfg.exists) document.getElementById("chaveIA").value = cfg.data().chave || "";
 
-        // ==================================================
-        // 🔧 PAINEL ADMIN
-        // ==================================================
-        async function salvarChaveIA() {
-            const chave = document.getElementById('chaveIA').value.trim();
-            if (!chave) return alert('Digite a chave!');
-            await db.collection('configuracoes').doc('IA').set({ chave });
-            GEMINI_API_KEY = chave;
-            alert('✅ Chave da IA salva! Todos os usuários já podem usar.');
-        }
-
-        async function carregarChaveIA() {
-            try {
-                const snap = await db.collection('configuracoes').doc('IA').get();
-                if (snap.exists) {
-                    GEMINI_API_KEY = snap.data().chave;
-                    document.getElementById('chaveIA').value = GEMINI_API_KEY;
-                }
-            } catch(e) {}
-        }
-
-        async function subirArquivoAdmin() {
-            const arquivo = document.getElementById('arquivoAdmin').files[0];
-            const titulo = document.getElementById('tituloArquivo').value.trim();
-            if (!arquivo || !titulo) return alert('Selecione arquivo e dê um nome!');
-
-            const caminho = `materiais/${Date.now()}_${arquivo.name}`;
-            const refStorage = storage.ref(caminho);
-            await refStorage.put(arquivo);
-            const url = await refStorage.getDownloadURL();
-
-            await db.collection('materiais').add({
-                titulo, url, tipo: arquivo.type, enviadoPor: usuarioAtual.email,
-                data: firebase.firestore.FieldValue.serverTimestamp()
+            const resCursos = await db.collection("cursos").orderBy("ordem").get();
+            const listaCursos = document.getElementById("listaCursosAdmin");
+            listaCursos.innerHTML = "";
+            resCursos.docs.forEach(d => {
+                const c = d.data();
+                listaCursos.innerHTML += `
+                    <div class="flex justify-between items-center p-3 bg-dark-800 rounded-xl">
+                        <input type="text" value="${c.nome}" class="input" id="curso-${d.id}" style="max-width:300px">
+                        <div class="flex gap-2">
+                            <button onclick="renomearCurso('${d.id}')" class="btn text-sm py-1.5 px-3">Salvar</button>
+                            <button onclick="excluirCurso('${d.id}')" class="btn-outline text-sm py-1.5 px-3 text-red-400 border-red-400">Excluir</button>
+                        </div>
+                    </div>`;
             });
-            alert('✅ Arquivo enviado! Todos os usuários veem agora.');
-            document.getElementById('arquivoAdmin').value = '';
-            document.getElementById('tituloArquivo').value = '';
-            carregarMateriaisPublicos();
-        }
 
-        async function carregarMateriaisAdmin() {
-            const snap = await db.collection('materiais').orderBy('data','desc').get();
-            const lista = snap.docs.map(d => ({id:d.id, ...d.data()}));
-            const container = document.getElementById('listaMateriaisAdmin');
-            container.innerHTML = lista.map(m => `
-                <div class="flex justify-between items-center p-2 border border-dark-700 rounded-lg mb-2">
-                    <a href="${m.url}" target="_blank" class="text-indigo-400 hover:underline">${m.titulo}</a>
-                    <button onclick="excluirMaterial('${m.id}')" class="text-red-400 text-sm">Excluir</button>
-                </div>
-            `).join('') || '<p class="text-slate-500">Nenhum arquivo enviado.</p>';
-        }
-
-        async function carregarMateriaisPublicos() {
-            const snap = await db.collection('materiais').orderBy('data','desc').limit(15).get();
-            const lista = snap.docs.map(d => d.data());
-            const container = document.getElementById('listaMateriaisAdmin');
-            container.innerHTML = lista.map(m => `
-                <a href="${m.url}" target="_blank" class="block p-2 border border-dark-700 rounded-lg mb-2 text-indigo-400 hover:bg-indigo-900/30">
-                    📄 ${m.titulo}
-                </a>
-            `).join('') || '<p class="text-slate-500 italic">Nenhum material disponível ainda.</p>';
-        }
-
-        async function carregarListaUsuarios() {
-            const snap = await db.collection('usuarios').get();
-            document.getElementById('listaUsuarios').innerHTML = snap.docs.map(d => {
+            const resUsuarios = await db.collection("usuarios").get();
+            const listaUsuarios = document.getElementById("listaUsuariosAdmin");
+            listaUsuarios.innerHTML = "";
+            resUsuarios.docs.forEach(d => {
                 const u = d.data();
-                return `<div class="p-2 border border-dark-700 rounded mb-1 flex justify-between items-center">
-                    <span>${u.nome || u.email}</span>
-                    <span class="text-xs ${u.isAdmin?'text-indigo-400':'text-slate-500'}">${u.isAdmin?'ADMIN':'Usuário'}</span>
-                </div>`;
-            }).join('');
-        }
-
-        async function excluirMaterial(id) {
-            if (!confirm('Excluir este material?')) return;
-            await db.collection('materiais').doc(id).delete();
-            carregarMateriaisPublicos();
-        }
-
-        // ==================================================
-        // 🤖 IA — GEMINI + LEITURA PDF
-        // ==================================================
-        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
-
-        async function chamarIA(prompt) {
-            if (!GEMINI_API_KEY) {
-                try {
-                    const snap = await db.collection('configuracoes').doc('IA').get();
-                    if (snap.exists) GEMINI_API_KEY = snap.data().chave || '';
-                } catch(e) {}
-                if (!GEMINI_API_KEY) return alert('⚠️ Peça ao administrador para configurar a chave da IA no Painel Administrativo!');
-            }
-            const res = await fetch(`${API_URL}?key=${GEMINI_API_KEY}`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 8000 } })
+                listaUsuarios.innerHTML += `
+                    <div class="p-3 bg-dark-800 rounded-xl flex justify-between items-center">
+                        <span>${u.nome} — ${u.email}</span>
+                        <span class="text-xs px-2 py-1 rounded-full ${u.isAdmin?'bg-indigo-600':'bg-dark-700'}">${u.isAdmin?'ADMIN':'Usuário'}</span>
+                    </div>`;
             });
-            if (!res.ok) {
-                const erro = await res.json();
-                return alert('Erro na IA: ' + (erro.error?.message || 'Chave inválida'));
-            }
-            const d = await res.json();
-            return d.candidates?.[0]?.content?.parts?.[0]?.text || '';
         }
 
-        async function extrairTextoDoPDF(arquivo) {
-            const arrayBuffer = await arquivo.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            let texto = '';
-            for (let p=1; p<=pdf.numPages; p++) {
-                const pg = await pdf.getPage(p);
-                const c = await pg.getTextContent();
-                texto += c.items.map(i=>i.str).join(' ') + '\n';
-            }
-            return texto.slice(0,30000);
+        async function salvarChaveIA() {
+            const chave = document.getElementById("chaveIA").value.trim();
+            if (!chave) return alert("Digite a chave");
+            await db.collection("configuracoes").doc("gemini").set({ chave });
+            CHAVE_GEMINI = chave;
+            alert("✅ Chave salva com sucesso!");
         }
 
-        // Upload do PDF
-        document.getElementById('pdfUpload').addEventListener('change', async e => {
-            const arq = e.target.files[0];
-            if (!arq) return;
-            document.getElementById('fileName').textContent = arq.name;
-            document.getElementById('fileInfo').classList.remove('hidden');
-            textoPDF = await extrairTextoDoPDF(arq);
-        });
+        async function adicionarCurso() {
+            const nome = document.getElementById("nomeCurso").value.trim();
+            if (!nome) return alert("Digite o nome do curso");
+            const todos = await db.collection("cursos").count().get();
+            await db.collection("cursos").add({ nome, ordem: todos.data.count + 1 });
+            document.getElementById("nomeCurso").value = "";
+            carregarCursos();
+            carregarDadosAdmin();
+        }
 
-        async function gerarComIA() {
-            if (!textoPDF) return alert('Selecione um PDF!');
-            document.getElementById('carregandoIA').classList.remove('hidden');
-            document.getElementById('resultados').classList.add('hidden');
+        async function renomearCurso(id) {
+            const nome = document.getElementById(`curso-${id}`).value.trim();
+            if (!nome) return alert("Digite o nome");
+            await db.collection("cursos").doc(id).update({ nome });
+            carregarCursos();
+            alert("✅ Renomeado!");
+        }
 
-            const gerarResumo = document.getElementById('gerarResumo').checked;
-            const gerarQ = document.getElementById('gerarQuestoes').checked;
-            const qtd = document.getElementById('qtdQuestoes').value;
-            const resumoBox = document.getElementById('resumoBox');
-            const resumoConteudo = document.getElementById('resumoConteudo');
-            const questoesConteudo = document.getElementById('questoesConteudo');
-
-            questoesGeradas = [];
-
-            try {
-                if (gerarResumo) {
-                    resumoBox.classList.remove('hidden-section');
-                    resumoConteudo.textContent = 'Gerando resumo...';
-                    const resp = await chamarIA(`Faça um resumo claro e bem estruturado com tópicos e títulos: ${textoPDF}`);
-                    resumoConteudo.textContent = resp;
-                } else {
-                    resumoBox.classList.add('hidden-section');
-                }
-
-                if (gerarQ) {
-                    questoesConteudo.innerHTML = '<p class="text-slate-400">Gerando questões...</p>';
-                    const prompt = `Com base no conteúdo abaixo, crie ${qtd} questões de múltipla escolha com 4 alternativas. Responda SOMENTE com um JSON válido neste formato: [{"pergunta":"texto","alternativas":["A...","B...","C...","D..."],"respostaCorreta":0,"explicacao":"texto"}]. Conteúdo: ${textoPDF}`;
-                    const resp = await chamarIA(prompt);
-                    const jsonInicio = resp.indexOf('[');
-                    const jsonFim = resp.lastIndexOf(']') + 1;
-                    const jsonTxt = resp.slice(jsonInicio, jsonFim);
-                    questoesGeradas = JSON.parse(jsonTxt);
-
-                    questoesConteudo.innerHTML = '';
-                    questoesGeradas.forEach((q, i) => {
-                        const div = document.createElement('div');
-                        div.className = 'border border-dark-700 rounded-xl p-4';
-                        div.innerHTML = `
-                            <p class="font-bold mb-3">${i+1}. ${q.pergunta}</p>
-                            <div class="space-y-2">
-                                ${q.alternativas.map((alt,j) => `
-                                    <button class="option-btn w-full text-left p-3 rounded-xl bg-dark-800"
-                                        data-correta="${j===q.respostaCorreta}"
-                                        data-exp="${q.explicacao}">
-                                        ${String.fromCharCode(65+j)}) ${alt}
-                                    </button>
-                                `).join('')}
-                            </div>
-                            <div class="exp mt-3 p-3 rounded-xl hidden"></div>
-                        `;
-                        questoesConteudo.appendChild(div);
-                    });
-
-                    // Sistema de correção com registro de estatística
-                    questoesConteudo.querySelectorAll('.option-btn').forEach(btn => {
-                        btn.onclick = async () => {
-                            const opcoes = btn.parentElement.querySelectorAll('.option-btn');
-                            opcoes.forEach(o => o.style.pointerEvents='none');
-                            const ehCerta = btn.dataset.correta === 'true';
-                            if (ehCerta) btn.classList.add('correct');
-                            else {
-                                btn.classList.add('incorrect');
-                                opcoes.forEach(o => { if(o.dataset.correta==='true') o.classList.add('correct'); });
-                            }
-                            const expDiv = btn.parentElement.nextElementSibling;
-                            expDiv.classList.remove('hidden');
-                            expDiv.className = `exp mt-3 p-3 rounded-xl ${ehCerta?'bg-green-900/30 text-green-300':'bg-red-900/30 text-red-300'}`;
-                            expDiv.textContent = (ehCerta?'✅ Correto! ':'❌ Errado. ') + btn.dataset.exp;
-                            await registrarQuestaoRespondida();
-                        };
-                    });
-                }
-
-                document.getElementById('resultados').classList.remove('hidden');
-            } catch (e) {
-                alert('Erro ao gerar conteúdo: ' + e);
-            } finally {
-                document.getElementById('carregandoIA').classList.add('hidden');
-            }
+        async function excluirCurso(id) {
+            if (!confirm("Excluir este curso?")) return;
+            await db.collection("cursos").doc(id).delete();
+            carregarCursos();
+            carregarDadosAdmin();
         }
     </script>
 </body>
