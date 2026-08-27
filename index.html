@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EstudaMais | IA + Conta + Estatísticas</title>
+    <title>EstudaMais | IA + Conta + Administração</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -216,7 +216,7 @@
 
         <!-- 🔧 PAINEL ADMIN -->
         <section id="painelAdmin" class="card border-2 border-indigo-600 hidden-section">
-            <h2 class="text-xl font-bold text-indigo-400 mb-5">🔧 Painel Administrativo — Vitória Gil</h2>
+            <h2 class="text-xl font-bold text-indigo-400 mb-5">🔧 Painel Administrativo</h2>
             <p class="text-sm text-slate-400 mb-4">Aqui você gerencia tudo sem precisar alterar código!</p>
 
             <div class="grid md:grid-cols-2 gap-6">
@@ -238,9 +238,9 @@
             </div>
 
             <div class="mt-6 border border-dark-700 rounded-xl p-4">
-                <h3 class="font-bold text-indigo-300 mb-3">📝 Definir Conteúdo Fixo / Questões</h3>
-                <textarea id="conteudoAdmin" rows="6" placeholder="Cole conteúdo, questões ou materiais..." class="input mb-3"></textarea>
-                <button onclick="salvarConteudoAdmin()" class="btn">Salvar Conteúdo</button>
+                <h3 class="font-bold text-indigo-300 mb-3">🔑 Configurar Chave da IA (Gemini)</h3>
+                <input type="text" id="chaveIA" placeholder="Cole sua chave do Gemini aqui" class="input mb-3">
+                <button onclick="salvarChaveIA()" class="btn">Salvar Chave da IA</button>
             </div>
         </section>
 
@@ -252,16 +252,24 @@
 
     <script>
         // ==================================================
-        // ⚙️ CONFIGURAÇÃO DO FIREBASE — COLE SUAS CHAVES ABAIXO
+        // ✅ SUAS CHAVES JÁ ESTÃO PREENCHIDAS!
         // ==================================================
+
         const firebaseConfig = {
-            apiKey: "COLE_SUA_API_KEY_AQUI",
-            authDomain: "SEU-PROJETO.firebaseapp.com",
-            projectId: "seu-projeto-id",
-            storageBucket: "seu-projeto-id.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abc123..."
+            apiKey: "AIzaSyDe8Koh4JIy0vJdDwrAsCHr42Ci2Ckv5Tc",
+            authDomain: "resume-ai-8c0ab.firebaseapp.com",
+            projectId: "resume-ai-8c0ab",
+            storageBucket: "resume-ai-8c0ab.appspot.com",
+            messagingSenderId: "687956768440",
+            appId: "1:687956768440:web:93d8e7104bf09821c4264d"
         };
+
+        // 👇 COLOQUE SEU E-MAIL AQUI
+        const ADMIN_EMAIL = "seu-email@exemplo.com";
+
+        // ==================================================
+        // ✅ NÃO ALTERE O RESTO DO CÓDIGO ABAIXO ✅
+        // ==================================================
 
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
@@ -269,14 +277,11 @@
         const db = firebase.firestore();
         const storage = firebase.storage();
 
-        // ⚠️ COLOQUE SEU E-MAIL DE ADMIN AQUI
-        const ADMIN_EMAIL = "SEU-EMAIL@AQUI.com";
-
         // Variáveis Globais
         let usuarioAtual = null;
         let textoPDF = "";
         let questoesGeradas = [];
-        let GEMINI_API_KEY = ""; // Salva no Firestore depois
+        let GEMINI_API_KEY = "";
 
         // ==================================================
         // 🔐 AUTENTICAÇÃO
@@ -341,6 +346,7 @@
                     document.getElementById('painelAdmin').classList.remove('hidden-section');
                     carregarMateriaisAdmin();
                     carregarListaUsuarios();
+                    carregarChaveIA();
                 }
 
                 await carregarDadosUsuario();
@@ -433,6 +439,7 @@
                 cronograma: firebase.firestore.FieldValue.arrayUnion(novo)
             });
             document.getElementById('assunto').value = '';
+            document.getElementById('dataEstudo').value = '';
             await carregarDadosUsuario();
         }
 
@@ -451,8 +458,26 @@
         }
 
         // ==================================================
-        // 🔧 PAINEL ADMIN — SUBIR ARQUIVOS E GERENCIAR
+        // 🔧 PAINEL ADMIN
         // ==================================================
+        async function salvarChaveIA() {
+            const chave = document.getElementById('chaveIA').value.trim();
+            if (!chave) return alert('Digite a chave!');
+            await db.collection('configuracoes').doc('IA').set({ chave });
+            GEMINI_API_KEY = chave;
+            alert('✅ Chave da IA salva! Todos os usuários já podem usar.');
+        }
+
+        async function carregarChaveIA() {
+            try {
+                const snap = await db.collection('configuracoes').doc('IA').get();
+                if (snap.exists) {
+                    GEMINI_API_KEY = snap.data().chave;
+                    document.getElementById('chaveIA').value = GEMINI_API_KEY;
+                }
+            } catch(e) {}
+        }
+
         async function subirArquivoAdmin() {
             const arquivo = document.getElementById('arquivoAdmin').files[0];
             const titulo = document.getElementById('tituloArquivo').value.trim();
@@ -470,7 +495,7 @@
             alert('✅ Arquivo enviado! Todos os usuários veem agora.');
             document.getElementById('arquivoAdmin').value = '';
             document.getElementById('tituloArquivo').value = '';
-            carregarMateriaisAdmin();
+            carregarMateriaisPublicos();
         }
 
         async function carregarMateriaisAdmin() {
@@ -510,7 +535,6 @@
         async function excluirMaterial(id) {
             if (!confirm('Excluir este material?')) return;
             await db.collection('materiais').doc(id).delete();
-            carregarMateriaisAdmin();
             carregarMateriaisPublicos();
         }
 
@@ -521,14 +545,20 @@
 
         async function chamarIA(prompt) {
             if (!GEMINI_API_KEY) {
-                const snap = await db.collection('configuracoes').doc('IA').get();
-                if (snap.exists) GEMINI_API_KEY = snap.data().chave || '';
-                if (!GEMINI_API_KEY) return alert('Peça ao administrador para configurar a chave de IA!');
+                try {
+                    const snap = await db.collection('configuracoes').doc('IA').get();
+                    if (snap.exists) GEMINI_API_KEY = snap.data().chave || '';
+                } catch(e) {}
+                if (!GEMINI_API_KEY) return alert('⚠️ Peça ao administrador para configurar a chave da IA no Painel Administrativo!');
             }
             const res = await fetch(`${API_URL}?key=${GEMINI_API_KEY}`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 8000 } })
             });
+            if (!res.ok) {
+                const erro = await res.json();
+                return alert('Erro na IA: ' + (erro.error?.message || 'Chave inválida'));
+            }
             const d = await res.json();
             return d.candidates?.[0]?.content?.parts?.[0]?.text || '';
         }
@@ -572,7 +602,7 @@
                 if (gerarResumo) {
                     resumoBox.classList.remove('hidden-section');
                     resumoConteudo.textContent = 'Gerando resumo...';
-                    const resp = await chamarIA(`Faça um resumo claro e bem estruturado: ${textoPDF}`);
+                    const resp = await chamarIA(`Faça um resumo claro e bem estruturado com tópicos e títulos: ${textoPDF}`);
                     resumoConteudo.textContent = resp;
                 } else {
                     resumoBox.classList.add('hidden-section');
@@ -580,9 +610,11 @@
 
                 if (gerarQ) {
                     questoesConteudo.innerHTML = '<p class="text-slate-400">Gerando questões...</p>';
-                    const prompt = `Com base no conteúdo abaixo, crie ${qtd} questões de múltipla escolha com 4 alternativas. Formato JSON: [{"pergunta":"...","alternativas":["A...","B...","C...","D..."],"respostaCorreta":0,"explicacao":"..."}]. Conteúdo: ${textoPDF}`;
+                    const prompt = `Com base no conteúdo abaixo, crie ${qtd} questões de múltipla escolha com 4 alternativas. Responda SOMENTE com um JSON válido neste formato: [{"pergunta":"texto","alternativas":["A...","B...","C...","D..."],"respostaCorreta":0,"explicacao":"texto"}]. Conteúdo: ${textoPDF}`;
                     const resp = await chamarIA(prompt);
-                    const jsonTxt = resp.includes('```') ? resp.slice(resp.indexOf('['), resp.lastIndexOf(']')+1) : resp;
+                    const jsonInicio = resp.indexOf('[');
+                    const jsonFim = resp.lastIndexOf(']') + 1;
+                    const jsonTxt = resp.slice(jsonInicio, jsonFim);
                     questoesGeradas = JSON.parse(jsonTxt);
 
                     questoesConteudo.innerHTML = '';
@@ -627,7 +659,7 @@
 
                 document.getElementById('resultados').classList.remove('hidden');
             } catch (e) {
-                alert('Erro: ' + e);
+                alert('Erro ao gerar conteúdo: ' + e);
             } finally {
                 document.getElementById('carregandoIA').classList.add('hidden');
             }
